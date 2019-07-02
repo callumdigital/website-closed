@@ -38,8 +38,6 @@ html, body {
     padding: 0;
 }
 
-
-
 #container {
     display: table;
     position: absolute;
@@ -57,7 +55,7 @@ a {
     margin-top: 0;
     padding: 20px;
     position: fixed;
-    font-size: 1.25em;
+    font-size: 1.5em;
     transition:0.2s linear;
     -webkit-transition:0.2s linear;
     -o-transition: 0.2s linear;
@@ -92,6 +90,7 @@ h1 {
     float: left;
     position: relative;
     margin-bottom: -10px;
+    font-size:3em;
 }
 
 h2 {
