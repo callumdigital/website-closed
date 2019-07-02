@@ -71,6 +71,7 @@ a {
     -o-transition: 0.2s linear;
     -ms-transition: 0.2s linear;
     -moz-transition: 0.2s linear;
+    font-size: 1.5em;
 }
 
 .outer {
