@@ -28,6 +28,9 @@
 html {
     background-color: #fff; 
     font-family: "galanogrotesque-b", "Helvetica", serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
 
 html, body {
