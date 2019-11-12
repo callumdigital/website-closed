@@ -91,8 +91,9 @@ a {
 
 .blog-link{
     background-image: image(href="logo.svg");
-    margin-top: 66;
-    padding: 20;
+    margin-left: 197;
+    margin-top: 0;
+    padding: 22;
     color: ff00c3;
     position: absolute;
     display: absolute;
