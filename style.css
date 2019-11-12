@@ -26,11 +26,12 @@
 }
 
 html {
-    background-color: #fff; 
-    font-family: "galanogrotesque-b", "Helvetica", serif;
+    background-color: #000; 
+    font-family: "galanogrotesque-r", "Helvetica", serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    color: #fff;
 }
 
 html, body {
@@ -45,17 +46,25 @@ html, body {
     left: 0;
     height: 100%;
     width: 100%;
-    min-width:500px;
+    min-width: 500px;
+    background-image: url(assets/background.png);
+    background-size: cover;
+    max-width: 100%;
+    overflow: auto;
 }
 
 a {
-    color: black !important;
+    color: white !important;
 }
 
 .logo{
+    background-image: image(href="logo.svg");
     margin-top: 0;
     padding: 20px;
-    position: fixed;
+    color: ff00c3;
+    position: absolute;
+    display: absolute;
+    float: left;
     font-size: 1.5em;
     transition:0.2s linear;
     -webkit-transition:0.2s linear;
@@ -64,9 +73,14 @@ a {
     -moz-transition: 0.2s linear;
 }
 
+#name {
+    color: #fff;
+    display:inline;
+}
+
 .logo:hover {
-    background-color: #00d889 !important;
-    color: white;
+    background-color: #ff00c3 !important;
+    color: #fff !important;
     transition:0.2s linear;
     -webkit-transition:0.2s linear;
     -o-transition: 0.2s linear;
@@ -74,6 +88,7 @@ a {
     -moz-transition: 0.2s linear;
     font-size: 1.5em;
 }
+
 
 .outer {
     display: table-cell;
@@ -81,10 +96,9 @@ a {
 }
 
 .inner {
-    margin-left: auto;
-    margin-right: auto;
-    width: 50%;
+    width: 75%;
     max-width: 500px;
+    margin-left: 5%;
 }
 
 h1 {
@@ -100,8 +114,9 @@ h2 {
     float: right;
     position: relative;
     line-height: 1.25;
-    font-family: "galanogrotesque-semi", "Helvetica Neue";
+    font-family: "galanogrotesque-r", "Helvetica Neue";
     font-weight: 900;
+    padding-bottom: 20px;
 }
 
 ul {
@@ -114,24 +129,45 @@ ul {
 }
 
 ul a {
+    text-decoration: none;
     transition: color 0.5s linear;
     -webkit-transition: color 0.5s linear;
     -o-transition: color 0.5s linear;
     -ms-transition: color 0.5s linear;
-    -moz-transition: color 0.5s linear;
+    -moz-transition: color 0.5s linear
 }
 
 ul a:hover {
-    color: #00d889 !important;
+    color: #fff !important;
     transition: color 0.2s linear;
     -webkit-transition: color 0.2s linear;
     -o-transition: color 0.2s linear;
     -ms-transition: color 0.2s linear;
     -moz-transition: color 0.2s linear;
+
 }
 
 li {
-    display: inline;
     margin-right: 30px;
+    display: inline;
     list-style-type: none;
+    border: 3px solid #ff00c3; 
+    border-radius: 200px;
+    margin: 0 0 0 0;
+    padding: 10 20 10 20; transition: color 0.5s linear;
+    transition:0.2s linear;
+    -webkit-transition:0.2s linear;
+    -o-transition: 0.2s linear;
+    -ms-transition: 0.2s linear;
+    -moz-transition: 0.2s linear;
+    
+}
+
+li:hover {
+    background: #ff00c3 !important;
+    transition:0.2s linear;
+    -webkit-transition:0.2s linear;
+    -o-transition: 0.2s linear;
+    -ms-transition: 0.2s linear;
+    -moz-transition: 0.2s linear;
 }
