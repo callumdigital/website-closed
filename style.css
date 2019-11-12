@@ -47,7 +47,7 @@ html, body {
     height: 100%;
     width: 100%;
     min-width: 500px;
-    background-image: url("assets/background.png");
+    background-image: url(assets/background.png);
     background-size: cover;
     max-width: 100%;
     overflow: auto;
@@ -87,6 +87,34 @@ a {
     -ms-transition: 0.2s linear;
     -moz-transition: 0.2s linear;
     font-size: 1.5em;
+}
+
+.blog-link{
+    background-image: image(href="logo.svg");
+    margin-top: 66;
+    padding: 20;
+    color: ff00c3;
+    position: absolute;
+    display: absolute;
+    float: left;
+    font-size: 1.11em;
+    transition:0.2s linear;
+    -webkit-transition:0.2s linear;
+    -o-transition: 0.2s linear;
+    -ms-transition: 0.2s linear;
+    -moz-transition: 0.2s linear;
+}
+
+
+.blog-link:hover {
+    background-color: #ff00c3 !important;
+    color: #fff !important;
+    transition:0.2s linear;
+    -webkit-transition:0.2s linear;
+    -o-transition: 0.2s linear;
+    -ms-transition: 0.2s linear;
+    -moz-transition: 0.2s linear;
+    font-size: 1.11em;
 }
 
 
@@ -153,8 +181,8 @@ li {
     list-style-type: none;
     border: 3px solid #ff00c3; 
     border-radius: 200px;
-    margin: 0 0 0 0;
-    padding: 10 20 10 20; transition: color 0.5s linear;
+    padding: 10 20 10 20; 
+    transition: color 0.5s linear;
     transition:0.2s linear;
     -webkit-transition:0.2s linear;
     -o-transition: 0.2s linear;
