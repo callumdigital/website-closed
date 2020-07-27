@@ -140,7 +140,7 @@ h1 {
 
 h2 {
     display: block;
-    float: right;
+    float: left;
     position: relative;
     line-height: 1.25;
     font-family: "galanogrotesque-r", "Helvetica Neue";
