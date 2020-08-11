@@ -1,0 +1,173 @@
+font-face {
+    font-family: 'galanogrotesque-b';
+    src: url('assets/galano_grotesque_bold-webfont.woff2') format('woff2'),
+         url('assets/galano_grotesque_bold-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'galanogrotesque-semi';
+    src: url('assets/galano_grotesque_semi_bold-webfont.woff2') format('woff2'),
+         url('assets/galano_grotesque_semi_bold-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'galanogrotesque-r';
+    src: url('assets/galano_grotesque-webfont.woff2') format('woff2'),
+         url('assets/galano_grotesque-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+html, body {
+    height: 100%;
+    font-family: "galanogrotesque-r", "Helvetica", serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    margin: 0;
+    scroll-behavior: smooth;
+}
+
+h1 {
+    font-weight: bold;
+}
+
+#main-content{
+    display: flex;
+    height: 100%;
+}
+
+#container {
+    position: relative;
+    background-color: #484958;
+    align-items: stretch;
+    width: 100%;
+    /*min-width: 400px;*/
+    max-width: 100%;
+}
+
+.main-cont {
+    width: 50%;
+    height: 100%;
+    float: left;
+    display: table;
+}
+
+#banner {
+    display: table-cell;
+    vertical-align: middle;
+    font-size: 1.5em;
+    padding: 5%;
+    color: #fff;
+}
+
+#banner p {
+    font-size: 0.65em;
+    margin-top: 0.5vw;
+}
+
+#button-container {
+    background-color: #DCDCDC;
+    height: 100%;
+    width: 50%;
+    float: right;
+    display: table;
+}
+
+.button-align{
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.button {
+    text-align: center;
+    padding: 5%;
+    max-width: 50%;
+    color: #484958;
+    background: rgba(220, 220, 220, 0.45);
+    box-shadow: -2px -2px 10px #FFFFFF, 2px 2px 10px rgba(0, 0, 0, 0.5);
+    border-radius: 300px;
+    max-height: 82px;
+    margin: 0 auto;
+    font-size: 1.1em
+    /*max-width: 424px;*/
+}
+
+#project-cont {
+    width: 100%;
+    height: 100%;
+}   
+
+#project-img-left{
+    float: left;
+    position: relative;
+    width: 50%;
+    height: 100%;
+    background-color: #333;
+}
+
+#project-content-left{
+    float: left;
+    position: relative;
+    width: 50%;
+    height: 100%;
+    background-color: #D3004C;
+}
+
+#project-monopolorbit-left {
+    float: left;
+    width: 50%;
+    height: 100%;
+    display: table;
+    hyphens: auto;
+    background-color: #003E6B;
+    color: #fff;
+    text-align: right;
+}
+
+#project-img-right{
+    float: left;
+    width: 50%;
+    height: 100%;
+    display: absolute;
+    background-color: #333;
+}
+
+#project-benji-right {
+    float: right;
+    width: 50%;
+    height: 100%;
+    display: table;
+    background-color: #D3004C;
+    color: #fff;
+    text-align: left;
+}
+
+#project-content-right {
+    float: right;
+    width: 50%;
+    height: 100%;
+    display: table;
+    background-color: #19684C;
+    color: #fff;
+    text-align: left;
+}
+
+.project-text {
+    display: table-cell;
+    vertical-align: middle;
+    padding: 5%;
+    font-size: 1.5em;
+    font-size: 1.5vw;
+}
+
+.project-text p {
+    font-size: 0.65em;
+}
