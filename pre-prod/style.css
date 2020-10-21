@@ -1,4 +1,4 @@
-font-face {
+@font-face {
     font-family: 'galanogrotesque-b';
     src: url('assets/galano_grotesque_bold-webfont.woff2') format('woff2'),
          url('assets/galano_grotesque_bold-webfont.woff') format('woff');
@@ -191,7 +191,7 @@ h1 {
     hyphens: none;
 }
 
-@media only screen and (max-width: 1200px) {
+@media only screen and (max-width: 800px) {
     #button-container, .main-cont, #banner, #project-img-left, #project-img-right, #project-benji-right, #project-monopolorbit-left, #project-content-right, #project-growbox-left {
         width: 100%;
         height: 50%;
