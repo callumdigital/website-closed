@@ -191,13 +191,17 @@ h1 {
     hyphens: none;
 }
 
+@media only screen and (max-width: 1200px) {
+    #banner, .project-text {
+        font-size: 1.2em;
+    }
+}
+
 @media only screen and (max-width: 800px) {
     #button-container, .main-cont, #banner, #project-img-left, #project-img-right, #project-benji-right, #project-monopolorbit-left, #project-content-right, #project-growbox-left {
         width: 100%;
         height: 50%;
     }
     
-   #banner, .project-text {
-        font-size: 1.3em;
-    }
+   
 }
