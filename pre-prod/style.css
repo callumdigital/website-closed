@@ -133,10 +133,10 @@ h1 {
 }
 
 #project-img-right{
-    float: left;
+    float: right;
     width: 50%;
     height: 100%;
-    display: absolute;
+    display: table;
     background-color: #333;
 }
 
@@ -160,14 +160,40 @@ h1 {
     text-align: left;
 }
 
+#project-growbox-left{
+    float: left;
+    position: relative;
+    width: 50%;
+    height: 100%;
+    background-image: url("assets/content-imgs/GrowBox.svg");
+    background-color: #333;
+    background-size: cover;
+}
+
 .project-text {
     display: table-cell;
     vertical-align: middle;
     padding: 5%;
     font-size: 1.5em;
-    font-size: 1.5vw;
 }
 
 .project-text p {
     font-size: 0.65em;
-}/*end*/
+}
+
+#project-cont h1 {
+    font-size: 1.3em;
+    hyphens: none;
+}
+
+#project-cont h2 {
+    font-size: 0.8em;
+    hyphens: none;
+}
+
+@media only screen and (max-width: 1200px) {
+    #button-container, .main-cont, #banner, #project-img-left, #project-img-right, #project-benji-right, #project-monopolorbit-left, #project-content-right, #project-growbox-left {
+        width: 100%;
+        height: 50%;
+    }
+}
