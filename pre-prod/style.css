@@ -203,5 +203,9 @@ h1 {
         height: 50%;
     }
     
+    #banner {
+        padding: 10%;
+        padding-left: 20%;
+    }
    
 }
