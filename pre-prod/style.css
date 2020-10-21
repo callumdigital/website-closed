@@ -192,8 +192,8 @@ h1 {
 }
 
 @media only screen and (max-width: 1200px) {
-    #banner, .project-text {
-        font-size: 1.2em;
+    #banner, #banner h1, .project-text {
+        font-size: 1.3em;
     }
 }
 
