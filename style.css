@@ -1,4 +1,4 @@
-@font-face {
+font-face {
     font-family: 'galanogrotesque-b';
     src: url('assets/galano_grotesque_bold-webfont.woff2') format('woff2'),
          url('assets/galano_grotesque_bold-webfont.woff') format('woff');
@@ -25,178 +25,175 @@
 
 }
 
-html {
-    background-color: #000; 
+html, body {
+    height: 100%;
     font-family: "galanogrotesque-r", "Helvetica", serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    color: #fff;
+    margin: 0;
+    scroll-behavior: smooth;
 }
 
-html, body {
-    margin: 0;
-    padding: 0;
+h1 {
+    font-weight: bold;
+}
+
+#main-content{
+    display: flex;
+    height: 100%;
 }
 
 #container {
-    display: table;
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
+    position: relative;
+    background-color: #484958;
+    align-items: stretch;
     width: 100%;
-    min-width: 400px;
-    background-image: url(assets/background.png);
-    background-size: cover;
+    /*min-width: 400px;*/
     max-width: 100%;
-    overflow: auto;
 }
 
-a {
-    color: white !important;
-}
-
-.logo{
-    background-image: image(href="logo.svg");
-    margin-top: 0;
-    padding: 20px;
-    color: ff00c3;
-    position: absolute;
-    display: absolute;
+.main-cont {
+    width: 50%;
+    height: 100%;
     float: left;
-    font-size: 1.5em;
-    transition:0.2s linear;
-    -webkit-transition:0.2s linear;
-    -o-transition: 0.2s linear;
-    -ms-transition: 0.2s linear;
-    -moz-transition: 0.2s linear;
+    display: table;
 }
 
-#name {
+#banner {
+    display: table-cell;
+    vertical-align: middle;
+    font-size: 1.5em;
+    padding: 5%;
     color: #fff;
-    display:inline;
 }
 
-.logo:hover {
-    background-color: #ff00c3 !important;
-    color: #fff !important;
-    transition:0.2s linear;
-    -webkit-transition:0.2s linear;
-    -o-transition: 0.2s linear;
-    -ms-transition: 0.2s linear;
-    -moz-transition: 0.2s linear;
-    font-size: 1.5em;
+#banner p {
+    font-size: 0.65em;
+    margin-top: 0.5vw;
 }
 
-.blog-link{
-    background-image: image(href="logo.svg");
-    margin-left: 198;
-    margin-top: 0;
-    padding: 23;
-    color: ff00c3;
-    position: absolute;
-    display: absolute;
-    float: left;
-    font-size: 1.11em;
-    transition:0.2s linear;
-    -webkit-transition:0.2s linear;
-    -o-transition: 0.2s linear;
-    -ms-transition: 0.2s linear;
-    -moz-transition: 0.2s linear;
+#button-container {
+    background-color: #DCDCDC;
+    height: 100%;
+    width: 50%;
+    float: right;
+    display: table;
 }
 
-
-.blog-link:hover {
-    background-color: #ff00c3 !important;
-    color: #fff !important;
-    transition:0.2s linear;
-    -webkit-transition:0.2s linear;
-    -o-transition: 0.2s linear;
-    -ms-transition: 0.2s linear;
-    -moz-transition: 0.2s linear;
-    font-size: 1.11em;
-}
-
-
-.outer {
+.button-align{
     display: table-cell;
     vertical-align: middle;
 }
 
-.inner {
-    width: 75%;
-    max-width: 500px;
-    margin-left: 5%;
+.button {
+    text-align: center;
+    padding: 5%;
+    max-width: 50%;
+    color: #484958;
+    background: rgba(220, 220, 220, 0.45);
+    box-shadow: -2px -2px 10px #FFFFFF, 2px 2px 10px rgba(0, 0, 0, 0.5);
+    border-radius: 300px;
+    max-height: 82px;
+    margin: 0 auto;
+    font-size: 1.1em
+    /*max-width: 424px;*/
 }
 
-h1 {
-    display: block;
+#project-cont {
+    width: 100%;
+    height: 100%;
+}   
+
+#project-img-left{
     float: left;
     position: relative;
-    margin-bottom: -10px;
-    font-size:3em;
+    width: 50%;
+    height: 100%;
+    background-color: #333;
 }
 
-h2 {
-    display: block;
+#project-content-left{
     float: left;
     position: relative;
-    line-height: 1.25;
-    font-family: "galanogrotesque-r", "Helvetica Neue";
-    font-weight: 900;
-    padding-bottom: 20px;
+    width: 50%;
+    height: 100%;
+    background-color: #D3004C;
 }
 
-ul {
-    margin-top: -5px;
-    display: block;
+#project-monopolorbit-left {
+    float: left;
+    width: 50%;
+    height: 100%;
+    display: table;
+    hyphens: auto;
+    background-color: #003E6B;
+    color: #fff;
+    text-align: right;
+}
+
+#project-img-right{
+    float: right;
+    width: 50%;
+    height: 100%;
+    display: table;
+    background-color: #333;
+}
+
+#project-benji-right {
+    float: right;
+    width: 50%;
+    height: 100%;
+    display: table;
+    background-color: #D3004C;
+    color: #fff;
+    text-align: left;
+}
+
+#project-content-right {
+    float: right;
+    width: 50%;
+    height: 100%;
+    display: table;
+    background-color: #19684C;
+    color: #fff;
+    text-align: left;
+}
+
+#project-growbox-left{
     float: left;
     position: relative;
-    font-size: 1.25em;
-    padding: 0;
+    width: 50%;
+    height: 100%;
+    background-image: url("assets/content-imgs/GrowBox.jpg");
+    background-color: #333;
+    background-size: cover;
 }
 
-ul a {
-    text-decoration: none;
-    transition: color 0.5s linear;
-    -webkit-transition: color 0.5s linear;
-    -o-transition: color 0.5s linear;
-    -ms-transition: color 0.5s linear;
-    -moz-transition: color 0.5s linear
+.project-text {
+    display: table-cell;
+    vertical-align: middle;
+    padding: 5%;
+    font-size: 1.5em;
 }
 
-ul a:hover {
-    color: #fff !important;
-    transition: color 0.2s linear;
-    -webkit-transition: color 0.2s linear;
-    -o-transition: color 0.2s linear;
-    -ms-transition: color 0.2s linear;
-    -moz-transition: color 0.2s linear;
-
+.project-text p {
+    font-size: 0.65em;
 }
 
-li {
-    margin-right: 30px;
-    display: inline;
-    list-style-type: none;
-    border: 3px solid #ff00c3; 
-    border-radius: 200px;
-    padding: 10 20 10 20; 
-    transition: color 0.5s linear;
-    transition:0.2s linear;
-    -webkit-transition:0.2s linear;
-    -o-transition: 0.2s linear;
-    -ms-transition: 0.2s linear;
-    -moz-transition: 0.2s linear;
-    
+#project-cont h1 {
+    font-size: 1.3em;
+    hyphens: none;
 }
 
-li:hover {
-    background: #ff00c3 !important;
-    transition:0.2s linear;
-    -webkit-transition:0.2s linear;
-    -o-transition: 0.2s linear;
-    -ms-transition: 0.2s linear;
-    -moz-transition: 0.2s linear;
+#project-cont h2 {
+    font-size: 0.8em;
+    hyphens: none;
+}
+
+@media only screen and (max-width: 1200px) {
+    #button-container, .main-cont, #banner, #project-img-left, #project-img-right, #project-benji-right, #project-monopolorbit-left, #project-content-right, #project-growbox-left {
+        width: 100%;
+        height: 50%;
+    }
 }
