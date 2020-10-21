@@ -191,7 +191,7 @@ h1 {
     hyphens: none;
 }
 
-@media only screen and (max-width: 1200px) {
+@media only screen and (max-width: 1500px) {
     #banner, #banner h1, .project-text {
         font-size: 1.3em;
     }
