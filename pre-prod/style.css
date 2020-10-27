@@ -274,7 +274,7 @@ box-shadow: inset 7px 7px 14px #0a2a1e,
     hyphens: none;
 }
 
-@media only screen and (max-width: 1500px) {
+@media only screen and (max-width: 1200px) and (orientation: landscape) {
     #banner, .project-text, #banner h1,  {
         font-size: 1.5em;
         letter-spacing: -2px;
