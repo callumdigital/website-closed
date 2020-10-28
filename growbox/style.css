@@ -1,0 +1,211 @@
+@font-face {
+    font-family: 'Quicksand-Bold';
+    src: url('assets/Quicksand-Bold.woff2') format('woff2'),
+        url('assets/Quicksand-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal
+}
+
+@font-face {
+    font-family: 'Quicksand-Reg';
+    src: url('assets/Quicksand-Regular.woff2') format('woff2'),
+        url('assets/Quicksand-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Quicksand-Med';
+    src: url('assets/Quicksand-Medium.woff2') format('woff2'),
+        url('assetss/Quicksand-Medium.woff') format('woff');
+    font-weight: 500;
+    font-style: normal;
+}
+
+html {
+    background-color: #fff; 
+    font-family: "Quicksand-Med", "Helvetica", serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    color: #333;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+#container {
+    display: table;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    min-width: 400px;
+    background-image: url(assets/background.png);
+    background-size: cover;
+    max-width: 100%;
+    overflow: auto;
+}
+
+a {
+    color: white !important;
+}
+
+.logo{
+    background-image: image(href="logo.svg");
+    margin-top: 0;
+    padding: 20px;
+    color: ff00c3;
+    position: absolute;
+    display: absolute;
+    float: left;
+    font-size: 1.5em;
+    transition:0.2s linear;
+    -webkit-transition:0.2s linear;
+    -o-transition: 0.2s linear;
+    -ms-transition: 0.2s linear;
+    -moz-transition: 0.2s linear;
+}
+
+#name {
+    color: #fff;
+    display:inline;
+}
+
+.logo:hover {
+    background-color: #ff00c3 !important;
+    color: #fff !important;
+    transition:0.2s linear;
+    -webkit-transition:0.2s linear;
+    -o-transition: 0.2s linear;
+    -ms-transition: 0.2s linear;
+    -moz-transition: 0.2s linear;
+    font-size: 1.5em;
+}
+
+.growbox-logo {
+    height: 114px;
+    width: 300px;
+    background-image: url(assets/logo.png);
+    background-size: cover;
+}
+
+.blog-link{
+    background-image: image(href="logo.svg");
+    margin-left: 198;
+    margin-top: 0;
+    padding: 23;
+    color: ff00c3;
+    position: absolute;
+    display: absolute;
+    float: left;
+    font-size: 1.11em;
+    transition:0.2s linear;
+    -webkit-transition:0.2s linear;
+    -o-transition: 0.2s linear;
+    -ms-transition: 0.2s linear;
+    -moz-transition: 0.2s linear;
+}
+
+
+.blog-link:hover {
+    background-color: #ff00c3 !important;
+    color: #fff !important;
+    transition:0.2s linear;
+    -webkit-transition:0.2s linear;
+    -o-transition: 0.2s linear;
+    -ms-transition: 0.2s linear;
+    -moz-transition: 0.2s linear;
+    font-size: 1.11em;
+}
+
+
+.outer {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.inner {
+    width: 100%;
+    max-width:  95%;
+    margin-left: 5%;
+    display: table;
+}
+
+h1 {
+    display: relative;
+    float: left;
+    position: relative;
+    margin-bottom: -10px;
+    font-size:3em;
+}
+
+h2 {
+    display: relative;
+    float: left;
+    position: relative;
+    line-height: 1.25;
+    font-family: "Quicksand-Med", "Helvetica Neue", "Tahoma";
+    font-weight: 900;
+    padding-bottom: 2%;
+}
+
+ul {
+    margin-top: -5px;
+    display: relative;
+    float: left;
+    position: relative;
+    font-size: 1.25em;
+    padding: 0;
+    overflow: visible;
+}
+
+ul a {
+    text-decoration: none;
+    transition: color 0.5s linear;
+    -webkit-transition: color 0.5s linear;
+    -o-transition: color 0.5s linear;
+    -ms-transition: color 0.5s linear;
+    -moz-transition: color 0.5s linear;
+}
+
+ul a:hover {
+    color: #fff !important;
+    transition: color 0.2s linear;
+    -webkit-transition: color 0.2s linear;
+    -o-transition: color 0.2s linear;
+    -ms-transition: color 0.2s linear;
+    -moz-transition: color 0.2s linear;
+
+}
+
+li {
+    margin-right: 5px;
+    margin-top: 10px;
+    display: absolute;
+    list-style-type: none;
+    border: 3px solid #24b24b; 
+    color: #24b24b;
+    border-radius: 200px;
+    padding: 10 20 10 20; 
+    transition: color 0.5s linear;
+    transition:0.2s linear;
+    -webkit-transition:0.2s linear;
+    -o-transition: 0.2s linear;
+    -ms-transition: 0.2s linear;
+    -moz-transition: 0.2s linear;
+    
+}
+
+li:hover {
+    color: #fff;
+    background: #24b24b !important;
+    transition:0.2s linear;
+    -webkit-transition:0.2s linear;
+    -o-transition: 0.2s linear;
+    -ms-transition: 0.2s linear;
+    -moz-transition: 0.2s linear;
+}
