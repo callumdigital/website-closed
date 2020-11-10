@@ -190,7 +190,7 @@ li {
     border: 3px solid #24b24b; 
     color: #24b24b;
     border-radius: 200px;
-    padding: 10 20 10 20; 
+    padding: 10 100 10 20; 
     transition: color 0.5s linear;
     transition:0.2s linear;
     -webkit-transition:0.2s linear;
