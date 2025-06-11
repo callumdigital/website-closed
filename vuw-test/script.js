@@ -1,6 +1,4 @@
-// Template file - the API key will be injected during build
-// DO NOT put the real API key here - it will be replaced during GitHub Actions build
-const API_KEY = 'YOUR_API_KEY_PLACEHOLDER';
+const API_KEY = 'ciFUCbyIQP8lt6Cylk9yn953L6eHYxAnEkaIU8d0';
 const STOP_A = '4915';
 const STOP_B = '5915';
 
@@ -344,4 +342,4 @@ document.addEventListener('visibilitychange', () => {
         console.log('Page visibility changed to visible, updating data...');
         updateTransportData();
     }
-});
+}); 
