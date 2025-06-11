@@ -2,269 +2,80 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>VUW Kelburn Transport Ticker</title>
+    <title>Ticker with Smooth Refresh</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Inter font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- ...your styles here, as above... -->
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0D4C38;
-            height: 100vh;
-            width: 100vw;
-            display: flex;
-            align-items: flex-end;
-            overflow: hidden;
-        }
-
-        .ticker-container {
-            width: 100%;
-            height: 16.67vh;
-            min-height: 120px;
-            background: linear-gradient(90deg, #0D4C38 0%, #0A3D2E 50%, #0D4C38 100%);
-            border-top: 4px solid rgba(255,255,255,0.3);
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 -8px 32px rgba(0,0,0,0.3);
-        }
-        @media (max-height: 1080px) {
-            .ticker-container { height: 120px; }
-        }
-
-        .ticker-header {
-            background: rgba(0,0,0,0.2);
-            color: white;
-            padding: 8px 20px;
-            font-size: 14px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-            backdrop-filter: blur(5px);
-        }
-
-        .live-indicator {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 12px;
-            color: rgba(255,255,255,0.9);
-        }
-        .live-dot {
-            width: 8px; height: 8px;
-            background: #ff6b6b;
-            border-radius: 50%;
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1);}
-            50% { opacity: .5; transform: scale(1.2);}
-        }
-        .time-display { font-size: 12px; font-weight: 500; color: white;}
-
-        .ticker-content {
-            height: calc(100% - 40px);
-            display: flex;
-            align-items: center;
-            position: relative;
-            overflow: hidden;
-        }
+        body { background: #123; }
+        .ticker-container { height: 200px; width: 100vw; overflow: hidden; }
         .ticker-scroll {
             display: flex;
             align-items: center;
             white-space: nowrap;
-            animation: scroll 120s linear infinite;
+            animation: scroll 40s linear infinite;
         }
         @keyframes scroll {
-            0%   { transform: translateX(0);}
+            0% { transform: translateX(0);}
             100% { transform: translateX(-50%);}
         }
-
         .transport-item {
-            display: inline-flex;
-            align-items: center;
-            margin-right: 60px;
-            padding: 12px 20px;
-            background: rgba(255,255,255,0.15);
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
-            min-width: 280px;
-            transition: opacity 0.5s, transform 0.7s cubic-bezier(.6,-0.4,.22,1.43);
-            position: relative;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-            opacity: 1;
+            min-width: 300px; margin: 0 20px; background: #fff1; color: #fff; border-radius: 12px; padding: 18px 30px;
+            display: inline-flex; flex-direction: column; align-items: flex-start;
+            font-size: 1.3em; transition: opacity .7s, transform .7s;
         }
-        .route-badge {
-            background: rgba(255,255,255,0.9);
-            color: #0D4C38;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 16px;
-            margin-right: 15px;
-            min-width: 45px;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        .transport-info { color: white; flex-grow: 1;}
-        .destination { font-size: 14px; font-weight: 600; margin-bottom: 2px;}
-        .timing { font-size: 12px; color: rgba(255,255,255,0.9); display: flex; align-items: center; gap: 10px;}
-        .next-departure { font-weight: 700; color: white;}
-        .stop-info { font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 2px;}
-        .status { font-size: 11px; margin-left: 10px; font-weight: 500; color: #4CAF50;}
-        .delayed { color: #ff9800;}
-        .cancelled { color: #f44336;}
-
-        /* Smoother animated reorder (fade + slide) */
-        .transport-item.anim-out {
-            opacity: 0;
-            transform: translateY(24px);
-        }
-        .transport-item.anim-in {
-            opacity: 0;
-            transform: translateY(-24px);
-        }
-        .transport-item.anim-in-show {
-            opacity: 1;
-            transform: translateY(0);
-            transition: opacity 0.5s, transform 0.7s cubic-bezier(.6,-0.4,.22,1.43);
-        }
+        .transport-item.fadeout { opacity: 0; transform: translateY(30px);}
+        .transport-item.fadein { opacity: 1; transform: translateY(0);}
     </style>
 </head>
 <body>
-    <div class="ticker-container">
-        <div class="ticker-header">
-            <span>🚌 VUW KELBURN CAMPUS TRANSPORT - STOPS A & B</span>
-            <div class="live-indicator">
-                <div class="live-dot"></div>
-                <span>LIVE</span>
-                <span class="time-display" id="currentTime"></span>
-            </div>
-        </div>
-        <div class="ticker-content">
-            <div class="ticker-scroll" id="tickerScroll">
-                <!-- Populated by JS -->
-            </div>
-        </div>
+<div class="ticker-container">
+    <div class="ticker-scroll" id="tickerScroll">
+        <!-- JS will populate -->
     </div>
-    <script>
-    // --- DATA ---
-    const transportData = [
-        { route: "18", destination: "Miramar via Newtown", stop: "Stop A", nextDepartures: ["2 min", "12 min"], status: "On time" },
-        { route: "21", destination: "Airport Flyer", stop: "Stop A", nextDepartures: ["5 min", "20 min"], status: "On time" },
-        { route: "22", destination: "Mairangi via Johnsonville", stop: "Stop B", nextDepartures: ["1 min", "8 min"], status: "On time" },
-        { route: "1",  destination: "Island Bay via Newtown", stop: "Stop A", nextDepartures: ["7 min", "17 min"], status: "On time" },
-        { route: "24", destination: "Wilton via The Terrace", stop: "Stop B", nextDepartures: ["4 min", "14 min"], status: "On time" },
-        { route: "29", destination: "Brooklyn via Adelaide Rd", stop: "Stop A", nextDepartures: ["6 min", "16 min"], status: "On time" },
-        { route: "4",  destination: "Miramar via Mt Victoria", stop: "Stop B", nextDepartures: ["3 min", "13 min"], status: "On time" },
-        { route: "18", destination: "Miramar via Newtown", stop: "Stop A", nextDepartures: ["32 min", "42 min"], status: "On time" }
-    ];
-
-    // --- HELPERS ---
-    function createTransportItem(data, i) {
-        const statusClass = data.status === "On time" ? "" :
-                            data.status.includes("Delayed") ? "delayed" :
-                            data.status.includes("Cancelled") ? "cancelled" : "";
-        return `<div class="transport-item" data-index="${i}">
-            <div class="route-badge">${data.route}</div>
-            <div class="transport-info">
-                <div class="destination">${data.destination}</div>
-                <div class="timing">
-                    <span class="next-departure">${data.nextDepartures[0]}</span>
-                    <span>${data.nextDepartures[1]}</span>
-                </div>
-                <div class="stop-info">${data.stop}</div>
-            </div>
-            <div class="status ${statusClass}">${data.status}</div>
-        </div>`;
-    }
-
-    function populateTickerScroll() {
-        const tickerScroll = document.getElementById('tickerScroll');
-        tickerScroll.innerHTML = '';
-        // Add two sets for seamless looping
-        for (let set = 0; set < 2; set++) {
-            transportData.forEach((item, i) => {
-                tickerScroll.innerHTML += createTransportItem(item, i);
-            });
-        }
-        // Reset animation so there's no jump if we rerender
-        tickerScroll.style.animation = 'none';
-        void tickerScroll.offsetWidth; // force reflow
-        tickerScroll.style.animation = null;
-    }
-
-    function updateCurrentTime() {
-        const now = new Date();
-        document.getElementById('currentTime').textContent = now.toLocaleTimeString('en-NZ', {
-            hour12: false, hour: '2-digit', minute: '2-digit'
+</div>
+<script>
+const data = [
+    { route: "18", dest: "Miramar", next: "2 min" },
+    { route: "21", dest: "Airport", next: "5 min" },
+    { route: "22", dest: "Mairangi", next: "1 min" },
+    { route: "1",  dest: "Island Bay", next: "7 min" }
+];
+// For seamless loop, double the data
+function renderInitialTicker() {
+    const el = document.getElementById('tickerScroll');
+    for (let i = 0; i < 2; i++) {
+        data.forEach((item, idx) => {
+            let d = document.createElement('div');
+            d.className = "transport-item";
+            d.setAttribute('data-route', item.route);
+            d.innerHTML = `<strong>${item.route}</strong> – ${item.dest} <span>${item.next}</span>`;
+            el.appendChild(d);
         });
     }
-
-    // Animated reorder (fade + slide)
-    function animateReorder(oldOrder, newOrder) {
-        const tickerScroll = document.getElementById('tickerScroll');
-        const items = Array.from(tickerScroll.querySelectorAll('.transport-item'));
-        // Animate old out
-        items.slice(0, oldOrder.length).forEach((item, i) => {
-            item.classList.add('anim-out');
-        });
-        setTimeout(() => {
-            populateTickerScroll();
-            // Animate new in
-            const newItems = Array.from(tickerScroll.querySelectorAll('.transport-item'));
-            newItems.slice(0, newOrder.length).forEach((item, i) => {
-                item.classList.add('anim-in');
-                setTimeout(() => {
-                    item.classList.add('anim-in-show');
-                }, 60 + 45 * i);
-            });
+}
+// Simulate data changing every 10s, but don't touch animation!
+function updateTickerData() {
+    // Randomise order for demo
+    data.sort(() => Math.random()-0.5);
+    // Just update content of each item node (twice for seamless)
+    const nodes = document.querySelectorAll('.transport-item');
+    for (let set = 0; set < 2; set++) {
+        data.forEach((item, idx) => {
+            const i = set*data.length + idx;
+            if (!nodes[i]) return;
+            // Animate out
+            nodes[i].classList.add('fadeout');
             setTimeout(() => {
-                newItems.forEach(item => {
-                    item.classList.remove('anim-in', 'anim-in-show');
-                });
-            }, 1000);
-        }, 400);
-    }
-
-    // Simulate bus data updates (and order changes)
-    function simulateRealTimeUpdates() {
-        const oldOrder = transportData.map(x => x.route + x.stop);
-        transportData.forEach(item => {
-            if (Math.random() < 0.09) {
-                const rand = Math.random();
-                if (rand < 0.7) item.status = "On time";
-                else if (rand < 0.9) item.status = "Delayed 2 min";
-                else item.status = "Cancelled";
-            }
-            item.nextDepartures = item.nextDepartures.map(time => {
-                const minutes = parseInt(time);
-                if (minutes > 0 && Math.random() < 0.3) return Math.max(0, minutes - Math.floor(Math.random() * 2 + 1)) + " min";
-                else if (Math.random() < 0.1) return (minutes + Math.floor(Math.random() * 3 + 1)) + " min";
-                return time;
-            });
-            if (item.nextDepartures[0] === "0 min" || item.nextDepartures[0] === "Due") {
-                item.nextDepartures = [item.nextDepartures[1], (parseInt(item.nextDepartures[1]) + Math.floor(Math.random() * 5 + 10)) + " min"];
-            }
+                nodes[i].innerHTML = `<strong>${item.route}</strong> – ${item.dest} <span>${item.next}</span>`;
+                nodes[i].classList.remove('fadeout');
+                nodes[i].classList.add('fadein');
+                setTimeout(()=>nodes[i].classList.remove('fadein'), 700);
+            }, 500);
         });
-        transportData.sort((a, b) => parseInt(a.nextDepartures[0]) - parseInt(b.nextDepartures[0]));
-        const newOrder = transportData.map(x => x.route + x.stop);
-        if (oldOrder.join() !== newOrder.join()) animateReorder(oldOrder, newOrder);
-        else populateTickerScroll();
     }
-
-    // --- INIT ---
-    updateCurrentTime();
-    setInterval(updateCurrentTime, 1000);
-    populateTickerScroll();
-    setInterval(simulateRealTimeUpdates, 30000);
-    </script>
+}
+renderInitialTicker();
+setInterval(updateTickerData, 10000);
+</script>
 </body>
 </html>
