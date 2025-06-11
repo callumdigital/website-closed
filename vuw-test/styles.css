@@ -141,17 +141,12 @@ body {
     overflow: hidden;
 }
 
+/* Optimized scrolling animation for Onelan */
 .ticker-scroll {
     display: flex;
     align-items: center;
-    animation: scroll-continuous 180s linear infinite;
     white-space: nowrap;
-    transform: translateX(0%);
-}
-
-@keyframes scroll-continuous {
-    0% { transform: translateX(0%); }
-    100% { transform: translateX(-100%); }
+    /* Removed CSS animation - now using JavaScript for better compatibility */
 }
 
 .transport-item {
@@ -163,6 +158,9 @@ body {
     padding: 16px;
     gap: 16px;
     position: relative;
+    /* Force hardware acceleration for smoother performance */
+    will-change: transform;
+    transform: translateZ(0);
 }
 
 .destination-container {
@@ -271,7 +269,6 @@ body {
     border-radius: 16px;
     font-size: 13px;
     color: white;
-    color: white;
 }
 
 .status {
@@ -353,4 +350,4 @@ body {
 
 .bus-badge.route-alert {
     background: linear-gradient(135deg, #1976d2 60%, #1565c0 100%);
-} 
+}
