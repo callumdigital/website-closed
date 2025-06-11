@@ -1,4 +1,42 @@
-/* Optimized responsive scaling with better vertical fit */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VUW Kelburn Transport Ticker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0D4C38;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            align-items: stretch;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        .ticker-container {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #0D4C38 0%, #0A3D2E 50%, #0D4C38 100%);
+            border-top: 4px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Optimized responsive scaling with better vertical fit */
         @media (min-width: 2560px) {
             /* 4K displays */
             .ticker-header {
@@ -106,3 +144,627 @@
                 padding: clamp(1px, 0.4vh, 5px) clamp(3px, 0.6vh, 8px);
             }
         }
+
+        .ticker-header {
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            font-weight: 600;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .live-dot {
+            background: #ff6b6b;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        .ticker-content {
+            height: calc(100% - 50px);
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ticker-scroll {
+            display: flex;
+            align-items: center;
+            animation: scroll-continuous 240s linear infinite;
+            white-space: nowrap;
+            transform: translateX(0%);
+        }
+
+        @keyframes scroll-continuous {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .transport-item {
+            display: inline-flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+        }
+
+        .bus-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-right: 15px;
+        }
+
+        .bus-badge {
+            background: #FFD700;
+            color: #333;
+            border-radius: 8px;
+            font-weight: 700;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            margin-bottom: 6px;
+        }
+
+        .bus-badge::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70%;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 1px;
+        }
+
+        .bus-badge::after {
+            content: '';
+            position: absolute;
+            bottom: 1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 2px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 1px;
+        }
+
+        .stop-badge {
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            text-align: center;
+            font-size: 0.75em;
+        }
+
+        /* Bus route color coding */
+        .bus-badge.route-1 { background: #E31E24; color: white; }
+        .bus-badge.route-4 { background: #00A651; color: white; }
+        .bus-badge.route-18 { background: #F7931E; color: white; }
+        .bus-badge.route-21 { background: #0072CE; color: white; }
+        .bus-badge.route-22 { background: #8B4513; color: white; }
+        .bus-badge.route-24 { background: #663399; color: white; }
+        .bus-badge.route-29 { background: #FF69B4; color: white; }
+        .bus-badge.route-12 { background: #32CD32; color: white; }
+        .bus-badge.route-14 { background: #FF4500; color: white; }
+        .bus-badge.route-17 { background: #4169E1; color: white; }
+
+        .transport-info {
+            color: white;
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .destination {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: white;
+            line-height: 1.2;
+        }
+
+        .timing {
+            color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 4px;
+            flex-wrap: wrap;
+        }
+
+        .next-departure {
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .stop-info {
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .status {
+            color: #4CAF50;
+            font-weight: 500;
+            border-radius: 4px;
+            background: rgba(76, 175, 80, 0.2);
+            align-self: flex-start;
+            white-space: nowrap;
+        }
+
+        .delayed {
+            color: #ff9800;
+            background: rgba(255, 152, 0, 0.2);
+        }
+
+        .cancelled {
+            color: #f44336;
+            background: rgba(244, 67, 54, 0.2);
+        }
+
+        .time-display {
+            color: white;
+            font-weight: 500;
+        }
+
+        /* Smooth sliding animations for reordering */
+        .transport-item {
+            transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .transport-item.sliding-left {
+            transform: translateX(-100%);
+            opacity: 0.3;
+        }
+
+        .transport-item.sliding-right {
+            transform: translateX(100%);
+            opacity: 0.3;
+        }
+
+        .transport-item.sliding-in {
+            animation: slideIntoPosition 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        .transport-item.highlight {
+            animation: highlightMove 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes slideIntoPosition {
+            0% { 
+                transform: scale(0.9) translateY(-10px); 
+                opacity: 0.5; 
+            }
+            50% { 
+                transform: scale(1.05) translateY(0); 
+                opacity: 0.8; 
+            }
+            100% { 
+                transform: scale(1) translateY(0); 
+                opacity: 1; 
+            }
+        }
+
+        @keyframes highlightMove {
+            0% { 
+                transform: scale(1); 
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); 
+            }
+            25% { 
+                transform: scale(1.08); 
+                box-shadow: 0 8px 24px rgba(255, 255, 255, 0.2); 
+            }
+            75% { 
+                transform: scale(1.03); 
+                box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15); 
+            }
+            100% { 
+                transform: scale(1); 
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); 
+            }
+        }
+
+        /* Fade transition for content updates */
+        .ticker-scroll.updating {
+            opacity: 0.7;
+            transition: opacity 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="ticker-container">
+        <div class="ticker-header">
+            <span>🚍 VUW KELBURN CAMPUS TRANSPORT - STOPS A & B</span>
+            <div class="live-indicator">
+                <div class="live-dot"></div>
+                <span>LIVE</span>
+                <span class="time-display" id="currentTime"></span>
+            </div>
+        </div>
+        <div class="ticker-content">
+            <div class="ticker-scroll" id="tickerScroll">
+                <!-- Transport items will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Realistic Wellington bus data for VUW Kelburn stops A & B
+        let transportData = [
+            {
+                route: "1",
+                destination: "Island Bay via Courtenay Pl",
+                stop: "Stop A",
+                nextDepartures: ["3 min", "13 min", "23 min"],
+                status: "On time"
+            },
+            {
+                route: "4",
+                destination: "Miramar via Mt Victoria",
+                stop: "Stop B", 
+                nextDepartures: ["7 min", "17 min", "27 min"],
+                status: "On time"
+            },
+            {
+                route: "12",
+                destination: "Karori via The Terrace",
+                stop: "Stop A",
+                nextDepartures: ["2 min", "12 min", "22 min"],
+                status: "On time"
+            },
+            {
+                route: "14",
+                destination: "Wilton via Featherston St",
+                stop: "Stop B",
+                nextDepartures: ["5 min", "15 min", "25 min"],
+                status: "On time"
+            },
+            {
+                route: "17",
+                destination: "Owhiro Bay via Adelaide Rd",
+                stop: "Stop A",
+                nextDepartures: ["8 min", "18 min", "28 min"],
+                status: "On time"
+            },
+            {
+                route: "18",
+                destination: "Miramar via Newtown",
+                stop: "Stop A",
+                nextDepartures: ["1 min", "11 min", "21 min"],
+                status: "On time"
+            },
+            {
+                route: "21",
+                destination: "Airport Flyer",
+                stop: "Stop B",
+                nextDepartures: ["9 min", "29 min", "49 min"],
+                status: "On time"
+            },
+            {
+                route: "22",
+                destination: "Mairangi via Johnsonville",
+                stop: "Stop B",
+                nextDepartures: ["4 min", "14 min", "24 min"],
+                status: "On time"
+            },
+            {
+                route: "24",
+                destination: "Wilton via The Terrace",
+                stop: "Stop A",
+                nextDepartures: ["6 min", "16 min", "26 min"],
+                status: "On time"
+            },
+            {
+                route: "29",
+                destination: "Brooklyn via Adelaide Rd",
+                stop: "Stop A",
+                nextDepartures: ["10 min", "20 min", "30 min"],
+                status: "On time"
+            }
+        ];
+
+        function updateCurrentTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-NZ', { 
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('currentTime').textContent = timeString;
+        }
+
+        function createTransportItem(data) {
+            const statusClass = data.status === "On time" ? "" : 
+                               data.status.includes("Delayed") ? "delayed" : 
+                               data.status.includes("Cancelled") ? "cancelled" : "";
+
+            return `
+                <div class="transport-item" data-route="${data.route}" data-stop="${data.stop}">
+                    <div class="bus-section">
+                        <div class="bus-badge route-${data.route}">${data.route}</div>
+                        <div class="stop-badge">${data.stop}</div>
+                    </div>
+                    <div class="transport-info">
+                        <div class="stop-info">${data.stop}</div>
+                        <div class="destination">${data.destination}</div>
+                        <div class="timing">
+                            <span class="next-departure">${data.nextDepartures[0]}</span>
+                            <span>then ${data.nextDepartures[1]}</span>
+                        </div>
+                    </div>
+                    <div class="status ${statusClass}">${data.status}</div>
+                </div>
+            `;
+        }
+
+        function populateTicker() {
+            const tickerScroll = document.getElementById('tickerScroll');
+            let html = '';
+            
+            // Sort by next departure time for better UX
+            const sortedData = [...transportData].sort((a, b) => {
+                const timeA = parseInt(a.nextDepartures[0]) || 999;
+                const timeB = parseInt(b.nextDepartures[0]) || 999;
+                return timeA - timeB;
+            });
+            
+            // Create enough copies for continuous scrolling without gaps
+            for (let i = 0; i < 4; i++) {
+                sortedData.forEach(item => {
+                    html += createTransportItem(item);
+                });
+            }
+            
+            tickerScroll.innerHTML = html;
+            
+            // Ensure content is immediately visible
+            tickerScroll.style.transform = 'translateX(0%)';
+        }
+
+        function simulateRealTimeUpdates() {
+            const tickerScroll = document.getElementById('tickerScroll');
+            const previousOrder = [...transportData];
+            
+            // Add subtle fade during update
+            tickerScroll.classList.add('updating');
+            
+            // Simulate realistic bus movements and updates
+            transportData.forEach(item => {
+                // Decrease departure times (buses approaching)
+                item.nextDepartures = item.nextDepartures.map(time => {
+                    const minutes = parseInt(time);
+                    if (minutes > 0) {
+                        const newTime = Math.max(0, minutes - 1);
+                        return newTime === 0 ? "Due" : newTime + " min";
+                    }
+                    return time;
+                });
+                
+                // When bus is due, shift times and add new departure
+                if (item.nextDepartures[0] === "Due" || item.nextDepartures[0] === "0 min") {
+                    const baseInterval = getRouteInterval(item.route);
+                    const nextTime = parseInt(item.nextDepartures[1]) + baseInterval + Math.floor(Math.random() * 3 - 1);
+                    item.nextDepartures = [
+                        item.nextDepartures[1],
+                        item.nextDepartures[2] || (nextTime + " min"),
+                        (nextTime + baseInterval + Math.floor(Math.random() * 2)) + " min"
+                    ];
+                }
+                
+                // Occasional status changes (realistic scenarios)
+                if (Math.random() < 0.05) { // 5% chance
+                    const rand = Math.random();
+                    if (rand < 0.8) {
+                        item.status = "On time";
+                    } else if (rand < 0.95) {
+                        item.status = "Delayed " + (Math.floor(Math.random() * 3) + 2) + " min";
+                    } else {
+                        item.status = "Cancelled";
+                    }
+                }
+            });
+            
+            // Check if significant reordering needed
+            const newOrder = [...transportData].sort((a, b) => {
+                const timeA = parseInt(a.nextDepartures[0]) || 999;
+                const timeB = parseInt(b.nextDepartures[0]) || 999;
+                return timeA - timeB;
+            });
+            
+            const orderChanged = !previousOrder.every((item, index) => 
+                newOrder[index] && item.route === newOrder[index].route && 
+                item.stop === newOrder[index].stop
+            );
+            
+            setTimeout(() => {
+                if (orderChanged) {
+                    animateReorder();
+                } else {
+                    populateTicker();
+                }
+                tickerScroll.classList.remove('updating');
+            }, 300);
+        }
+
+        function getRouteInterval(route) {
+            // Realistic intervals for Wellington bus routes (in minutes)
+            const intervals = {
+                '1': 10, '4': 12, '12': 15, '14': 20, '17': 15,
+                '18': 8, '21': 20, '22': 12, '24': 15, '29': 12
+            };
+            return intervals[route] || 15;
+        }
+
+        function animateReorder() {
+            const items = document.querySelectorAll('.transport-item');
+            const totalItems = items.length / 4; // Since we duplicate items 4 times
+            
+            // Get current and new order
+            const currentOrder = Array.from(items).slice(0, totalItems).map(item => ({
+                route: item.dataset.route,
+                stop: item.dataset.stop,
+                element: item
+            }));
+            
+            const newOrder = [...transportData].sort((a, b) => {
+                const timeA = parseInt(a.nextDepartures[0]) || 999;
+                const timeB = parseInt(b.nextDepartures[0]) || 999;
+                return timeA - timeB;
+            });
+            
+            // Find which items need to move
+            const movements = [];
+            newOrder.forEach((newItem, newIndex) => {
+                const currentIndex = currentOrder.findIndex(current => 
+                    current.route === newItem.route && current.stop === newItem.stop
+                );
+                if (currentIndex !== -1 && currentIndex !== newIndex) {
+                    movements.push({
+                        from: currentIndex,
+                        to: newIndex,
+                        route: newItem.route,
+                        stop: newItem.stop
+                    });
+                }
+            });
+            
+            if (movements.length === 0) {
+                populateTicker();
+                return;
+            }
+
+            // Apply sliding animations
+            movements.forEach(move => {
+                // Find all instances of this item (across all duplicates)
+                const itemsToMove = Array.from(items).filter(item => 
+                    item.dataset.route === move.route && item.dataset.stop === move.stop
+                );
+                
+                itemsToMove.forEach(item => {
+                    item.classList.add('highlight');
+                });
+                
+                // Animate items that need to slide aside
+                for (let i = Math.min(move.from, move.to); i <= Math.max(move.from, move.to); i++) {
+                    if (i !== move.from) {
+                        const affectedItems = Array.from(items).filter((item, index) => 
+                            Math.floor(index / totalItems) === 0 ? index === i : 
+                            index % totalItems === i
+                        );
+                        
+                        affectedItems.forEach(item => {
+                            if (i < move.to) {
+                                item.classList.add('sliding-left');
+                            } else {
+                                item.classList.add('sliding-right');
+                            }
+                        });
+                    }
+                }
+            });
+            
+            // After animation, update the content
+            setTimeout(() => {
+                populateTicker();
+                
+                // Clean up animation classes
+                setTimeout(() => {
+                    const newItems = document.querySelectorAll('.transport-item');
+                    newItems.forEach(item => {
+                        item.classList.remove('sliding-left', 'sliding-right', 'sliding-in', 'highlight');
+                    });
+                    
+                    // Add slide-in animation to newly positioned items
+                    movements.forEach(move => {
+                        const newItems = Array.from(document.querySelectorAll('.transport-item')).filter(item => 
+                            item.dataset.route === move.route && item.dataset.stop === move.stop
+                        );
+                        newItems.forEach(item => {
+                            item.classList.add('sliding-in');
+                        });
+                    });
+                    
+                    // Clean up slide-in animations
+                    setTimeout(() => {
+                        const finalItems = document.querySelectorAll('.transport-item');
+                        finalItems.forEach(item => {
+                            item.classList.remove('sliding-in');
+                        });
+                    }, 800);
+                }, 50);
+            }, 400);
+        }
+
+        // Automatic page refresh (invisible to user)
+        function schedulePageRefresh() {
+            // Refresh every 30 minutes to prevent memory leaks and ensure fresh data
+            setTimeout(() => {
+                // Fade out smoothly before refresh
+                document.body.style.transition = 'opacity 0.5s ease-out';
+                document.body.style.opacity = '0';
+                
+                setTimeout(() => {
+                    window.location.reload();
+                }, 500);
+            }, 30 * 60 * 1000); // 30 minutes
+        }
+
+        // Initialize everything
+        function initialize() {
+            updateCurrentTime();
+            populateTicker();
+            schedulePageRefresh();
+            
+            // Ensure animation starts immediately
+            const tickerScroll = document.getElementById('tickerScroll');
+            tickerScroll.style.animationPlayState = 'running';
+        }
+
+        // Start the application
+        initialize();
+
+        // Update time every second
+        setInterval(updateCurrentTime, 1000);
+
+        // Update transport data every 60 seconds (more realistic)
+        setInterval(simulateRealTimeUpdates, 60000);
+
+        // Refresh ticker display every 3 minutes
+        setInterval(populateTicker, 180000);
+
+        // Handle visibility change (when tab becomes active again)
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                simulateRealTimeUpdates();
+            }
+        });
+    </script>
+</body>
+</html>
