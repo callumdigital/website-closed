@@ -1,0 +1,356 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0D4C38;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: stretch;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+.ticker-container {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #0D4C38 0%, #0A3D2E 50%, #0D4C38 100%);
+    border-top: 4px solid rgba(255, 255, 255, 0.3);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Optimized responsive scaling */
+@media (min-width: 2560px) {
+    /* 4K displays */
+    .ticker-header {
+        font-size: clamp(16px, 2.5vh, 32px);
+        padding: clamp(8px, 1.5vh, 24px) clamp(16px, 2.5vh, 40px);
+        height: clamp(50px, 8vh, 80px);
+    }
+    .bus-badge {
+        font-size: 28px;
+        width: 56px;
+        height: 56px;
+    }
+    .destination {
+        font-size: 20px;
+    }
+    .timing {
+        font-size: 24px;
+    }
+    .badge-container {
+        gap: 12px;
+    }
+    .status, .stop-badge {
+        font-size: 16px;
+        padding: 6px 16px;
+    }
+    .direction-indicator {
+        font-size: 14px;
+        padding: 4px 10px;
+    }
+    .transport-item {
+        min-width: 480px;
+        max-width: 480px;
+        height: 120px;
+        margin-right: 40px;
+    }
+}
+
+@media (max-width: 2559px) {
+    /* 1080p and below */
+    .ticker-header {
+        font-size: clamp(12px, 2.2vh, 28px);
+        padding: clamp(6px, 1.2vh, 20px) clamp(12px, 2vh, 32px);
+        height: clamp(40px, 6vh, 70px);
+    }
+    .bus-badge {
+        font-size: 24px;
+        width: 48px;
+        height: 48px;
+    }
+    .destination {
+        font-size: 16px;
+    }
+    .timing {
+        font-size: 20px;
+    }
+    .badge-container {
+        gap: 10px;
+    }
+    .status, .stop-badge {
+        font-size: 14px;
+        padding: 4px 12px;
+    }
+    .direction-indicator {
+        font-size: 13px;
+        padding: 3px 8px;
+    }
+    .transport-item {
+        min-width: 400px;
+        max-width: 400px;
+        height: 100px;
+        margin-right: 32px;
+    }
+}
+
+.ticker-header {
+    background: rgba(0, 0, 0, 0.2);
+    color: white;
+    font-weight: 600;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+}
+
+.live-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.live-dot {
+    background: #ff6b6b;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+    width: clamp(4px, 0.8vh, 12px);
+    height: clamp(4px, 0.8vh, 12px);
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+.ticker-content {
+    height: calc(100% - 50px);
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.ticker-scroll {
+    display: flex;
+    align-items: center;
+    animation: scroll-continuous 180s linear infinite;
+    white-space: nowrap;
+    transform: translateX(0%);
+}
+
+@keyframes scroll-continuous {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-100%); }
+}
+
+.transport-item {
+    display: flex;
+    align-items: center;
+    background: #0D4C38;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 16px;
+    gap: 16px;
+    position: relative;
+}
+
+.destination-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.destination {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.direction-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin-left: 8px;
+    white-space: nowrap;
+}
+
+.direction-arrow {
+    font-family: system-ui;
+    font-size: 1.4em;
+    font-weight: bold;
+    line-height: 1;
+    color: white;
+}
+
+.bus-section {
+    flex-shrink: 0;
+}
+
+.bus-badge {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 600;
+    border-radius: 6px;
+    position: relative;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    padding-bottom: 8px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.bus-badge::after {
+    content: "";
+    position: absolute;
+    bottom: -8px;
+    width: 6px;
+    height: 8px;
+    background: #D9D9D9;
+    border-radius: 3px;
+    left: 8px;
+}
+
+.bus-badge::before {
+    content: "";
+    position: absolute;
+    bottom: -8px;
+    width: 6px;
+    height: 8px;
+    background: #D9D9D9;
+    border-radius: 3px;
+    right: 8px;
+}
+
+.transport-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.info-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 1px;
+}
+
+.time {
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    margin-top: 1px;
+}
+
+.stop-badge {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 13px;
+    color: white;
+    color: white;
+}
+
+.status {
+    background: rgba(62, 179, 56, 0.3);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 13px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.status.delayed {
+    background: rgba(255, 152, 0, 0.3);
+    color: #ffd149;
+    border: 1px solid rgba(255, 152, 0, 0.5);
+}
+
+.status.cancelled {
+    background: rgba(244, 67, 54, 0.3);
+    color: #ff8a85;
+    border: 1px solid rgba(244, 67, 54, 0.5);
+}
+
+.timing {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    margin-top: 8px;
+}
+
+.direction-info {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 13px;
+}
+
+.direction-text {
+    color: white;
+}
+
+/* Metlink official colors for bus routes */
+.bus-badge.route-1 { background: linear-gradient(135deg, #E31E24 60%, #cc1a1f 100%); } /* Red Line */
+.bus-badge.route-2 { background: linear-gradient(135deg, #00A651 60%, #008c44 100%); } /* Green Line */
+.bus-badge.route-3 { background: linear-gradient(135deg, #0072CE 60%, #0061af 100%); } /* Blue Line */
+.bus-badge.route-4 { background: linear-gradient(135deg, #F7931E 60%, #e0841b 100%); } /* Orange Line */
+.bus-badge.route-18 { background: linear-gradient(135deg, #663399 60%, #552b80 100%); } /* Purple Line */
+.bus-badge.route-21 { background: linear-gradient(135deg, #8B4513 60%, #723a10 100%); } /* Brown Line */
+.bus-badge.route-22 { background: linear-gradient(135deg, #FF69B4 60%, #ff4da6 100%); } /* Pink Line */
+.bus-badge.route-24 { background: linear-gradient(135deg, #32CD32 60%, #2ab02a 100%); } /* Light Green Line */
+.bus-badge.route-29 { background: linear-gradient(135deg, #4169E1 60%, #2f59cf 100%); } /* Royal Blue Line */
+.bus-badge { background: linear-gradient(135deg, #78909c 60%, #546e7a 100%); } /* Default color */
+
+.time-display {
+    color: white;
+    font-weight: 500;
+}
+
+.timing-container {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: white;
+}
+
+.status.system-message {
+    background: rgba(25, 118, 210, 0.3);
+    color: #90caf9;
+    border: 1px solid rgba(25, 118, 210, 0.5);
+}
+
+.bus-badge.route-alert {
+    background: linear-gradient(135deg, #1976d2 60%, #1565c0 100%);
+} 
