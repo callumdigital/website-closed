@@ -1,0 +1,506 @@
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VUW Kelburn Transport Ticker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0D4C38;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            align-items: flex-end;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        .ticker-container {
+            width: 100%;
+            height: 16.67vh; /* 360px out of 2160px = 16.67% */
+            min-height: 120px; /* Fallback for smaller screens */
+            background: linear-gradient(90deg, #0D4C38 0%, #0A3D2E 50%, #0D4C38 100%);
+            border-top: 4px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Media query for 1080p and smaller screens */
+        @media (max-height: 1080px) {
+            .ticker-container {
+                height: 120px; /* Fixed height for smaller screens */
+            }
+        }
+
+        /* Responsive font scaling */
+        @media (min-width: 2560px) {
+            .ticker-header {
+                font-size: 18px;
+            }
+            .route-badge {
+                font-size: 20px;
+                padding: 10px 15px;
+                font-weight: 700;
+            }
+            .destination {
+                font-size: 18px;
+                font-weight: 600;
+            }
+            .timing {
+                font-size: 16px;
+            }
+            .next-departure {
+                font-weight: 700;
+            }
+            .stop-info {
+                font-size: 14px;
+            }
+            .status {
+                font-size: 14px;
+                font-weight: 500;
+            }
+            .live-indicator {
+                font-size: 16px;
+            }
+            .time-display {
+                font-size: 16px;
+                font-weight: 500;
+            }
+            .transport-item {
+                min-width: 350px;
+                margin-right: 80px;
+                padding: 16px 25px;
+            }
+        }
+
+        .ticker-header {
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            padding: 8px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        .ticker-content {
+            height: calc(100% - 40px);
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ticker-scroll {
+            display: flex;
+            align-items: center;
+            animation: scroll 60s linear infinite;
+            white-space: nowrap;
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .ticker-scroll {
+            display: flex;
+            align-items: center;
+            animation: scroll 120s linear infinite;
+            white-space: nowrap;
+        }
+
+        .transport-item {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 60px;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            min-width: 280px;
+            transition: transform 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
+            position: relative;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .route-badge {
+            background: rgba(255, 255, 255, 0.9);
+            color: #0D4C38;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 16px;
+            margin-right: 15px;
+            min-width: 45px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .transport-info {
+            color: white;
+            flex-grow: 1;
+        }
+
+        .transport-info {
+            color: white;
+            flex-grow: 1;
+        }
+
+        .destination {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 2px;
+            color: white;
+        }
+
+        .timing {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .next-departure {
+            font-weight: 700;
+            color: white;
+        }
+
+        .stop-info {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 2px;
+        }
+
+        .status {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-left: 10px;
+            font-weight: 500;
+        }
+
+        .delayed {
+            color: #ffab40;
+        }
+
+        .cancelled {
+            color: #ff6b6b;
+        }
+
+        .time-display {
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .stop-info {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 2px;
+        }
+
+        .status {
+            font-size: 11px;
+            color: #4CAF50;
+            margin-left: 10px;
+        }
+
+        .delayed {
+            color: #ff9800;
+        }
+
+        .cancelled {
+            color: #f44336;
+        }
+
+        .time-display {
+            color: #0D4C38;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .ticker-scroll {
+            display: flex;
+            align-items: center;
+            animation: scroll 120s linear infinite;
+            white-space: nowrap;
+        }
+
+        /* Dynamic reordering animation */
+        .transport-item.moving-left {
+            animation: slideLeft 0.8s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
+        }
+
+        .transport-item.moving-right {
+            animation: slideRight 0.8s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
+        }
+
+        @keyframes slideLeft {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-340px); } /* Item width + margin */
+        }
+
+        @keyframes slideRight {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(340px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="ticker-container">
+        <div class="ticker-header">
+            <span>🚌 VUW KELBURN CAMPUS TRANSPORT - STOPS A & B</span>
+            <div class="live-indicator">
+                <div class="live-dot"></div>
+                <span>LIVE</span>
+                <span class="time-display" id="currentTime"></span>
+            </div>
+        </div>
+        <div class="ticker-content">
+            <div class="ticker-scroll" id="tickerScroll">
+                <!-- Transport items will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Transport data for VUW Kelburn stops
+        const transportData = [
+            {
+                route: "18",
+                destination: "Miramar via Newtown",
+                stop: "Stop A",
+                nextDepartures: ["2 min", "12 min"],
+                status: "On time"
+            },
+            {
+                route: "21",
+                destination: "Airport Flyer",
+                stop: "Stop A",
+                nextDepartures: ["5 min", "20 min"],
+                status: "On time"
+            },
+            {
+                route: "22",
+                destination: "Mairangi via Johnsonville",
+                stop: "Stop B",
+                nextDepartures: ["1 min", "8 min"],
+                status: "On time"
+            },
+            {
+                route: "1",
+                destination: "Island Bay via Newtown",
+                stop: "Stop A",
+                nextDepartures: ["7 min", "17 min"],
+                status: "On time"
+            },
+            {
+                route: "24",
+                destination: "Wilton via The Terrace",
+                stop: "Stop B",
+                nextDepartures: ["4 min", "14 min"],
+                status: "On time"
+            },
+            {
+                route: "29",
+                destination: "Brooklyn via Adelaide Rd",
+                stop: "Stop A",
+                nextDepartures: ["6 min", "16 min"],
+                status: "On time"
+            },
+            {
+                route: "4",
+                destination: "Miramar via Mt Victoria",
+                stop: "Stop B",
+                nextDepartures: ["3 min", "13 min"],
+                status: "On time"
+            },
+            {
+                route: "18",
+                destination: "Miramar via Newtown",
+                stop: "Stop A",
+                nextDepartures: ["32 min", "42 min"],
+                status: "On time"
+            }
+        ];
+
+        function updateCurrentTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-NZ', { 
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('currentTime').textContent = timeString;
+        }
+
+        function createTransportItem(data) {
+            const statusClass = data.status === "On time" ? "" : 
+                               data.status.includes("Delayed") ? "delayed" : 
+                               data.status.includes("Cancelled") ? "cancelled" : "";
+
+            return `
+                <div class="transport-item">
+                    <div class="route-badge">${data.route}</div>
+                    <div class="transport-info">
+                        <div class="destination">${data.destination}</div>
+                        <div class="timing">
+                            <span class="next-departure">${data.nextDepartures[0]}</span>
+                            <span>${data.nextDepartures[1]}</span>
+                        </div>
+                        <div class="stop-info">${data.stop}</div>
+                    </div>
+                    <div class="status ${statusClass}">${data.status}</div>
+                </div>
+            `;
+        }
+
+        function populateTicker() {
+            const tickerScroll = document.getElementById('tickerScroll');
+            let html = '';
+            
+            // Create multiple copies of the data for continuous scrolling
+            for (let i = 0; i < 3; i++) {
+                transportData.forEach(item => {
+                    html += createTransportItem(item);
+                });
+            }
+            
+            tickerScroll.innerHTML = html;
+        }
+
+        function simulateRealTimeUpdates() {
+            const previousOrder = [...transportData];
+            
+            // Simulate random delays and updates
+            transportData.forEach(item => {
+                if (Math.random() < 0.1) { // 10% chance of status change
+                    const rand = Math.random();
+                    if (rand < 0.7) {
+                        item.status = "On time";
+                    } else if (rand < 0.9) {
+                        item.status = "Delayed 2 min";
+                    } else {
+                        item.status = "Cancelled";
+                    }
+                }
+                
+                // Update departure times (simulate buses arriving and delays)
+                item.nextDepartures = item.nextDepartures.map((time, index) => {
+                    const minutes = parseInt(time);
+                    if (minutes > 0 && Math.random() < 0.3) {
+                        // Sometimes decrease time (bus approaching)
+                        return Math.max(0, minutes - Math.floor(Math.random() * 2 + 1)) + " min";
+                    } else if (Math.random() < 0.1) {
+                        // Sometimes increase time (delay)
+                        return (minutes + Math.floor(Math.random() * 3 + 1)) + " min";
+                    }
+                    return time;
+                });
+                
+                // Add new departure times when buses "arrive"
+                if (item.nextDepartures[0] === "0 min" || item.nextDepartures[0] === "Due") {
+                    item.nextDepartures = [
+                        item.nextDepartures[1],
+                        (parseInt(item.nextDepartures[1]) + Math.floor(Math.random() * 5 + 10)) + " min"
+                    ];
+                }
+            });
+            
+            // Sort by next departure time to simulate dynamic reordering
+            transportData.sort((a, b) => {
+                const timeA = parseInt(a.nextDepartures[0]);
+                const timeB = parseInt(b.nextDepartures[0]);
+                return timeA - timeB;
+            });
+            
+            // Check if order changed and animate if needed
+            const orderChanged = !previousOrder.every((item, index) => 
+                item.route === transportData[index].route && 
+                item.stop === transportData[index].stop
+            );
+            
+            if (orderChanged) {
+                animateReorder();
+            } else {
+                populateTicker();
+            }
+        }
+
+        function animateReorder() {
+            // Add animation classes before updating
+            const items = document.querySelectorAll('.transport-item');
+            items.forEach((item, index) => {
+                if (Math.random() < 0.5) {
+                    item.classList.add('moving-left');
+                } else {
+                    item.classList.add('moving-right');
+                }
+            });
+            
+            // Update content after animation starts
+            setTimeout(() => {
+                populateTicker();
+                // Remove animation classes
+                setTimeout(() => {
+                    const newItems = document.querySelectorAll('.transport-item');
+                    newItems.forEach(item => {
+                        item.classList.remove('moving-left', 'moving-right');
+                    });
+                }, 100);
+            }, 400);
+        }
+
+        // Initialize
+        updateCurrentTime();
+        populateTicker();
+
+        // Update time every second
+        setInterval(updateCurrentTime, 1000);
+
+        // Update transport data every 30 seconds
+        setInterval(simulateRealTimeUpdates, 30000);
+
+        // Refresh ticker content every 2 minutes to show updated data
+        setInterval(populateTicker, 120000);
+    </script>
+</body>
+</html>
