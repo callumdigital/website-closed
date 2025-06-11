@@ -6,6 +6,12 @@ let transportData = [];
 let retryCount = 0;
 const MAX_RETRIES = 3;
 
+// Scrolling variables for optimized animation
+let scrollPosition = 0;
+let scrollWidth = 0;
+let animationId = null;
+const SCROLL_SPEED = 1; // pixels per frame - adjust for speed
+
 function isValidDeparture(departure) {
     // Skip school buses (typically numbered 600-699)
     const routeNum = parseInt(departure.service_id);
@@ -238,6 +244,7 @@ function populateTicker() {
     }
     
     let html = '';
+    // Create multiple copies for seamless scrolling
     for (let i = 0; i < 3; i++) {
         transportData.forEach(item => {
             html += createTransportItem(item);
@@ -245,6 +252,39 @@ function populateTicker() {
     }
     
     tickerScroll.innerHTML = html;
+    
+    // Reset scroll position and recalculate width
+    scrollPosition = 0;
+    setTimeout(() => {
+        scrollWidth = tickerScroll.scrollWidth;
+        startScrollAnimation();
+    }, 100);
+}
+
+// Optimized scrolling animation using requestAnimationFrame
+function startScrollAnimation() {
+    if (animationId) {
+        cancelAnimationFrame(animationId);
+    }
+    
+    function animate() {
+        const tickerScroll = document.getElementById('tickerScroll');
+        if (!tickerScroll) return;
+        
+        scrollPosition += SCROLL_SPEED;
+        
+        // Reset when we've scrolled through one complete set
+        if (scrollPosition >= scrollWidth / 3) {
+            scrollPosition = 0;
+        }
+        
+        // Use transform for better performance
+        tickerScroll.style.transform = `translateX(-${scrollPosition}px)`;
+        
+        animationId = requestAnimationFrame(animate);
+    }
+    
+    animate();
 }
 
 function updateCurrentTime() {
@@ -342,4 +382,17 @@ document.addEventListener('visibilitychange', () => {
         console.log('Page visibility changed to visible, updating data...');
         updateTransportData();
     }
-}); 
+});
+
+// Handle page focus/blur for animation optimization
+window.addEventListener('blur', () => {
+    if (animationId) {
+        cancelAnimationFrame(animationId);
+    }
+});
+
+window.addEventListener('focus', () => {
+    if (scrollWidth > 0) {
+        startScrollAnimation();
+    }
+});
