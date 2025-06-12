@@ -10,10 +10,19 @@ const MAX_RETRIES = 3;
 let scrollPosition = 0;
 let scrollWidth = 0;
 let animationId = null;
-const SCROLL_SPEED = 2; // Adjusted for larger display
+let scrollSpeed = 2; // Base scroll speed
 
 // Excluded bus routes
 const EXCLUDED_ROUTES = ['740', '739', '769'];
+
+// Dynamic scroll speed based on viewport width
+function calculateScrollSpeed() {
+    const viewportWidth = window.innerWidth;
+    // Scale scroll speed based on viewport width
+    // Larger screens = faster scroll, smaller screens = slower scroll
+    scrollSpeed = Math.max(1, Math.min(4, viewportWidth / 800));
+    return scrollSpeed;
+}
 
 function isValidDeparture(departure) {
     // Skip excluded bus routes
@@ -229,7 +238,7 @@ function createTransportItem(data) {
                         <span class="direction-arrow">${directionArrow}</span>
                     </span>
                 </div>
-                <div class="time">${data.nextDepartures.join(", then ")}</div>
+                <div class="time" data-timestamps='${JSON.stringify(data.rawTimestamps)}'>${data.nextDepartures.join(", then ")}</div>
             </div>
         </div>
     `;
@@ -252,8 +261,9 @@ function populateTicker() {
     }
     
     let html = '';
-    // Create multiple copies for seamless scrolling
-    for (let i = 0; i < 3; i++) {
+    // Create multiple copies for seamless scrolling - adjust number based on screen size
+    const copies = Math.ceil(window.innerWidth / 500) + 2; // Ensure enough copies for seamless scrolling
+    for (let i = 0; i < copies; i++) {
         transportData.forEach(item => {
             html += createTransportItem(item);
         });
@@ -265,6 +275,7 @@ function populateTicker() {
     scrollPosition = 0;
     setTimeout(() => {
         scrollWidth = tickerScroll.scrollWidth;
+        calculateScrollSpeed(); // Recalculate scroll speed for current viewport
         startScrollAnimation();
     }, 100);
 }
@@ -279,10 +290,11 @@ function startScrollAnimation() {
         const tickerScroll = document.getElementById('tickerScroll');
         if (!tickerScroll) return;
         
-        scrollPosition += SCROLL_SPEED;
+        scrollPosition += scrollSpeed;
         
         // Reset when we've scrolled through one complete set
-        if (scrollPosition >= scrollWidth / 3) {
+        const resetPoint = scrollWidth / Math.ceil(window.innerWidth / 500 + 2);
+        if (scrollPosition >= resetPoint) {
             scrollPosition = 0;
         }
         
@@ -359,16 +371,34 @@ function updateTimingsOnly() {
     document.querySelectorAll('.transport-item').forEach(item => {
         const timingDiv = item.querySelector('.time');
         if (timingDiv && timingDiv.dataset && timingDiv.dataset.timestamps) {
-            const timestamps = JSON.parse(timingDiv.dataset.timestamps);
-            const times = timestamps.map(ts => {
-                const departureTime = new Date(ts);
-                const diffMinutes = Math.round((departureTime - now) / (1000 * 60));
-                if (diffMinutes <= 0) return "Due now";
-                return `${diffMinutes} mins away`;
-            });
-            timingDiv.textContent = times.join(", then ");
+            try {
+                const timestamps = JSON.parse(timingDiv.dataset.timestamps);
+                const times = timestamps.map(ts => {
+                    const departureTime = new Date(ts);
+                    const diffMinutes = Math.round((departureTime - now) / (1000 * 60));
+                    if (diffMinutes <= 0) return "Due now";
+                    return `${diffMinutes} mins away`;
+                });
+                timingDiv.textContent = times.join(", then ");
+            } catch (e) {
+                // Ignore JSON parsing errors for timing updates
+            }
         }
     });
+}
+
+// Handle window resize to recalculate scroll parameters
+function handleResize() {
+    calculateScrollSpeed();
+    // Restart animation with new parameters
+    setTimeout(() => {
+        if (document.getElementById('tickerScroll')) {
+            scrollWidth = document.getElementById('tickerScroll').scrollWidth;
+            if (scrollWidth > 0) {
+                startScrollAnimation();
+            }
+        }
+    }, 100);
 }
 
 // Start immediately when DOM is ready
@@ -404,3 +434,6 @@ window.addEventListener('focus', () => {
         startScrollAnimation();
     }
 });
+
+// Handle window resize
+window.addEventListener('resize', handleResize);
