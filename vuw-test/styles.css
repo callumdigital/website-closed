@@ -242,15 +242,10 @@ body {
     font-weight: 500;
 }
 
-/* Metlink official colors for bus routes */
-.bus-badge.route-1 { background: linear-gradient(135deg, #E31E24 60%, #cc1a1f 100%); }
-.bus-badge.route-2 { background: linear-gradient(135deg, #00A651 60%, #008c44 100%); }
-.bus-badge.route-3 { background: linear-gradient(135deg, #0072CE 60%, #0061af 100%); }
-.bus-badge.route-4 { background: linear-gradient(135deg, #F7931E 60%, #e0841b 100%); }
-.bus-badge.route-18 { background: linear-gradient(135deg, #663399 60%, #552b80 100%); }
-.bus-badge.route-21 { background: linear-gradient(135deg, #8B4513 60%, #723a10 100%); }
-.bus-badge.route-22 { background: linear-gradient(135deg, #FF69B4 60%, #ff4da6 100%); }
-.bus-badge.route-24 { background: linear-gradient(135deg, #32CD32 60%, #2ab02a 100%); }
-.bus-badge.route-29 { background: linear-gradient(135deg, #4169E1 60%, #2f59cf 100%); }
-.bus-badge.route-alert { background: linear-gradient(135deg, #1976d2 60%, #1565c0 100%); }
-.bus-badge { background: linear-gradient(135deg, #78909c 60%, #546e7a 100%); }
+/* Bus route colors matching the screenshot */
+.bus-badge.route-21 { background: linear-gradient(135deg, #E91E63 60%, #c2185b 100%); } /* Pink for route 21 */
+.bus-badge.route-4 { background: linear-gradient(135deg, #FF6F00 60%, #e65100 100%); } /* Orange for route 4 */
+.bus-badge.route-18 { background: linear-gradient(135deg, #2196F3 60%, #1976d2 100%); } /* Blue for route 18 */
+.bus-badge.route-22 { background: linear-gradient(135deg, #FF6F00 60%, #e65100 100%); } /* Orange for route 22 */
+.bus-badge.route-alert { background: linear-gradient(135deg, #E91E63 60%, #c2185b 100%); } /* Pink for alerts */
+.bus-badge { background: linear-gradient(135deg, #78909c 60%, #546e7a 100%); } /* Default gray */
