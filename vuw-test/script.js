@@ -10,9 +10,15 @@ const MAX_RETRIES = 3;
 let scrollPosition = 0;
 let scrollWidth = 0;
 let animationId = null;
-const SCROLL_SPEED = 1; // pixels per frame - adjust for speed
+const SCROLL_SPEED = 2; // Adjusted for larger display
+
+// Excluded bus routes
+const EXCLUDED_ROUTES = ['740', '739', '769'];
 
 function isValidDeparture(departure) {
+    // Skip excluded bus routes
+    if (EXCLUDED_ROUTES.includes(departure.service_id)) return false;
+    
     // Skip school buses (typically numbered 600-699)
     const routeNum = parseInt(departure.service_id);
     if (routeNum >= 600 && routeNum <= 699) return false;
@@ -237,7 +243,7 @@ function populateTicker() {
                 </div>
                 <div class="transport-info">
                     <div class="destination">Checking Bus Times</div>
-                    <div class="timing">Just a moment please...</div>
+                    <div class="time">Just a moment please...</div>
                 </div>
             </div>`;
         return;
@@ -317,7 +323,7 @@ async function initialize() {
             </div>
             <div class="transport-info">
                 <div class="destination">Loading Bus Times</div>
-                <div class="timing">Please wait...</div>
+                <div class="time">Please wait...</div>
             </div>
         </div>`;
 
@@ -349,7 +355,7 @@ async function initialize() {
 function updateTimingsOnly() {
     const now = new Date();
     document.querySelectorAll('.transport-item').forEach(item => {
-        const timingDiv = item.querySelector('.timing');
+        const timingDiv = item.querySelector('.time');
         if (timingDiv && timingDiv.dataset && timingDiv.dataset.timestamps) {
             const timestamps = JSON.parse(timingDiv.dataset.timestamps);
             const times = timestamps.map(ts => {
