@@ -19,9 +19,11 @@ function isValidDeparture(departure) {
     // Skip excluded bus routes
     if (EXCLUDED_ROUTES.includes(departure.service_id)) return false;
     
-    // Skip school buses (typically numbered 600-699)
-    const routeNum = parseInt(departure.service_id);
-    if (routeNum >= 600 && routeNum <= 699) return false;
+    // Skip services with "School Bus" in the destination name
+    if (departure.destination && departure.destination.name && 
+        departure.destination.name.toLowerCase().includes('school bus')) {
+        return false;
+    }
 
     // Check if departure is today
     const now = new Date();
