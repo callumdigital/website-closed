@@ -7,98 +7,34 @@
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: #0D4C38;
-    height: 100vh;
-    width: 100vw;
+    width: 3840px;
+    height: 360px;
     display: flex;
     align-items: stretch;
     overflow: hidden;
     margin: 0;
     padding: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform-origin: top left;
+}
+
+/* Auto-scaling for smaller screens */
+@media (max-width: 3840px), (max-height: 360px) {
+    body {
+        transform: scale(calc(min(100vw / 3840, 100vh / 360)));
+    }
 }
 
 .ticker-container {
-    width: 100%;
-    height: 100%;
+    width: 3840px;
+    height: 360px;
     background: linear-gradient(90deg, #0D4C38 0%, #0A3D2E 50%, #0D4C38 100%);
     border-top: 4px solid rgba(255, 255, 255, 0.3);
     position: relative;
     overflow: hidden;
     box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.3);
-}
-
-/* Optimized responsive scaling */
-@media (min-width: 2560px) {
-    /* 4K displays */
-    .ticker-header {
-        font-size: clamp(16px, 2.5vh, 32px);
-        padding: clamp(8px, 1.5vh, 24px) clamp(16px, 2.5vh, 40px);
-        height: clamp(50px, 8vh, 80px);
-    }
-    .bus-badge {
-        font-size: 28px;
-        width: 56px;
-        height: 56px;
-    }
-    .destination {
-        font-size: 20px;
-    }
-    .timing {
-        font-size: 24px;
-    }
-    .badge-container {
-        gap: 12px;
-    }
-    .status, .stop-badge {
-        font-size: 16px;
-        padding: 6px 16px;
-    }
-    .direction-indicator {
-        font-size: 14px;
-        padding: 4px 10px;
-    }
-    .transport-item {
-        min-width: 480px;
-        max-width: 480px;
-        height: 120px;
-        margin-right: 40px;
-    }
-}
-
-@media (max-width: 2559px) {
-    /* 1080p and below */
-    .ticker-header {
-        font-size: clamp(12px, 2.2vh, 28px);
-        padding: clamp(6px, 1.2vh, 20px) clamp(12px, 2vh, 32px);
-        height: clamp(40px, 6vh, 70px);
-    }
-    .bus-badge {
-        font-size: 24px;
-        width: 48px;
-        height: 48px;
-    }
-    .destination {
-        font-size: 16px;
-    }
-    .timing {
-        font-size: 20px;
-    }
-    .badge-container {
-        gap: 10px;
-    }
-    .status, .stop-badge {
-        font-size: 14px;
-        padding: 4px 12px;
-    }
-    .direction-indicator {
-        font-size: 13px;
-        padding: 3px 8px;
-    }
-    .transport-item {
-        min-width: 400px;
-        max-width: 400px;
-        height: 100px;
-        margin-right: 32px;
-    }
 }
 
 .ticker-header {
@@ -111,21 +47,25 @@ body {
     justify-content: space-between;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(5px);
+    height: 80px;
+    padding: 0 40px;
+    font-size: 32px;
 }
 
 .live-indicator {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 16px;
     color: rgba(255, 255, 255, 0.9);
+    font-size: 28px;
 }
 
 .live-dot {
     background: #ff6b6b;
     border-radius: 50%;
     animation: pulse 1.5s infinite;
-    width: clamp(4px, 0.8vh, 12px);
-    height: clamp(4px, 0.8vh, 12px);
+    width: 12px;
+    height: 12px;
 }
 
 @keyframes pulse {
@@ -134,68 +74,36 @@ body {
 }
 
 .ticker-content {
-    height: calc(100% - 50px);
+    height: 280px;
     display: flex;
     align-items: center;
     position: relative;
     overflow: hidden;
 }
 
-/* Optimized scrolling animation for Onelan */
 .ticker-scroll {
     display: flex;
     align-items: center;
     white-space: nowrap;
-    /* Removed CSS animation - now using JavaScript for better compatibility */
+    will-change: transform;
+    transform: translateZ(0);
 }
 
 .transport-item {
     display: flex;
     align-items: center;
     background: #0D4C38;
-    border-radius: 12px;
+    border-radius: 16px;
     border: 1px solid rgba(255, 255, 255, 0.3);
-    padding: 16px;
-    gap: 16px;
+    padding: 24px;
+    gap: 24px;
     position: relative;
-    /* Force hardware acceleration for smoother performance */
     will-change: transform;
     transform: translateZ(0);
-}
-
-.destination-container {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-}
-
-.destination {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: white;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-.direction-indicator {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    color: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    margin-left: 8px;
-    white-space: nowrap;
-}
-
-.direction-arrow {
-    font-family: system-ui;
-    font-size: 1.4em;
-    font-weight: bold;
-    line-height: 1;
-    color: white;
+    min-width: 600px;
+    max-width: 600px;
+    height: 200px;
+    margin-right: 48px;
 }
 
 .bus-section {
@@ -203,80 +111,88 @@ body {
 }
 
 .bus-badge {
-    width: 48px;
-    height: 48px;
+    width: 80px;
+    height: 80px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    font-size: 36px;
     font-weight: 600;
-    border-radius: 6px;
+    border-radius: 8px;
     position: relative;
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.4);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    padding-bottom: 8px;
+    padding-bottom: 12px;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .bus-badge::after {
     content: "";
     position: absolute;
-    bottom: -8px;
-    width: 6px;
-    height: 8px;
+    bottom: -12px;
+    width: 8px;
+    height: 12px;
     background: #D9D9D9;
-    border-radius: 3px;
-    left: 8px;
+    border-radius: 4px;
+    left: 12px;
 }
 
 .bus-badge::before {
     content: "";
     position: absolute;
-    bottom: -8px;
-    width: 6px;
-    height: 8px;
+    bottom: -12px;
+    width: 8px;
+    height: 12px;
     background: #D9D9D9;
-    border-radius: 3px;
-    right: 8px;
+    border-radius: 4px;
+    right: 12px;
 }
 
 .transport-info {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 1px;
+    gap: 8px;
+}
+
+.destination {
+    color: white;
+    font-size: 28px;
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    line-height: 1.2;
 }
 
 .info-row {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-top: 1px;
+    gap: 16px;
+    margin-top: 4px;
 }
 
 .time {
     color: white;
-    font-size: 16px;
+    font-size: 32px;
     font-weight: 500;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-    margin-top: 1px;
+    margin-top: 8px;
 }
 
 .stop-badge {
     background: rgba(255, 255, 255, 0.2);
-    padding: 4px 12px;
-    border-radius: 16px;
-    font-size: 13px;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 18px;
     color: white;
 }
 
 .status {
     background: rgba(62, 179, 56, 0.3);
     color: white;
-    padding: 4px 12px;
-    border-radius: 16px;
-    font-size: 13px;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 18px;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
@@ -292,62 +208,49 @@ body {
     border: 1px solid rgba(244, 67, 54, 0.5);
 }
 
-.timing {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: white;
-    font-size: 16px;
-    font-weight: 500;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-    margin-top: 8px;
-}
-
-.direction-info {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    background: rgba(255, 255, 255, 0.2);
-    padding: 4px 12px;
-    border-radius: 16px;
-    font-size: 13px;
-}
-
-.direction-text {
-    color: white;
-}
-
-/* Metlink official colors for bus routes */
-.bus-badge.route-1 { background: linear-gradient(135deg, #E31E24 60%, #cc1a1f 100%); } /* Red Line */
-.bus-badge.route-2 { background: linear-gradient(135deg, #00A651 60%, #008c44 100%); } /* Green Line */
-.bus-badge.route-3 { background: linear-gradient(135deg, #0072CE 60%, #0061af 100%); } /* Blue Line */
-.bus-badge.route-4 { background: linear-gradient(135deg, #F7931E 60%, #e0841b 100%); } /* Orange Line */
-.bus-badge.route-18 { background: linear-gradient(135deg, #663399 60%, #552b80 100%); } /* Purple Line */
-.bus-badge.route-21 { background: linear-gradient(135deg, #8B4513 60%, #723a10 100%); } /* Brown Line */
-.bus-badge.route-22 { background: linear-gradient(135deg, #FF69B4 60%, #ff4da6 100%); } /* Pink Line */
-.bus-badge.route-24 { background: linear-gradient(135deg, #32CD32 60%, #2ab02a 100%); } /* Light Green Line */
-.bus-badge.route-29 { background: linear-gradient(135deg, #4169E1 60%, #2f59cf 100%); } /* Royal Blue Line */
-.bus-badge { background: linear-gradient(135deg, #78909c 60%, #546e7a 100%); } /* Default color */
-
-.time-display {
-    color: white;
-    font-weight: 500;
-}
-
-.timing-container {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: white;
-}
-
 .status.system-message {
     background: rgba(25, 118, 210, 0.3);
     color: #90caf9;
     border: 1px solid rgba(25, 118, 210, 0.5);
 }
 
-.bus-badge.route-alert {
-    background: linear-gradient(135deg, #1976d2 60%, #1565c0 100%);
+.direction-info {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 18px;
 }
+
+.direction-text {
+    color: white;
+}
+
+.direction-arrow {
+    font-family: system-ui;
+    font-size: 1.6em;
+    font-weight: bold;
+    line-height: 1;
+    color: white;
+}
+
+.time-display {
+    color: white;
+    font-weight: 500;
+}
+
+/* Metlink official colors for bus routes */
+.bus-badge.route-1 { background: linear-gradient(135deg, #E31E24 60%, #cc1a1f 100%); }
+.bus-badge.route-2 { background: linear-gradient(135deg, #00A651 60%, #008c44 100%); }
+.bus-badge.route-3 { background: linear-gradient(135deg, #0072CE 60%, #0061af 100%); }
+.bus-badge.route-4 { background: linear-gradient(135deg, #F7931E 60%, #e0841b 100%); }
+.bus-badge.route-18 { background: linear-gradient(135deg, #663399 60%, #552b80 100%); }
+.bus-badge.route-21 { background: linear-gradient(135deg, #8B4513 60%, #723a10 100%); }
+.bus-badge.route-22 { background: linear-gradient(135deg, #FF69B4 60%, #ff4da6 100%); }
+.bus-badge.route-24 { background: linear-gradient(135deg, #32CD32 60%, #2ab02a 100%); }
+.bus-badge.route-29 { background: linear-gradient(135deg, #4169E1 60%, #2f59cf 100%); }
+.bus-badge.route-alert { background: linear-gradient(135deg, #1976d2 60%, #1565c0 100%); }
+.bus-badge { background: linear-gradient(135deg, #78909c 60%, #546e7a 100%); }
