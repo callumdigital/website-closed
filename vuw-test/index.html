@@ -12,21 +12,43 @@
         /* Override CSS animation to prevent conflict with JavaScript animation */
         .ticker-scroll {
             animation: none !important;
+            -webkit-animation: none !important;
+            -moz-animation: none !important;
+            -o-animation: none !important;
         }
         
-        /* JavaScript performance fixes for instant loading */
+        /* Eyemagnet specific fixes for scaling and animation */
+        body {
+            /* Force proper scaling on Eyemagnet */
+            -webkit-transform-origin: top left !important;
+            -moz-transform-origin: top left !important;
+            transform-origin: top left !important;
+        }
+        
+        /* Disable hardware acceleration on Eyemagnet as it can cause issues */
         .ticker-scroll {
-            transform: translateZ(0);
-            will-change: transform;
+            -webkit-transform: translate3d(0,0,0);
+            -moz-transform: translate3d(0,0,0);
+            transform: translate3d(0,0,0);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
         }
         
         .transport-item {
-            transform: translateZ(0);
+            -webkit-transform: translate3d(0,0,0);
+            -moz-transform: translate3d(0,0,0);
+            transform: translate3d(0,0,0);
         }
     </style>
     <script>
+        // Detect Eyemagnet player and adjust behavior
+        const isEyemagnet = navigator.userAgent.includes('Eyemagnet') || 
+                           window.location.href.includes('eyemagnet') ||
+                           document.querySelector('script[src*="eyemagnet"]');
+        
         // Override the problematic setTimeout delays in your script.js for instant loading
         const originalSetTimeout = window.setTimeout;
+        const originalRequestAnimationFrame = window.requestAnimationFrame;
         let initializationPhase = true;
         
         window.setTimeout = function(callback, delay, ...args) {
@@ -36,6 +58,30 @@
             }
             return originalSetTimeout(callback, delay, ...args);
         };
+        
+        // Eyemagnet specific animation throttling
+        if (isEyemagnet) {
+            let animationThrottle = 0;
+            window.requestAnimationFrame = function(callback) {
+                // Throttle animation on Eyemagnet to reduce speed
+                animationThrottle++;
+                if (animationThrottle % 3 === 0) { // Only animate every 3rd frame
+                    return originalRequestAnimationFrame(callback);
+                }
+                return originalRequestAnimationFrame(() => {}); // Skip frame
+            };
+        }
+        
+        // Override scroll speed calculation for Eyemagnet
+        window.addEventListener('DOMContentLoaded', () => {
+            if (isEyemagnet && window.calculateScrollSpeed) {
+                const originalCalculateScrollSpeed = window.calculateScrollSpeed;
+                window.calculateScrollSpeed = function() {
+                    const baseSpeed = originalCalculateScrollSpeed();
+                    return baseSpeed * 0.3; // Reduce speed by 70% on Eyemagnet
+                };
+            }
+        });
         
         // Stop overriding setTimeout after initial load
         window.addEventListener('load', () => {
