@@ -8,6 +8,43 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Override CSS animation to prevent conflict with JavaScript animation */
+        .ticker-scroll {
+            animation: none !important;
+        }
+        
+        /* JavaScript performance fixes for instant loading */
+        .ticker-scroll {
+            transform: translateZ(0);
+            will-change: transform;
+        }
+        
+        .transport-item {
+            transform: translateZ(0);
+        }
+    </style>
+    <script>
+        // Override the problematic setTimeout delays in your script.js for instant loading
+        const originalSetTimeout = window.setTimeout;
+        let initializationPhase = true;
+        
+        window.setTimeout = function(callback, delay, ...args) {
+            // During initialization, remove delays that prevent instant loading
+            if (initializationPhase && (delay === 100 || delay === 15000)) {
+                return originalSetTimeout(callback, 0, ...args);
+            }
+            return originalSetTimeout(callback, delay, ...args);
+        };
+        
+        // Stop overriding setTimeout after initial load
+        window.addEventListener('load', () => {
+            originalSetTimeout(() => {
+                initializationPhase = false;
+                window.setTimeout = originalSetTimeout;
+            }, 5000);
+        });
+    </script>
 </head>
 <body>
     <div class="ticker-container">
