@@ -9,157 +9,43 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* Force disable ALL animations first */
-        * {
+        /* Only disable the CSS animation that conflicts with JavaScript */
+        .ticker-scroll {
             animation: none !important;
-            -webkit-animation: none !important;
-            -moz-animation: none !important;
-            -ms-animation: none !important;
-            -o-animation: none !important;
-            transition: none !important;
-            -webkit-transition: none !important;
-            -moz-transition: none !important;
-            -ms-transition: none !important;
-            -o-transition: none !important;
-        }
-        
-        /* Eyemagnet scaling fix - force exact dimensions */
-        html, body {
-            width: 100vw !important;
-            height: 100vh !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            overflow: hidden !important;
-            transform: none !important;
-            -webkit-transform: none !important;
-            zoom: 1 !important;
-            -webkit-zoom: 1 !important;
-            -moz-transform: none !important;
-        }
-        
-        body {
-            /* Override your CSS scaling completely for Eyemagnet */
-            width: 100vw !important;
-            height: 100vh !important;
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            transform: none !important;
-            -webkit-transform: none !important;
-        }
-        
-        .ticker-container {
-            width: 100vw !important;
-            height: 100vh !important;
-            transform: none !important;
-            -webkit-transform: none !important;
-        }
-        
-        /* Force simple styling for transport items */
-        .transport-item {
-            min-width: 400px !important;
-            max-width: 400px !important;
-            height: 120px !important;
-            font-size: 14px !important;
-            margin-right: 20px !important;
-        }
-        
-        .destination {
-            font-size: 16px !important;
-        }
-        
-        .time {
-            font-size: 18px !important;
-        }
-        
-        .bus-badge {
-            width: 50px !important;
-            height: 50px !important;
-            font-size: 20px !important;
         }
     </style>
     <script>
-        // Completely override your script's animation and timing for Eyemagnet
-        let isEyemagnetOverride = true;
-        
-        // Override calculateScrollSpeed immediately
-        window.calculateScrollSpeed = function() {
-            window.scrollSpeed = 0.5; // Very slow speed
-            return 0.5;
-        };
-        
-        // Override startScrollAnimation with much slower version
-        window.startScrollAnimation = function() {
-            if (window.animationId) {
-                cancelAnimationFrame(window.animationId);
-            }
+        // Simple Eyemagnet detection and speed override
+        if (navigator.userAgent.toLowerCase().includes('chrome') && 
+            (window.outerWidth < window.innerWidth || window.devicePixelRatio > 1.5)) {
             
-            function slowAnimate() {
-                const tickerScroll = document.getElementById('tickerScroll');
-                if (!tickerScroll) return;
-                
-                window.scrollPosition = (window.scrollPosition || 0) + 0.3; // Much slower
-                
-                // Reset when scrolled far enough
-                if (window.scrollPosition >= 800) { // Reset point
-                    window.scrollPosition = 0;
+            // Override scroll speed for Eyemagnet
+            window.addEventListener('DOMContentLoaded', function() {
+                const originalCalculateScrollSpeed = window.calculateScrollSpeed;
+                if (originalCalculateScrollSpeed) {
+                    window.calculateScrollSpeed = function() {
+                        return 0.5; // Much slower for Eyemagnet
+                    };
                 }
-                
-                tickerScroll.style.transform = `translateX(-${window.scrollPosition}px)`;
-                tickerScroll.style.webkitTransform = `translateX(-${window.scrollPosition}px)`;
-                
-                window.animationId = requestAnimationFrame(slowAnimate);
-            }
-            
-            slowAnimate();
-        };
+            });
+        }
         
-        // Override populateTicker to remove delays
-        const originalPopulateTicker = window.populateTicker;
-        window.populateTicker = function() {
-            if (originalPopulateTicker) {
-                originalPopulateTicker.call(this);
-            }
-            // Start animation immediately, no delays
-            window.scrollPosition = 0;
-            setTimeout(() => {
-                const tickerScroll = document.getElementById('tickerScroll');
-                if (tickerScroll) {
-                    window.scrollWidth = tickerScroll.scrollWidth || 1000;
-                    window.startScrollAnimation();
-                }
-            }, 10); // Minimal delay
-        };
-        
-        // Override initialize to be immediate
+        // Remove the 100ms delay from populateTicker
         window.addEventListener('DOMContentLoaded', function() {
-            // Force immediate execution
-            if (window.initialize) {
-                // Skip all the setTimeout delays in your initialize function
-                const tickerScroll = document.getElementById('tickerScroll');
-                if (tickerScroll) {
-                    tickerScroll.innerHTML = `
-                        <div class="transport-item">
-                            <div class="bus-section">
-                                <div class="bus-badge">...</div>
-                            </div>
-                            <div class="transport-info">
-                                <div class="destination">Loading Bus Times</div>
-                                <div class="time">Please wait...</div>
-                            </div>
-                        </div>`;
-                }
-                
-                // Call your update function directly
-                if (window.updateTransportData) {
-                    window.updateTransportData();
-                }
-                
-                // Start time updates
-                if (window.updateCurrentTime) {
-                    window.updateCurrentTime();
-                    setInterval(window.updateCurrentTime, 1000);
-                }
+            const originalPopulateTicker = window.populateTicker;
+            if (originalPopulateTicker) {
+                window.populateTicker = function() {
+                    originalPopulateTicker.call(this);
+                    // Remove the setTimeout delay - start animation immediately
+                    window.scrollPosition = 0;
+                    const tickerScroll = document.getElementById('tickerScroll');
+                    if (tickerScroll) {
+                        window.scrollWidth = tickerScroll.scrollWidth;
+                        if (window.startScrollAnimation) {
+                            window.startScrollAnimation();
+                        }
+                    }
+                };
             }
         });
     </script>
