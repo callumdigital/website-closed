@@ -4,88 +4,59 @@
             box-sizing: border-box;
         }
 
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #0D4C38;
+            width: 3840px;
+            height: 360px;
             display: flex;
             align-items: stretch;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
+            transform-origin: top left;
         }
 
-        /* Container that maintains 3840x360 aspect ratio */
-        .ticker-wrapper {
-            width: 100vw;
-            height: 100vh;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #0D4C38;
+        /* Improved scaling for different screen sizes */
+        @media (max-width: 3840px) {
+            body {
+                transform: scale(calc(100vw / 3840));
+            }
+        }
+
+        @media (max-height: 360px) {
+            body {
+                transform: scale(calc(100vh / 360));
+            }
+        }
+
+        /* For screens that are both smaller in width and height, use the smaller scale */
+        @media (max-width: 3840px) and (max-height: 360px) {
+            body {
+                transform: scale(calc(min(100vw / 3840, 100vh / 360)));
+            }
+        }
+
+        /* For very large screens, cap the scaling */
+        @media (min-width: 4000px) and (min-height: 400px) {
+            body {
+                transform: scale(1.2);
+            }
         }
 
         .ticker-container {
-            width: min(100vw, calc(100vh * (3840/360)));
-            height: min(100vh, calc(100vw * (360/3840)));
+            width: 3840px;
+            height: 360px;
             background: linear-gradient(90deg, #0D4C38 0%, #0A3D2E 50%, #0D4C38 100%);
-            border-top: max(1px, min(4px, 0.4vh)) solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid rgba(255, 255, 255, 0.3);
             position: relative;
             overflow: hidden;
-            box-shadow: 0 max(-2px, min(-8px, -0.8vh)) max(8px, min(32px, 3.2vh)) rgba(0, 0, 0, 0.3);
-            font-size: max(16px, min(24px, 2.4vh));
-        }
-
-        .ticker-header {
-            background: rgba(0, 0, 0, 0.2);
-            color: white;
-            font-weight: 600;
-            letter-spacing: 0.1em;
+            box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.3);
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            border-bottom: max(1px, min(1px, 0.1vh)) solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(5px);
-            height: max(50px, min(60px, 16.67vh));
-            padding: 0 max(20px, min(40px, 4vh));
-            font-size: max(20px, min(24px, 6.67vh));
-        }
-
-        .live-indicator {
-            display: flex;
-            align-items: center;
-            gap: max(8px, min(12px, 3.33vh));
-            color: rgba(255, 255, 255, 0.9);
-            font-size: max(16px, min(20px, 5.56vh));
-        }
-
-        .live-dot {
-            background: #ff6b6b;
-            border-radius: 50%;
-            animation: pulse 1.5s infinite;
-            width: max(8px, min(10px, 2.78vh));
-            height: max(8px, min(10px, 2.78vh));
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.2); }
-        }
-
-        .ticker-content {
-            height: calc(100% - max(50px, min(60px, 16.67vh)));
-            display: flex;
-            align-items: center;
-            position: relative;
-            overflow: hidden;
         }
 
         .ticker-scroll {
@@ -94,7 +65,7 @@
             white-space: nowrap;
             will-change: transform;
             transform: translateZ(0);
-            animation: scroll 30s linear infinite;
+            animation: scroll 60s linear infinite;
         }
 
         @keyframes scroll {
@@ -106,17 +77,17 @@
             display: flex;
             align-items: center;
             background: #0D4C38;
-            border-radius: max(12px, min(16px, 4.44vh));
-            border: max(1px, min(1px, 0.28vh)) solid rgba(255, 255, 255, 0.3);
-            padding: max(16px, min(20px, 5.56vh));
-            gap: max(16px, min(20px, 5.56vh));
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 20px;
+            gap: 20px;
             position: relative;
             will-change: transform;
             transform: translateZ(0);
-            min-width: max(500px, min(650px, 180.56vh));
-            max-width: max(500px, min(650px, 180.56vh));
-            height: max(140px, min(180px, 50vh));
-            margin-right: max(32px, min(48px, 13.33vh));
+            min-width: 650px;
+            max-width: 650px;
+            height: 200px;
+            margin-right: 48px;
             overflow: hidden;
         }
 
@@ -125,55 +96,58 @@
         }
 
         .bus-badge {
-            width: max(56px, min(70px, 19.44vh));
-            height: max(56px, min(70px, 19.44vh));
+            width: 80px;
+            height: 80px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: max(22px, min(28px, 7.78vh));
+            font-size: 36px;
             font-weight: 600;
-            border-radius: max(6px, min(8px, 2.22vh));
+            border-radius: 8px;
             position: relative;
             color: white;
-            border: max(1px, min(1px, 0.28vh)) solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 max(1px, min(2px, 0.56vh)) max(2px, min(4px, 1.11vh)) rgba(0, 0, 0, 0.2);
-            padding-bottom: max(8px, min(10px, 2.78vh));
-            text-shadow: 0 max(1px, min(1px, 0.28vh)) max(1px, min(2px, 0.56vh)) rgba(0, 0, 0, 0.2);
-        }
-
-        .bus-badge::after,
-        .bus-badge::before {
-            content: "";
-            position: absolute;
-            bottom: max(-8px, min(-10px, -2.78vh));
-            width: max(5px, min(6px, 1.67vh));
-            height: max(8px, min(10px, 2.78vh));
-            background: #D9D9D9;
-            border-radius: max(3px, min(4px, 1.11vh));
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            padding-bottom: 12px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         }
 
         .bus-badge::after {
-            left: max(8px, min(10px, 2.78vh));
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            width: 8px;
+            height: 10px;
+            background: #D9D9D9;
+            border-radius: 4px;
+            left: 12px;
         }
 
         .bus-badge::before {
-            right: max(8px, min(10px, 2.78vh));
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            width: 8px;
+            height: 10px;
+            background: #D9D9D9;
+            border-radius: 4px;
+            right: 12px;
         }
 
         .transport-info {
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: max(4px, min(6px, 1.67vh));
+            gap: 8px;
             min-width: 0;
             overflow: hidden;
         }
 
         .destination {
             color: white;
-            font-size: max(18px, min(22px, 6.11vh));
+            font-size: 28px;
             font-weight: 500;
-            text-shadow: 0 max(1px, min(1px, 0.28vh)) max(1px, min(2px, 0.56vh)) rgba(0, 0, 0, 0.2);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
             line-height: 1.2;
             white-space: nowrap;
             overflow: hidden;
@@ -183,71 +157,77 @@
         .info-row {
             display: flex;
             align-items: center;
-            gap: max(10px, min(12px, 3.33vh));
-            margin-top: max(1px, min(2px, 0.56vh));
+            gap: 16px;
+            margin-top: 4px;
             flex-wrap: nowrap;
-            min-height: max(28px, min(36px, 10vh));
+            min-height: 36px;
         }
 
         .time {
             color: white;
-            font-size: max(20px, min(24px, 6.67vh));
+            font-size: 32px;
             font-weight: 500;
-            text-shadow: 0 max(1px, min(1px, 0.28vh)) max(1px, min(2px, 0.56vh)) rgba(0, 0, 0, 0.2);
-            margin-top: max(3px, min(4px, 1.11vh));
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            margin-top: 8px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .stop-badge,
-        .status,
-        .occupancy-indicator,
-        .direction-info {
-            padding: max(5px, min(6px, 1.67vh)) max(12px, min(16px, 4.44vh));
-            border-radius: max(12px, min(16px, 4.44vh));
-            font-size: max(14px, min(16px, 4.44vh));
+        .stop-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 18px;
             color: white;
             white-space: nowrap;
             flex-shrink: 0;
         }
 
-        .stop-badge {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
         .status {
             background: rgba(62, 179, 56, 0.3);
-            text-shadow: 0 max(1px, min(1px, 0.28vh)) max(1px, min(2px, 0.56vh)) rgba(0, 0, 0, 0.2);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 18px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .status.delayed {
             background: rgba(255, 152, 0, 0.3);
             color: #ffd149;
-            border: max(1px, min(1px, 0.28vh)) solid rgba(255, 152, 0, 0.5);
+            border: 1px solid rgba(255, 152, 0, 0.5);
         }
 
         .status.cancelled {
             background: rgba(244, 67, 54, 0.3);
             color: #ff8a85;
-            border: max(1px, min(1px, 0.28vh)) solid rgba(244, 67, 54, 0.5);
+            border: 1px solid rgba(244, 67, 54, 0.5);
         }
 
         .status.system-message {
             background: rgba(25, 118, 210, 0.3);
             color: #90caf9;
-            border: max(1px, min(1px, 0.28vh)) solid rgba(25, 118, 210, 0.5);
+            border: 1px solid rgba(25, 118, 210, 0.5);
         }
 
         .occupancy-indicator {
             display: flex;
             align-items: center;
-            gap: max(3px, min(4px, 1.11vh));
+            gap: 4px;
             background: rgba(255, 255, 255, 0.15);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 16px;
+            color: white;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .occupancy-icon {
-            font-size: max(14px, min(16px, 4.44vh));
+            font-size: 18px;
         }
 
         .occupancy-low { color: #4caf50; }
@@ -258,8 +238,13 @@
             margin-left: auto;
             display: flex;
             align-items: center;
-            gap: max(5px, min(6px, 1.67vh));
+            gap: 8px;
             background: rgba(255, 255, 255, 0.2);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 18px;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .direction-text {
@@ -268,7 +253,7 @@
 
         .direction-arrow {
             font-family: system-ui;
-            font-size: 1.4em;
+            font-size: 1.6em;
             font-weight: bold;
             line-height: 1;
             color: white;
@@ -291,32 +276,3 @@
         .bus-badge.route-29 { background: linear-gradient(135deg, #4169E1 60%, #2f59cf 100%); }
         .bus-badge.route-alert { background: linear-gradient(135deg, #1976d2 60%, #1565c0 100%); }
         .bus-badge { background: linear-gradient(135deg, #78909c 60%, #546e7a 100%); }
-
-        /* For very small screens, ensure minimum readability */
-        @media (max-height: 200px) {
-            .ticker-container {
-                font-size: 12px;
-            }
-            
-            .ticker-header {
-                font-size: 14px;
-                height: 40px;
-                padding: 0 15px;
-            }
-            
-            .transport-item {
-                min-width: 400px;
-                max-width: 400px;
-                height: 120px;
-                padding: 12px;
-                gap: 12px;
-            }
-        }
-
-        /* For very large screens, cap the maximum size */
-        @media (min-width: 4000px) and (min-height: 400px) {
-            .ticker-container {
-                max-width: 3840px;
-                max-height: 360px;
-            }
-        }
