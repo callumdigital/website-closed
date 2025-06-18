@@ -9,86 +9,158 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* Override CSS animation to prevent conflict with JavaScript animation */
-        .ticker-scroll {
+        /* Force disable ALL animations first */
+        * {
             animation: none !important;
             -webkit-animation: none !important;
             -moz-animation: none !important;
+            -ms-animation: none !important;
             -o-animation: none !important;
+            transition: none !important;
+            -webkit-transition: none !important;
+            -moz-transition: none !important;
+            -ms-transition: none !important;
+            -o-transition: none !important;
         }
         
-        /* Eyemagnet specific fixes for scaling and animation */
+        /* Eyemagnet scaling fix - force exact dimensions */
+        html, body {
+            width: 100vw !important;
+            height: 100vh !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+            transform: none !important;
+            -webkit-transform: none !important;
+            zoom: 1 !important;
+            -webkit-zoom: 1 !important;
+            -moz-transform: none !important;
+        }
+        
         body {
-            /* Force proper scaling on Eyemagnet */
-            -webkit-transform-origin: top left !important;
-            -moz-transform-origin: top left !important;
-            transform-origin: top left !important;
+            /* Override your CSS scaling completely for Eyemagnet */
+            width: 100vw !important;
+            height: 100vh !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            transform: none !important;
+            -webkit-transform: none !important;
         }
         
-        /* Disable hardware acceleration on Eyemagnet as it can cause issues */
-        .ticker-scroll {
-            -webkit-transform: translate3d(0,0,0);
-            -moz-transform: translate3d(0,0,0);
-            transform: translate3d(0,0,0);
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
+        .ticker-container {
+            width: 100vw !important;
+            height: 100vh !important;
+            transform: none !important;
+            -webkit-transform: none !important;
         }
         
+        /* Force simple styling for transport items */
         .transport-item {
-            -webkit-transform: translate3d(0,0,0);
-            -moz-transform: translate3d(0,0,0);
-            transform: translate3d(0,0,0);
+            min-width: 400px !important;
+            max-width: 400px !important;
+            height: 120px !important;
+            font-size: 14px !important;
+            margin-right: 20px !important;
+        }
+        
+        .destination {
+            font-size: 16px !important;
+        }
+        
+        .time {
+            font-size: 18px !important;
+        }
+        
+        .bus-badge {
+            width: 50px !important;
+            height: 50px !important;
+            font-size: 20px !important;
         }
     </style>
     <script>
-        // Detect Eyemagnet player and adjust behavior
-        const isEyemagnet = navigator.userAgent.includes('Eyemagnet') || 
-                           window.location.href.includes('eyemagnet') ||
-                           document.querySelector('script[src*="eyemagnet"]');
+        // Completely override your script's animation and timing for Eyemagnet
+        let isEyemagnetOverride = true;
         
-        // Override the problematic setTimeout delays in your script.js for instant loading
-        const originalSetTimeout = window.setTimeout;
-        const originalRequestAnimationFrame = window.requestAnimationFrame;
-        let initializationPhase = true;
-        
-        window.setTimeout = function(callback, delay, ...args) {
-            // During initialization, remove delays that prevent instant loading
-            if (initializationPhase && (delay === 100 || delay === 15000)) {
-                return originalSetTimeout(callback, 0, ...args);
-            }
-            return originalSetTimeout(callback, delay, ...args);
+        // Override calculateScrollSpeed immediately
+        window.calculateScrollSpeed = function() {
+            window.scrollSpeed = 0.5; // Very slow speed
+            return 0.5;
         };
         
-        // Eyemagnet specific animation throttling
-        if (isEyemagnet) {
-            let animationThrottle = 0;
-            window.requestAnimationFrame = function(callback) {
-                // Throttle animation on Eyemagnet to reduce speed
-                animationThrottle++;
-                if (animationThrottle % 3 === 0) { // Only animate every 3rd frame
-                    return originalRequestAnimationFrame(callback);
-                }
-                return originalRequestAnimationFrame(() => {}); // Skip frame
-            };
-        }
-        
-        // Override scroll speed calculation for Eyemagnet
-        window.addEventListener('DOMContentLoaded', () => {
-            if (isEyemagnet && window.calculateScrollSpeed) {
-                const originalCalculateScrollSpeed = window.calculateScrollSpeed;
-                window.calculateScrollSpeed = function() {
-                    const baseSpeed = originalCalculateScrollSpeed();
-                    return baseSpeed * 0.3; // Reduce speed by 70% on Eyemagnet
-                };
+        // Override startScrollAnimation with much slower version
+        window.startScrollAnimation = function() {
+            if (window.animationId) {
+                cancelAnimationFrame(window.animationId);
             }
-        });
+            
+            function slowAnimate() {
+                const tickerScroll = document.getElementById('tickerScroll');
+                if (!tickerScroll) return;
+                
+                window.scrollPosition = (window.scrollPosition || 0) + 0.3; // Much slower
+                
+                // Reset when scrolled far enough
+                if (window.scrollPosition >= 800) { // Reset point
+                    window.scrollPosition = 0;
+                }
+                
+                tickerScroll.style.transform = `translateX(-${window.scrollPosition}px)`;
+                tickerScroll.style.webkitTransform = `translateX(-${window.scrollPosition}px)`;
+                
+                window.animationId = requestAnimationFrame(slowAnimate);
+            }
+            
+            slowAnimate();
+        };
         
-        // Stop overriding setTimeout after initial load
-        window.addEventListener('load', () => {
-            originalSetTimeout(() => {
-                initializationPhase = false;
-                window.setTimeout = originalSetTimeout;
-            }, 5000);
+        // Override populateTicker to remove delays
+        const originalPopulateTicker = window.populateTicker;
+        window.populateTicker = function() {
+            if (originalPopulateTicker) {
+                originalPopulateTicker.call(this);
+            }
+            // Start animation immediately, no delays
+            window.scrollPosition = 0;
+            setTimeout(() => {
+                const tickerScroll = document.getElementById('tickerScroll');
+                if (tickerScroll) {
+                    window.scrollWidth = tickerScroll.scrollWidth || 1000;
+                    window.startScrollAnimation();
+                }
+            }, 10); // Minimal delay
+        };
+        
+        // Override initialize to be immediate
+        window.addEventListener('DOMContentLoaded', function() {
+            // Force immediate execution
+            if (window.initialize) {
+                // Skip all the setTimeout delays in your initialize function
+                const tickerScroll = document.getElementById('tickerScroll');
+                if (tickerScroll) {
+                    tickerScroll.innerHTML = `
+                        <div class="transport-item">
+                            <div class="bus-section">
+                                <div class="bus-badge">...</div>
+                            </div>
+                            <div class="transport-info">
+                                <div class="destination">Loading Bus Times</div>
+                                <div class="time">Please wait...</div>
+                            </div>
+                        </div>`;
+                }
+                
+                // Call your update function directly
+                if (window.updateTransportData) {
+                    window.updateTransportData();
+                }
+                
+                // Start time updates
+                if (window.updateCurrentTime) {
+                    window.updateCurrentTime();
+                    setInterval(window.updateCurrentTime, 1000);
+                }
+            }
         });
     </script>
 </head>
@@ -107,7 +179,6 @@
         </div>
     </div>
     
-    <!-- Hidden time element for JavaScript to update -->
     <div id="currentTime" style="display: none;"></div>
     
     <script src="script.js"></script>
