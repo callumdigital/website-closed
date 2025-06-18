@@ -47,25 +47,25 @@ body {
     justify-content: space-between;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(5px);
-    height: 80px;
+    height: 60px; /* Reduced from 80px to give more space for content */
     padding: 0 40px;
-    font-size: 32px;
+    font-size: 24px; /* Reduced from 32px */
 }
 
 .live-indicator {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px; /* Reduced from 16px */
     color: rgba(255, 255, 255, 0.9);
-    font-size: 28px;
+    font-size: 20px; /* Reduced from 28px */
 }
 
 .live-dot {
     background: #ff6b6b;
     border-radius: 50%;
     animation: pulse 1.5s infinite;
-    width: 12px;
-    height: 12px;
+    width: 10px; /* Reduced from 12px */
+    height: 10px;
 }
 
 @keyframes pulse {
@@ -74,7 +74,7 @@ body {
 }
 
 .ticker-content {
-    height: 280px;
+    height: 300px; /* Increased from 280px */
     display: flex;
     align-items: center;
     position: relative;
@@ -95,15 +95,16 @@ body {
     background: #0D4C38;
     border-radius: 16px;
     border: 1px solid rgba(255, 255, 255, 0.3);
-    padding: 24px;
-    gap: 24px;
+    padding: 20px; /* Reduced from 24px */
+    gap: 20px; /* Reduced from 24px */
     position: relative;
     will-change: transform;
     transform: translateZ(0);
-    min-width: 600px;
-    max-width: 600px;
-    height: 200px;
+    min-width: 650px; /* Increased from 600px to accommodate occupancy */
+    max-width: 650px;
+    height: 180px; /* Reduced from 200px */
     margin-right: 48px;
+    overflow: hidden; /* Prevent content overflow */
 }
 
 .bus-section {
@@ -111,89 +112,103 @@ body {
 }
 
 .bus-badge {
-    width: 80px;
-    height: 80px;
+    width: 70px; /* Reduced from 80px */
+    height: 70px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 36px;
+    font-size: 28px; /* Reduced from 36px */
     font-weight: 600;
     border-radius: 8px;
     position: relative;
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.4);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    padding-bottom: 12px;
+    padding-bottom: 10px; /* Reduced from 12px */
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .bus-badge::after {
     content: "";
     position: absolute;
-    bottom: -12px;
-    width: 8px;
-    height: 12px;
+    bottom: -10px; /* Adjusted */
+    width: 6px; /* Reduced from 8px */
+    height: 10px;
     background: #D9D9D9;
     border-radius: 4px;
-    left: 12px;
+    left: 10px; /* Adjusted */
 }
 
 .bus-badge::before {
     content: "";
     position: absolute;
-    bottom: -12px;
-    width: 8px;
-    height: 12px;
+    bottom: -10px; /* Adjusted */
+    width: 6px; /* Reduced from 8px */
+    height: 10px;
     background: #D9D9D9;
     border-radius: 4px;
-    right: 12px;
+    right: 10px; /* Adjusted */
 }
 
 .transport-info {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px; /* Reduced from 8px */
+    min-width: 0; /* Allow flex item to shrink */
+    overflow: hidden;
 }
 
 .destination {
     color: white;
-    font-size: 28px;
+    font-size: 22px; /* Reduced from 28px */
     font-weight: 500;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .info-row {
     display: flex;
     align-items: center;
-    gap: 16px;
-    margin-top: 4px;
+    gap: 12px; /* Reduced from 16px */
+    margin-top: 2px; /* Reduced from 4px */
+    flex-wrap: nowrap;
+    min-height: 36px; /* Ensure consistent height */
 }
 
 .time {
     color: white;
-    font-size: 32px;
+    font-size: 24px; /* Reduced from 32px */
     font-weight: 500;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-    margin-top: 8px;
+    margin-top: 4px; /* Reduced from 8px */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .stop-badge {
     background: rgba(255, 255, 255, 0.2);
-    padding: 8px 20px;
-    border-radius: 20px;
-    font-size: 18px;
+    padding: 6px 16px; /* Reduced padding */
+    border-radius: 16px; /* Reduced from 20px */
+    font-size: 16px; /* Reduced from 18px */
     color: white;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .status {
     background: rgba(62, 179, 56, 0.3);
     color: white;
-    padding: 8px 20px;
-    border-radius: 20px;
-    font-size: 18px;
+    padding: 6px 16px; /* Reduced padding */
+    border-radius: 16px; /* Reduced from 20px */
+    font-size: 16px; /* Reduced from 18px */
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .status.delayed {
@@ -214,15 +229,39 @@ body {
     border: 1px solid rgba(25, 118, 210, 0.5);
 }
 
+/* New occupancy indicator */
+.occupancy-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 14px;
+    color: white;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.occupancy-icon {
+    font-size: 16px;
+}
+
+.occupancy-low { color: #4caf50; }
+.occupancy-medium { color: #ff9800; }
+.occupancy-high { color: #f44336; }
+
 .direction-info {
     margin-left: auto;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px; /* Reduced from 8px */
     background: rgba(255, 255, 255, 0.2);
-    padding: 8px 20px;
-    border-radius: 20px;
-    font-size: 18px;
+    padding: 6px 16px; /* Reduced padding */
+    border-radius: 16px; /* Reduced from 20px */
+    font-size: 16px; /* Reduced from 18px */
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .direction-text {
@@ -231,7 +270,7 @@ body {
 
 .direction-arrow {
     font-family: system-ui;
-    font-size: 1.6em;
+    font-size: 1.4em; /* Reduced from 1.6em */
     font-weight: bold;
     line-height: 1;
     color: white;
