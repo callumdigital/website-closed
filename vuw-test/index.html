@@ -11,28 +11,22 @@
 </head>
 <body>
     <div class="ticker-container">
-        <div class="ticker-header">
-            <span>🚍 VUW KELBURN CAMPUS TRANSPORT - STOPS A & B</span>
-            <div class="live-indicator">
-                <div class="live-dot"></div>
-                <span>LIVE</span>
-                <span class="time-display" id="currentTime"></span>
-            </div>
-        </div>
-        <div class="ticker-content">
-            <div class="ticker-scroll" id="tickerScroll">
-                <div class="transport-item">
-                    <div class="bus-section">
-                        <div class="bus-badge">...</div>
-                    </div>
-                    <div class="transport-info">
-                        <div class="destination">Loading Bus Times</div>
-                        <div class="time">Please wait...</div>
-                    </div>
+        <div class="ticker-scroll" id="tickerScroll">
+            <div class="transport-item">
+                <div class="bus-section">
+                    <div class="bus-badge">...</div>
+                </div>
+                <div class="transport-info">
+                    <div class="destination">Loading Bus Times</div>
+                    <div class="time">Please wait...</div>
                 </div>
             </div>
         </div>
     </div>
+    
+    <!-- Hidden time element for JavaScript to update -->
+    <div id="currentTime" style="display: none;"></div>
+    
     <script src="script.js"></script>
 </body>
 </html>
