@@ -1,0 +1,125 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #ffffff;
+    overflow-x: hidden;
+    font-family: 'Instrument Sans', sans-serif;
+}
+
+.desktop-1 {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.ticker-wrap-1 {
+    position: absolute;
+    top: 242px;
+    left: 50%;
+    transform: translateX(-50%) rotate(359.968deg);
+    height: 201.107px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.ticker-1 {
+    display: flex;
+    width: fit-content;
+    background-color: #ff9e17;
+    height: 200px;
+    border-color: #000000;
+    border-style: solid;
+    border-width: 2px 0px;
+    animation: ticker-h-scroll 40s linear infinite;
+}
+
+.ticker-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 29px 80px;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.star-icon {
+    width: 41.837px;
+    height: 41.837px;
+    margin: 0 40px;
+}
+
+.text-callum {
+    font-family: 'Instrument Sans', sans-serif;
+    font-weight: 500;
+    color: #000000;
+    font-size: 80px;
+    line-height: normal;
+    font-variation-settings: 'wdth' 100;
+}
+
+.text-designer {
+    font-family: 'Instrument Serif', sans-serif;
+    font-style: normal;
+    color: #000000;
+    font-size: 80px;
+    line-height: normal;
+}
+
+.ticker-wrap-2 {
+    position: absolute;
+    top: 439px;
+    left: 50%;
+    transform: translateX(-50%) rotate(359.968deg);
+    height: 101.107px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.ticker-2 {
+    display: flex;
+    width: fit-content;
+    background-color: #fbe4ff;
+    height: 100px;
+    border-color: #000000;
+    border-style: solid;
+    border-width: 2px 0px;
+    animation: ticker-h-scroll-2 30s linear infinite;
+}
+
+.ticker-item-2 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 29px 80px;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.text-cool-experiences {
+    font-family: 'Instrument Serif', sans-serif;
+    font-style: normal;
+    color: #000000;
+    font-size: 60px;
+    line-height: normal;
+}
+
+
+@keyframes ticker-h-scroll {
+    from {
+        transform: translateX(0%);
+    }
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+@keyframes ticker-h-scroll-2 {
+    from {
+        transform: translateX(0%);
+    }
+    to {
+        transform: translateX(-50%);
+    }
+}
