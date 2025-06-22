@@ -33,7 +33,7 @@ function calculateScrollSpeed() {
         }
     }
     
-    // Scale based on viewport width and height - more conservative scaling
+    // Scale based on viewport width and height - using fixed pixel baseline
     const widthRatio = viewportWidth / 3840; // Use 3840 as baseline for 4K
     const heightRatio = viewportHeight / 360; // Use 360 as baseline height
     const sizeMultiplier = Math.min(widthRatio, heightRatio);
@@ -284,14 +284,14 @@ function populateTicker() {
     
     let html = '';
     
-    // Calculate number of copies based on viewport width and item width - more conservative
+    // Calculate number of copies based on fixed pixel dimensions
     const viewportWidth = window.innerWidth;
-    // More conservative item width calculation for better readability
-    const estimatedItemWidth = Math.min(55, Math.max(60, Math.min(75, viewportWidth / 8))); // Reduced from /10
-    const itemWidthPx = (estimatedItemWidth / 100) * viewportWidth;
-    const copies = Math.ceil((viewportWidth * 2) / itemWidthPx) + 2; // Ensure seamless scrolling
+    const itemWidth = 650; // Fixed pixel width of transport items
+    const itemMargin = 48; // Fixed pixel margin
+    const totalItemWidth = itemWidth + itemMargin;
+    const copies = Math.ceil((viewportWidth * 2) / totalItemWidth) + 2; // Ensure seamless scrolling
     
-    console.log(`Creating ${copies} copies for viewport ${viewportWidth}px (item width: ${itemWidthPx}px)`);
+    console.log(`Creating ${copies} copies for viewport ${viewportWidth}px (item width: ${totalItemWidth}px)`);
     
     for (let i = 0; i < copies; i++) {
         transportData.forEach(item => {
@@ -322,11 +322,12 @@ function startScrollAnimation() {
         
         scrollPosition += scrollSpeed;
         
-        // Calculate reset point based on actual content width - more conservative
+        // Calculate reset point based on fixed pixel dimensions
         const viewportWidth = window.innerWidth;
-        const estimatedItemWidth = Math.min(55, Math.max(60, Math.min(75, viewportWidth / 8)));
-        const itemWidthPx = (estimatedItemWidth / 100) * viewportWidth;
-        const copies = Math.ceil((viewportWidth * 2) / itemWidthPx) + 2;
+        const itemWidth = 650; // Fixed pixel width of transport items
+        const itemMargin = 48; // Fixed pixel margin
+        const totalItemWidth = itemWidth + itemMargin;
+        const copies = Math.ceil((viewportWidth * 2) / totalItemWidth) + 2;
         const resetPoint = scrollWidth / copies;
         
         if (scrollPosition >= resetPoint) {

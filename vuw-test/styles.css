@@ -7,8 +7,8 @@
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: #0D4C38;
-    width: 100vw;
-    height: 100vh;
+    width: 3840px;
+    height: 360px;
     display: flex;
     align-items: stretch;
     overflow: hidden;
@@ -17,17 +17,44 @@ body {
     position: fixed;
     top: 0;
     left: 0;
+    transform-origin: top left;
 }
 
-/* Responsive scaling for different platforms */
+/* Responsive scaling for different screen sizes */
+@media (max-width: 3840px) {
+    body {
+        transform: scale(calc(100vw / 3840));
+    }
+}
+
+@media (max-height: 360px) {
+    body {
+        transform: scale(calc(100vh / 360));
+    }
+}
+
+/* For screens that are both smaller in width and height, use the smaller scale */
+@media (max-width: 3840px) and (max-height: 360px) {
+    body {
+        transform: scale(calc(min(100vw / 3840, 100vh / 360)));
+    }
+}
+
+/* For very large screens, cap the scaling */
+@media (min-width: 4000px) and (min-height: 400px) {
+    body {
+        transform: scale(1.2);
+    }
+}
+
 .ticker-container {
-    width: 100vw;
-    height: 100vh;
+    width: 3840px;
+    height: 360px;
     background: linear-gradient(90deg, #0D4C38 0%, #0A3D2E 50%, #0D4C38 100%);
-    border-top: 0.4vh solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid rgba(255, 255, 255, 0.3);
     position: relative;
     overflow: hidden;
-    box-shadow: 0 -0.8vh 3.2vh rgba(0, 0, 0, 0.3);
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.3);
     display: flex;
     align-items: center;
 }
@@ -50,17 +77,17 @@ body {
     display: flex;
     align-items: center;
     background: #0D4C38;
-    border-radius: 1.6vh;
-    border: 0.1vh solid rgba(255, 255, 255, 0.3);
-    padding: 2vh;
-    gap: 2vh;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 20px;
+    gap: 20px;
     position: relative;
     will-change: transform;
     transform: translateZ(0);
-    min-width: 55vw;
-    max-width: 55vw;
-    height: 22vh;
-    margin-right: 4vw;
+    min-width: 650px;
+    max-width: 650px;
+    height: 200px;
+    margin-right: 48px;
     overflow: hidden;
 }
 
@@ -69,58 +96,58 @@ body {
 }
 
 .bus-badge {
-    width: 10vh;
-    height: 10vh;
+    width: 80px;
+    height: 80px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 4.5vh;
+    font-size: 36px;
     font-weight: 600;
-    border-radius: 1vh;
+    border-radius: 8px;
     position: relative;
     color: white;
-    border: 0.1vh solid rgba(255, 255, 255, 0.4);
-    box-shadow: 0 0.2vh 0.4vh rgba(0, 0, 0, 0.2);
-    padding-bottom: 1.5vh;
-    text-shadow: 0 0.1vh 0.2vh rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    padding-bottom: 12px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .bus-badge::after {
     content: "";
     position: absolute;
-    bottom: -1.2vh;
-    width: 1vh;
-    height: 1.2vh;
+    bottom: -10px;
+    width: 8px;
+    height: 10px;
     background: #D9D9D9;
-    border-radius: 0.5vh;
-    left: 1.5vh;
+    border-radius: 4px;
+    left: 12px;
 }
 
 .bus-badge::before {
     content: "";
     position: absolute;
-    bottom: -1.2vh;
-    width: 1vh;
-    height: 1.2vh;
+    bottom: -10px;
+    width: 8px;
+    height: 10px;
     background: #D9D9D9;
-    border-radius: 0.5vh;
-    right: 1.5vh;
+    border-radius: 4px;
+    right: 12px;
 }
 
 .transport-info {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 1vh;
+    gap: 8px;
     min-width: 0;
     overflow: hidden;
 }
 
 .destination {
     color: white;
-    font-size: 3.5vh;
+    font-size: 28px;
     font-weight: 500;
-    text-shadow: 0 0.1vh 0.2vh rgba(0, 0, 0, 0.2);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     line-height: 1.2;
     white-space: nowrap;
     overflow: hidden;
@@ -130,18 +157,18 @@ body {
 .info-row {
     display: flex;
     align-items: center;
-    gap: 2vw;
-    margin-top: 0.5vh;
+    gap: 16px;
+    margin-top: 4px;
     flex-wrap: nowrap;
-    min-height: 4.5vh;
+    min-height: 36px;
 }
 
 .time {
     color: white;
-    font-size: 4vh;
+    font-size: 32px;
     font-weight: 500;
-    text-shadow: 0 0.1vh 0.2vh rgba(0, 0, 0, 0.2);
-    margin-top: 1vh;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    margin-top: 8px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -149,9 +176,9 @@ body {
 
 .stop-badge {
     background: rgba(255, 255, 255, 0.2);
-    padding: 0.8vh 2vw;
-    border-radius: 2.5vh;
-    font-size: 2.2vh;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 18px;
     color: white;
     white-space: nowrap;
     flex-shrink: 0;
@@ -160,10 +187,10 @@ body {
 .status {
     background: rgba(62, 179, 56, 0.3);
     color: white;
-    padding: 0.8vh 2vw;
-    border-radius: 2.5vh;
-    font-size: 2.2vh;
-    text-shadow: 0 0.1vh 0.2vh rgba(0, 0, 0, 0.2);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 18px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     white-space: nowrap;
     flex-shrink: 0;
 }
@@ -171,36 +198,36 @@ body {
 .status.delayed {
     background: rgba(255, 152, 0, 0.3);
     color: #ffd149;
-    border: 0.1vh solid rgba(255, 152, 0, 0.5);
+    border: 1px solid rgba(255, 152, 0, 0.5);
 }
 
 .status.cancelled {
     background: rgba(244, 67, 54, 0.3);
     color: #ff8a85;
-    border: 0.1vh solid rgba(244, 67, 54, 0.5);
+    border: 1px solid rgba(244, 67, 54, 0.5);
 }
 
 .status.system-message {
     background: rgba(25, 118, 210, 0.3);
     color: #90caf9;
-    border: 0.1vh solid rgba(25, 118, 210, 0.5);
+    border: 1px solid rgba(25, 118, 210, 0.5);
 }
 
 .occupancy-indicator {
     display: flex;
     align-items: center;
-    gap: 0.5vw;
+    gap: 4px;
     background: rgba(255, 255, 255, 0.15);
-    padding: 0.8vh 1.5vw;
-    border-radius: 2.5vh;
-    font-size: 2vh;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 16px;
     color: white;
     white-space: nowrap;
     flex-shrink: 0;
 }
 
 .occupancy-icon {
-    font-size: 2.2vh;
+    font-size: 18px;
 }
 
 .occupancy-low { color: #4caf50; }
@@ -211,11 +238,11 @@ body {
     margin-left: auto;
     display: flex;
     align-items: center;
-    gap: 1vw;
+    gap: 8px;
     background: rgba(255, 255, 255, 0.2);
-    padding: 0.8vh 2vw;
-    border-radius: 2.5vh;
-    font-size: 2.2vh;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 18px;
     white-space: nowrap;
     flex-shrink: 0;
 }
@@ -249,146 +276,3 @@ body {
 .bus-badge.route-29 { background: linear-gradient(135deg, #4169E1 60%, #2f59cf 100%); }
 .bus-badge.route-alert { background: linear-gradient(135deg, #1976d2 60%, #1565c0 100%); }
 .bus-badge { background: linear-gradient(135deg, #78909c 60%, #546e7a 100%); }
-
-/* Conservative scaling for 4K and 1080p displays */
-@media screen and (max-width: 1920px) {
-    .transport-item {
-        min-width: 60vw;
-        max-width: 60vw;
-        height: 20vh;
-        margin-right: 4.5vw;
-    }
-    
-    .bus-badge {
-        width: 9vh;
-        height: 9vh;
-        font-size: 4vh;
-    }
-    
-    .destination {
-        font-size: 3.2vh;
-    }
-    
-    .time {
-        font-size: 3.6vh;
-    }
-    
-    .stop-badge, .status, .direction-info {
-        font-size: 2vh;
-        padding: 0.7vh 1.8vw;
-    }
-}
-
-@media screen and (max-width: 1366px) {
-    .transport-item {
-        min-width: 65vw;
-        max-width: 65vw;
-        height: 18vh;
-        margin-right: 5vw;
-    }
-    
-    .bus-badge {
-        width: 8vh;
-        height: 8vh;
-        font-size: 3.5vh;
-    }
-    
-    .destination {
-        font-size: 3vh;
-    }
-    
-    .time {
-        font-size: 3.2vh;
-    }
-    
-    .stop-badge, .status, .direction-info {
-        font-size: 1.8vh;
-        padding: 0.6vh 1.6vw;
-    }
-}
-
-@media screen and (max-width: 1024px) {
-    .transport-item {
-        min-width: 70vw;
-        max-width: 70vw;
-        height: 16vh;
-        margin-right: 5.5vw;
-    }
-    
-    .bus-badge {
-        width: 7vh;
-        height: 7vh;
-        font-size: 3vh;
-    }
-    
-    .destination {
-        font-size: 2.8vh;
-    }
-    
-    .time {
-        font-size: 3vh;
-    }
-    
-    .stop-badge, .status, .direction-info {
-        font-size: 1.6vh;
-        padding: 0.5vh 1.4vw;
-    }
-}
-
-/* Eyemagnet-specific adjustments - more conservative */
-@media screen and (max-device-pixel-ratio: 1.5) {
-    .transport-item {
-        min-width: 75vw;
-        max-width: 75vw;
-        height: 14vh;
-        margin-right: 6vw;
-    }
-    
-    .bus-badge {
-        width: 6vh;
-        height: 6vh;
-        font-size: 2.5vh;
-    }
-    
-    .destination {
-        font-size: 2.5vh;
-    }
-    
-    .time {
-        font-size: 2.8vh;
-    }
-    
-    .stop-badge, .status, .direction-info {
-        font-size: 1.4vh;
-        padding: 0.4vh 1.2vw;
-    }
-}
-
-/* Tizen-specific adjustments - more conservative */
-@media screen and (-webkit-min-device-pixel-ratio: 2) {
-    .transport-item {
-        min-width: 80vw;
-        max-width: 80vw;
-        height: 12vh;
-        margin-right: 7vw;
-    }
-    
-    .bus-badge {
-        width: 5vh;
-        height: 5vh;
-        font-size: 2.2vh;
-    }
-    
-    .destination {
-        font-size: 2.2vh;
-    }
-    
-    .time {
-        font-size: 2.5vh;
-    }
-    
-    .stop-badge, .status, .direction-info {
-        font-size: 1.2vh;
-        padding: 0.3vh 1vw;
-    }
-}
