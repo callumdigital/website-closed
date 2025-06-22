@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en-NZ">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VUW Transport Ticker - Scaling Test</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .test-frame {
+            width: 100%;
+            height: 200px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .test-frame iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .info-panel {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .size-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .size-button {
+            padding: 8px 16px;
+            border: 1px solid #007bff;
+            background: #007bff;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .size-button:hover {
+            background: #0056b3;
+        }
+        
+        .size-button.active {
+            background: #28a745;
+            border-color: #28a745;
+        }
+        
+        h1, h2 {
+            color: #333;
+        }
+        
+        .platform-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .platform-card {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .platform-card h3 {
+            margin: 0 0 10px 0;
+            color: #495057;
+        }
+        
+        .platform-card p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>VUW Transport Ticker - Scaling Test</h1>
+        
+        <div class="info-panel">
+            <strong>Current Viewport:</strong> <span id="viewport-info">Loading...</span><br>
+            <strong>Platform Detection:</strong> <span id="platform-info">Loading...</span><br>
+            <strong>Scale Factor:</strong> <span id="scale-info">Loading...</span>
+        </div>
+        
+        <h2>Test Different Screen Sizes</h2>
+        <div class="size-buttons">
+            <button class="size-button" onclick="resizeFrame(3840, 360)">4K Display (3840x360)</button>
+            <button class="size-button" onclick="resizeFrame(1920, 360)">Full HD (1920x360)</button>
+            <button class="size-button" onclick="resizeFrame(1366, 360)">HD (1366x360)</button>
+            <button class="size-button" onclick="resizeFrame(1024, 360)">Tablet (1024x360)</button>
+            <button class="size-button" onclick="resizeFrame(800, 360)">Small (800x360)</button>
+            <button class="size-button" onclick="resizeFrame(600, 360)">Mobile (600x360)</button>
+        </div>
+        
+        <div class="test-frame" id="test-frame">
+            <iframe src="index.html" id="ticker-iframe"></iframe>
+        </div>
+        
+        <h2>Platform-Specific Information</h2>
+        <div class="platform-info">
+            <div class="platform-card">
+                <h3>Eyemagnet</h3>
+                <p><strong>Detection:</strong> Chrome + High DPR or viewport mismatch</p>
+                <p><strong>Scale Factor:</strong> 0.8 (conservative)</p>
+                <p><strong>Scroll Speed:</strong> 0.8 (slower)</p>
+            </div>
+            <div class="platform-card">
+                <h3>Tizen (Samsung)</h3>
+                <p><strong>Detection:</strong> User agent contains 'tizen' or 'samsung'</p>
+                <p><strong>Scale Factor:</strong> 0.9</p>
+                <p><strong>Scroll Speed:</strong> 1.2 (moderate)</p>
+            </div>
+            <div class="platform-card">
+                <h3>Onelan</h3>
+                <p><strong>Detection:</strong> Non-Chrome, large viewport</p>
+                <p><strong>Scale Factor:</strong> 1.0</p>
+                <p><strong>Scroll Speed:</strong> 2.5 (faster)</p>
+            </div>
+            <div class="platform-card">
+                <h3>Responsive Design</h3>
+                <p><strong>Units:</strong> vw/vh instead of px</p>
+                <p><strong>Scaling:</strong> Dynamic based on viewport</p>
+                <p><strong>Media Queries:</strong> Platform-specific adjustments</p>
+            </div>
+        </div>
+        
+        <h2>Testing Instructions</h2>
+        <ol>
+            <li>Click different size buttons to test scaling across various screen sizes</li>
+            <li>Check the info panel to see detected platform and scaling information</li>
+            <li>Test on actual devices (Eyemagnet, Tizen, Onelan) to verify platform detection</li>
+            <li>Monitor console logs for detailed scaling calculations</li>
+        </ol>
+    </div>
+
+    <script>
+        function resizeFrame(width, height) {
+            const frame = document.getElementById('test-frame');
+            frame.style.width = width + 'px';
+            frame.style.height = height + 'px';
+            
+            // Update active button
+            document.querySelectorAll('.size-button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update info
+            updateInfo();
+        }
+        
+        function updateInfo() {
+            const frame = document.getElementById('test-frame');
+            const iframe = document.getElementById('ticker-iframe');
+            
+            document.getElementById('viewport-info').textContent = 
+                `${frame.offsetWidth}px × ${frame.offsetHeight}px`;
+            
+            // Try to get platform info from iframe
+            try {
+                iframe.contentWindow.postMessage({type: 'getPlatformInfo'}, '*');
+            } catch (e) {
+                console.log('Could not communicate with iframe:', e);
+            }
+        }
+        
+        // Listen for messages from iframe
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'platformInfo') {
+                const config = event.data.config;
+                document.getElementById('platform-info').textContent = 
+                    config.isEyemagnet ? 'Eyemagnet' : 
+                    config.isTizen ? 'Tizen' : 
+                    config.isOnelan ? 'Onelan' : 'Unknown';
+                document.getElementById('scale-info').textContent = config.scaleFactor;
+            }
+        });
+        
+        // Initial update
+        updateInfo();
+        
+        // Update on window resize
+        window.addEventListener('resize', updateInfo);
+    </script>
+</body>
+</html> 

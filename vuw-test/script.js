@@ -15,12 +15,34 @@ let scrollSpeed = 2; // Base scroll speed
 // Excluded bus routes
 const EXCLUDED_ROUTES = ['740', '739', '769'];
 
-// Dynamic scroll speed based on viewport width
+// Enhanced scroll speed calculation for responsive design
 function calculateScrollSpeed() {
     const viewportWidth = window.innerWidth;
-    // Scale scroll speed based on viewport width
-    // Larger screens = faster scroll, smaller screens = slower scroll
-    scrollSpeed = Math.max(1, Math.min(4, viewportWidth / 800));
+    const viewportHeight = window.innerHeight;
+    
+    // Base speed varies by platform
+    let baseSpeed = 2;
+    
+    if (window.PLATFORM_CONFIG) {
+        if (window.PLATFORM_CONFIG.isEyemagnet) {
+            baseSpeed = 0.8; // Slower for Eyemagnet
+        } else if (window.PLATFORM_CONFIG.isTizen) {
+            baseSpeed = 1.2; // Moderate for Tizen
+        } else if (window.PLATFORM_CONFIG.isOnelan) {
+            baseSpeed = 2.5; // Faster for Onelan
+        }
+    }
+    
+    // Scale based on viewport width and height
+    const widthRatio = viewportWidth / 1920; // 1920 as baseline
+    const heightRatio = viewportHeight / 360; // 360 as baseline
+    const sizeMultiplier = Math.min(widthRatio, heightRatio);
+    
+    // Calculate final speed with bounds
+    scrollSpeed = Math.max(0.5, Math.min(4.0, baseSpeed * sizeMultiplier));
+    
+    console.log(`Scroll speed calculated: ${scrollSpeed} (viewport: ${viewportWidth}x${viewportHeight}, platform: ${window.PLATFORM_CONFIG?.isEyemagnet ? 'Eyemagnet' : window.PLATFORM_CONFIG?.isTizen ? 'Tizen' : window.PLATFORM_CONFIG?.isOnelan ? 'Onelan' : 'Unknown'})`);
+    
     return scrollSpeed;
 }
 
@@ -261,8 +283,15 @@ function populateTicker() {
     }
     
     let html = '';
-    // Create multiple copies for seamless scrolling - adjust number based on screen size
-    const copies = Math.ceil(window.innerWidth / 500) + 2; // Ensure enough copies for seamless scrolling
+    
+    // Calculate number of copies based on viewport width and item width
+    const viewportWidth = window.innerWidth;
+    const estimatedItemWidth = Math.min(65, Math.max(70, Math.min(85, viewportWidth / 10))); // Responsive item width in vw
+    const itemWidthPx = (estimatedItemWidth / 100) * viewportWidth;
+    const copies = Math.ceil((viewportWidth * 2) / itemWidthPx) + 2; // Ensure seamless scrolling
+    
+    console.log(`Creating ${copies} copies for viewport ${viewportWidth}px (item width: ${itemWidthPx}px)`);
+    
     for (let i = 0; i < copies; i++) {
         transportData.forEach(item => {
             html += createTransportItem(item);
@@ -277,7 +306,7 @@ function populateTicker() {
         scrollWidth = tickerScroll.scrollWidth;
         calculateScrollSpeed(); // Recalculate scroll speed for current viewport
         startScrollAnimation();
-    }, 100);
+    }, 50); // Reduced delay for better responsiveness
 }
 
 // Optimized scrolling animation using requestAnimationFrame
@@ -292,8 +321,13 @@ function startScrollAnimation() {
         
         scrollPosition += scrollSpeed;
         
-        // Reset when we've scrolled through one complete set
-        const resetPoint = scrollWidth / Math.ceil(window.innerWidth / 500 + 2);
+        // Calculate reset point based on actual content width
+        const viewportWidth = window.innerWidth;
+        const estimatedItemWidth = Math.min(65, Math.max(70, Math.min(85, viewportWidth / 10)));
+        const itemWidthPx = (estimatedItemWidth / 100) * viewportWidth;
+        const copies = Math.ceil((viewportWidth * 2) / itemWidthPx) + 2;
+        const resetPoint = scrollWidth / copies;
+        
         if (scrollPosition >= resetPoint) {
             scrollPosition = 0;
         }
@@ -387,9 +421,18 @@ function updateTimingsOnly() {
     });
 }
 
-// Handle window resize to recalculate scroll parameters
+// Enhanced resize handler for responsive design
 function handleResize() {
+    console.log('Window resized, recalculating parameters...');
+    
+    // Update platform config if needed
+    if (window.PLATFORM_CONFIG) {
+        window.PLATFORM_CONFIG.viewportWidth = window.innerWidth;
+        window.PLATFORM_CONFIG.viewportHeight = window.innerHeight;
+    }
+    
     calculateScrollSpeed();
+    
     // Restart animation with new parameters
     setTimeout(() => {
         if (document.getElementById('tickerScroll')) {
@@ -437,3 +480,18 @@ window.addEventListener('focus', () => {
 
 // Handle window resize
 window.addEventListener('resize', handleResize);
+
+// Add message handler for test interface
+window.addEventListener('message', function(event) {
+    if (event.data.type === 'getPlatformInfo') {
+        event.source.postMessage({
+            type: 'platformInfo',
+            config: window.PLATFORM_CONFIG || {
+                isEyemagnet: false,
+                isOnelan: false,
+                isTizen: false,
+                scaleFactor: 1
+            }
+        }, event.origin);
+    }
+});

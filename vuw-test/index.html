@@ -15,20 +15,82 @@
         }
     </style>
     <script>
-        // Simple Eyemagnet detection and speed override
-        if (navigator.userAgent.toLowerCase().includes('chrome') && 
-            (window.outerWidth < window.innerWidth || window.devicePixelRatio > 1.5)) {
+        // Enhanced platform detection and scaling
+        window.PLATFORM_CONFIG = {
+            isEyemagnet: false,
+            isOnelan: false,
+            isTizen: false,
+            devicePixelRatio: window.devicePixelRatio || 1,
+            viewportWidth: window.innerWidth,
+            viewportHeight: window.innerHeight,
+            scaleFactor: 1
+        };
+
+        // Detect platform
+        function detectPlatform() {
+            const ua = navigator.userAgent.toLowerCase();
+            const isChrome = ua.includes('chrome');
+            const isTizen = ua.includes('tizen') || ua.includes('samsung');
+            const hasHighDPR = window.devicePixelRatio > 1.5;
+            const hasViewportMismatch = window.outerWidth < window.innerWidth;
             
-            // Override scroll speed for Eyemagnet
-            window.addEventListener('DOMContentLoaded', function() {
-                const originalCalculateScrollSpeed = window.calculateScrollSpeed;
-                if (originalCalculateScrollSpeed) {
-                    window.calculateScrollSpeed = function() {
-                        return 0.5; // Much slower for Eyemagnet
-                    };
-                }
-            });
+            // Eyemagnet detection (Chrome-based with specific characteristics)
+            if (isChrome && (hasViewportMismatch || hasHighDPR)) {
+                PLATFORM_CONFIG.isEyemagnet = true;
+                PLATFORM_CONFIG.scaleFactor = 0.8; // Conservative scaling for Eyemagnet
+            }
+            
+            // Tizen detection
+            if (isTizen) {
+                PLATFORM_CONFIG.isTizen = true;
+                PLATFORM_CONFIG.scaleFactor = 0.9;
+            }
+            
+            // Onelan detection (typically has specific viewport characteristics)
+            if (!isChrome && !isTizen && window.innerWidth >= 1920) {
+                PLATFORM_CONFIG.isOnelan = true;
+                PLATFORM_CONFIG.scaleFactor = 1.0;
+            }
+            
+            // Calculate dynamic scale factor based on viewport
+            const targetWidth = 3840;
+            const targetHeight = 360;
+            const widthRatio = window.innerWidth / targetWidth;
+            const heightRatio = window.innerHeight / targetHeight;
+            const dynamicScale = Math.min(widthRatio, heightRatio);
+            
+            // Apply platform-specific adjustments
+            PLATFORM_CONFIG.scaleFactor = Math.min(PLATFORM_CONFIG.scaleFactor, dynamicScale);
+            
+            console.log('Platform detected:', PLATFORM_CONFIG);
         }
+
+        // Apply scaling immediately
+        detectPlatform();
+        
+        // Override scroll speed for specific platforms
+        window.addEventListener('DOMContentLoaded', function() {
+            const originalCalculateScrollSpeed = window.calculateScrollSpeed;
+            if (originalCalculateScrollSpeed) {
+                window.calculateScrollSpeed = function() {
+                    let baseSpeed = 2;
+                    
+                    if (PLATFORM_CONFIG.isEyemagnet) {
+                        baseSpeed = 0.5; // Much slower for Eyemagnet
+                    } else if (PLATFORM_CONFIG.isTizen) {
+                        baseSpeed = 1.0; // Moderate speed for Tizen
+                    } else if (PLATFORM_CONFIG.isOnelan) {
+                        baseSpeed = 2.5; // Faster for Onelan
+                    }
+                    
+                    // Scale based on viewport width
+                    const viewportWidth = window.innerWidth;
+                    const speedMultiplier = Math.max(0.5, Math.min(2.0, viewportWidth / 1920));
+                    
+                    return baseSpeed * speedMultiplier;
+                };
+            }
+        });
         
         // Remove the 100ms delay from populateTicker
         window.addEventListener('DOMContentLoaded', function() {
