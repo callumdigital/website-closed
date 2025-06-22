@@ -101,6 +101,25 @@
             margin: 5px 0;
             font-size: 14px;
         }
+        
+        .scaling-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .scaling-info h3 {
+            margin: 0 0 10px 0;
+            color: #1976d2;
+        }
+        
+        .scaling-info p {
+            margin: 5px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -110,7 +129,16 @@
         <div class="info-panel">
             <strong>Current Viewport:</strong> <span id="viewport-info">Loading...</span><br>
             <strong>Platform Detection:</strong> <span id="platform-info">Loading...</span><br>
-            <strong>Scale Factor:</strong> <span id="scale-info">Loading...</span>
+            <strong>Scale Factor:</strong> <span id="scale-info">Loading...</span><br>
+            <strong>Calculated Scale:</strong> <span id="calculated-scale">Loading...</span>
+        </div>
+        
+        <div class="scaling-info">
+            <h3>Scaling Calculations</h3>
+            <p><strong>Target Size:</strong> 3840px × 360px</p>
+            <p><strong>Width Scale:</strong> <span id="width-scale">Loading...</span></p>
+            <p><strong>Height Scale:</strong> <span id="height-scale">Loading...</span></p>
+            <p><strong>Applied Scale:</strong> <span id="applied-scale">Loading...</span></p>
         </div>
         
         <h2>Test Different Screen Sizes</h2>
@@ -121,6 +149,8 @@
             <button class="size-button" onclick="resizeFrame(1024, 360)">Tablet (1024x360)</button>
             <button class="size-button" onclick="resizeFrame(800, 360)">Small (800x360)</button>
             <button class="size-button" onclick="resizeFrame(600, 360)">Mobile (600x360)</button>
+            <button class="size-button" onclick="resizeFrame(1920, 200)">1080p Short (1920x200)</button>
+            <button class="size-button" onclick="resizeFrame(1024, 200)">Tablet Short (1024x200)</button>
         </div>
         
         <div class="test-frame" id="test-frame">
@@ -132,26 +162,26 @@
             <div class="platform-card">
                 <h3>Eyemagnet</h3>
                 <p><strong>Detection:</strong> Chrome + High DPR or viewport mismatch</p>
-                <p><strong>Scale Factor:</strong> 0.8 (conservative)</p>
-                <p><strong>Scroll Speed:</strong> 0.8 (slower)</p>
+                <p><strong>Scale Factor:</strong> 0.9 (conservative)</p>
+                <p><strong>Scroll Speed:</strong> 0.6 (slower)</p>
             </div>
             <div class="platform-card">
                 <h3>Tizen (Samsung)</h3>
                 <p><strong>Detection:</strong> User agent contains 'tizen' or 'samsung'</p>
-                <p><strong>Scale Factor:</strong> 0.9</p>
-                <p><strong>Scroll Speed:</strong> 1.2 (moderate)</p>
+                <p><strong>Scale Factor:</strong> 0.95</p>
+                <p><strong>Scroll Speed:</strong> 1.0 (moderate)</p>
             </div>
             <div class="platform-card">
                 <h3>Onelan</h3>
                 <p><strong>Detection:</strong> Non-Chrome, large viewport</p>
                 <p><strong>Scale Factor:</strong> 1.0</p>
-                <p><strong>Scroll Speed:</strong> 2.5 (faster)</p>
+                <p><strong>Scroll Speed:</strong> 2.0 (faster)</p>
             </div>
             <div class="platform-card">
-                <h3>Responsive Design</h3>
-                <p><strong>Units:</strong> vw/vh instead of px</p>
-                <p><strong>Scaling:</strong> Dynamic based on viewport</p>
-                <p><strong>Media Queries:</strong> Platform-specific adjustments</p>
+                <h3>Fixed Pixel Design</h3>
+                <p><strong>Base Size:</strong> 3840px × 360px</p>
+                <p><strong>Scaling:</strong> CSS transform</p>
+                <p><strong>Units:</strong> Fixed pixels</p>
             </div>
         </div>
         
@@ -159,8 +189,9 @@
         <ol>
             <li>Click different size buttons to test scaling across various screen sizes</li>
             <li>Check the info panel to see detected platform and scaling information</li>
+            <li>Monitor the scaling calculations to understand how the transform is applied</li>
             <li>Test on actual devices (Eyemagnet, Tizen, Onelan) to verify platform detection</li>
-            <li>Monitor console logs for detailed scaling calculations</li>
+            <li>Check that time text is no longer truncated with ellipsis</li>
         </ol>
     </div>
 
@@ -182,8 +213,23 @@
             const frame = document.getElementById('test-frame');
             const iframe = document.getElementById('ticker-iframe');
             
+            const viewportWidth = frame.offsetWidth;
+            const viewportHeight = frame.offsetHeight;
+            
             document.getElementById('viewport-info').textContent = 
-                `${frame.offsetWidth}px × ${frame.offsetHeight}px`;
+                `${viewportWidth}px × ${viewportHeight}px`;
+            
+            // Calculate scaling
+            const targetWidth = 3840;
+            const targetHeight = 360;
+            const widthScale = viewportWidth / targetWidth;
+            const heightScale = viewportHeight / targetHeight;
+            const appliedScale = Math.min(widthScale, heightScale);
+            
+            document.getElementById('width-scale').textContent = `${widthScale.toFixed(3)} (${(widthScale * 100).toFixed(1)}%)`;
+            document.getElementById('height-scale').textContent = `${heightScale.toFixed(3)} (${(heightScale * 100).toFixed(1)}%)`;
+            document.getElementById('applied-scale').textContent = `${appliedScale.toFixed(3)} (${(appliedScale * 100).toFixed(1)}%)`;
+            document.getElementById('calculated-scale').textContent = `${appliedScale.toFixed(3)}`;
             
             // Try to get platform info from iframe
             try {
