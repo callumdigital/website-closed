@@ -2,6 +2,46 @@
 
 This version of the VUW Transport Ticker has been updated with responsive scaling to work properly across different platforms, including Eyemagnet on Samsung Tizen OS commercial displays.
 
+## Setup Instructions
+
+### API Key Configuration
+
+**⚠️ IMPORTANT: API Key Security**
+
+The Metlink API key is now stored securely in a separate configuration file. Follow these steps to set up your API key:
+
+1. **Copy the example config file:**
+   ```bash
+   cp config.example.js config.js
+   ```
+
+2. **Edit `config.js` and add your actual API key:**
+   ```javascript
+   METLINK_API_KEY: 'your_actual_api_key_here',
+   ```
+
+3. **Get your API key from Metlink:**
+   - Visit: https://opendata.metlink.org.nz/
+   - Sign up for an account
+   - Generate an API key
+
+4. **Security notes:**
+   - The `config.js` file is in `.gitignore` and won't be committed
+   - Never commit your actual API key to version control
+   - For production, use environment variables or server-side configuration
+
+### File Structure
+```
+vuw-test/
+├── index.html          # Main HTML file
+├── styles.css          # Styling with responsive design
+├── script.js           # Main JavaScript logic
+├── config.example.js   # Example configuration (safe to commit)
+├── config.js           # Actual configuration (NOT committed)
+├── .gitignore          # Prevents config.js from being committed
+└── test-scaling.html   # Testing interface
+```
+
 ## Key Improvements
 
 ### 1. Responsive Design
@@ -20,18 +60,18 @@ The system now automatically detects different platforms and applies appropriate
 ### 3. Platform-Specific Optimizations
 
 #### Eyemagnet (Samsung Tizen OS)
-- **Scale Factor**: 0.8 (conservative scaling)
-- **Scroll Speed**: 0.8 (slower animation)
+- **Scale Factor**: 0.9 (conservative scaling)
+- **Scroll Speed**: 0.6 (slower animation)
 - **CSS Adjustments**: Smaller elements, reduced spacing
 
 #### Tizen
-- **Scale Factor**: 0.9
-- **Scroll Speed**: 1.2 (moderate)
+- **Scale Factor**: 0.95
+- **Scroll Speed**: 1.0 (moderate)
 - **CSS Adjustments**: Optimized for Tizen browser quirks
 
 #### Onelan
 - **Scale Factor**: 1.0
-- **Scroll Speed**: 2.5 (faster)
+- **Scroll Speed**: 2.0 (faster)
 - **CSS Adjustments**: Standard scaling
 
 ### 4. Responsive Breakpoints
@@ -42,24 +82,40 @@ The CSS includes media queries for different screen sizes:
 - **Tablet (1024px)**: Smaller elements
 - **Mobile (800px and below)**: Compact layout
 
+### 5. Enhanced Typography
+- **Destination text**: Larger (32px) for better readability
+- **Time text**: Smaller (28px) with different font weights
+- **Next departure**: Bold (600) for emphasis
+- **Subsequent departures**: Normal weight (400)
+- **Even padding**: 24px on all sides for better visual balance
+
 ## Files Updated
 
 ### `index.html`
 - Enhanced platform detection logic
 - Dynamic scroll speed calculation
 - Improved initialization timing
+- Added config.js script inclusion
 
 ### `styles.css`
 - Complete rewrite using viewport units
 - Platform-specific media queries
 - Responsive breakpoints
 - Flexible layouts
+- Enhanced typography with font weights
 
 ### `script.js`
 - Enhanced scroll speed calculation
 - Responsive copy generation
 - Improved resize handling
 - Platform-specific optimizations
+- Secure API key handling
+- Enhanced time formatting with font weights
+
+### `config.js` (new)
+- Secure configuration management
+- API key storage
+- Centralized settings
 
 ## Testing
 
@@ -75,7 +131,7 @@ Test on actual devices:
 #### Eyemagnet (Samsung Tizen)
 ```bash
 # Expected behavior:
-# - Conservative scaling (0.8x)
+# - Conservative scaling (0.9x)
 # - Slower scroll speed
 # - Smaller elements
 # - Platform detected as "Eyemagnet"
@@ -123,6 +179,11 @@ Monitor the browser console for:
    - Check media query breakpoints
    - Verify viewport units are working correctly
 
+4. **API key not working**
+   - Ensure `config.js` exists and contains your API key
+   - Check that the API key is valid and active
+   - Verify the key has the correct permissions
+
 ### Debug Mode
 Enable detailed logging by checking the browser console. The system logs:
 - Platform detection results
@@ -145,12 +206,19 @@ Enable detailed logging by checking the browser console. The system logs:
 - **Other WebKit browsers**: Should work with fallback scaling
 - **Firefox/Safari**: Tested with responsive design
 
+## Security
+
+- **API Key Protection**: Stored in separate config file, not committed to version control
+- **Environment Variables**: Support for server-side configuration
+- **No Hardcoded Secrets**: All sensitive data externalized
+
 ## Future Enhancements
 
 1. **Additional Platform Detection**: Support for more commercial display systems
 2. **Custom Scale Factors**: Allow configuration per installation
 3. **Performance Monitoring**: Real-time performance metrics
 4. **Accessibility**: Better support for screen readers and assistive technologies
+5. **Server-Side Rendering**: Move API calls to backend for better security
 
 ## Original README
 

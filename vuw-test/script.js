@@ -1,10 +1,18 @@
-const API_KEY = 'ciFUCbyIQP8lt6Cylk9yn953L6eHYxAnEkaIU8d0';
-const STOP_A = '4915';
-const STOP_B = '5915';
+// Load configuration
+const config = window.VUW_CONFIG || {
+    METLINK_API_KEY: 'YOUR_API_KEY_HERE',
+    STOP_A: '4915',
+    STOP_B: '5915',
+    EXCLUDED_ROUTES: ['740', '739', '769']
+};
+
+const API_KEY = config.METLINK_API_KEY;
+const STOP_A = config.STOP_A;
+const STOP_B = config.STOP_B;
 
 let transportData = [];
 let retryCount = 0;
-const MAX_RETRIES = 3;
+const MAX_RETRIES = config.MAX_RETRIES || 3;
 
 // Scrolling variables for optimized animation
 let scrollPosition = 0;
@@ -13,7 +21,7 @@ let animationId = null;
 let scrollSpeed = 2; // Base scroll speed
 
 // Excluded bus routes
-const EXCLUDED_ROUTES = ['740', '739', '769'];
+const EXCLUDED_ROUTES = config.EXCLUDED_ROUTES || ['740', '739', '769'];
 
 // Enhanced scroll speed calculation for responsive design
 function calculateScrollSpeed() {
@@ -78,6 +86,25 @@ function formatTime(timestamp) {
     
     if (diffMinutes <= 0) return "Due now";
     return `${diffMinutes} mins away`;
+}
+
+function formatTimeWithWeight(timestamps) {
+    if (!timestamps || timestamps.length === 0) return "N/A";
+    
+    const times = timestamps.map(ts => {
+        const now = new Date();
+        const departureTime = new Date(ts);
+        const diffMinutes = Math.round((departureTime - now) / (1000 * 60));
+        
+        if (diffMinutes <= 0) return "Due now";
+        return `${diffMinutes} mins away`;
+    });
+    
+    if (times.length === 1) {
+        return `<span class="next-time">${times[0]}</span>`;
+    } else {
+        return `<span class="next-time">${times[0]}</span>, then <span class="subsequent-time">${times[1]}</span>`;
+    }
 }
 
 async function fetchStopData(stopId) {
@@ -245,6 +272,8 @@ function createTransportItem(data) {
     const directionArrow = isTowardsCity ? "⬆" : "⬇";
     const directionText = isTowardsCity ? "To City" : "From City";
 
+    const timeHTML = formatTimeWithWeight(data.rawTimestamps);
+
     return `
         <div class="transport-item">
             <div class="bus-section">
@@ -260,7 +289,7 @@ function createTransportItem(data) {
                         <span class="direction-arrow">${directionArrow}</span>
                     </span>
                 </div>
-                <div class="time" data-timestamps='${JSON.stringify(data.rawTimestamps)}'>${data.nextDepartures.join(", then ")}</div>
+                <div class="time" data-timestamps='${JSON.stringify(data.rawTimestamps)}'>${timeHTML}</div>
             </div>
         </div>
     `;
@@ -409,13 +438,8 @@ function updateTimingsOnly() {
         if (timingDiv && timingDiv.dataset && timingDiv.dataset.timestamps) {
             try {
                 const timestamps = JSON.parse(timingDiv.dataset.timestamps);
-                const times = timestamps.map(ts => {
-                    const departureTime = new Date(ts);
-                    const diffMinutes = Math.round((departureTime - now) / (1000 * 60));
-                    if (diffMinutes <= 0) return "Due now";
-                    return `${diffMinutes} mins away`;
-                });
-                timingDiv.textContent = times.join(", then ");
+                const timeHTML = formatTimeWithWeight(timestamps);
+                timingDiv.innerHTML = timeHTML;
             } catch (e) {
                 // Ignore JSON parsing errors for timing updates
             }
