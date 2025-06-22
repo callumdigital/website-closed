@@ -20,26 +20,26 @@ function calculateScrollSpeed() {
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
     
-    // Base speed varies by platform
-    let baseSpeed = 2;
+    // Base speed varies by platform - more conservative values
+    let baseSpeed = 1.5; // Reduced from 2.0
     
     if (window.PLATFORM_CONFIG) {
         if (window.PLATFORM_CONFIG.isEyemagnet) {
-            baseSpeed = 0.8; // Slower for Eyemagnet
+            baseSpeed = 0.6; // Reduced from 0.8
         } else if (window.PLATFORM_CONFIG.isTizen) {
-            baseSpeed = 1.2; // Moderate for Tizen
+            baseSpeed = 1.0; // Reduced from 1.2
         } else if (window.PLATFORM_CONFIG.isOnelan) {
-            baseSpeed = 2.5; // Faster for Onelan
+            baseSpeed = 2.0; // Reduced from 2.5
         }
     }
     
-    // Scale based on viewport width and height
-    const widthRatio = viewportWidth / 1920; // 1920 as baseline
-    const heightRatio = viewportHeight / 360; // 360 as baseline
+    // Scale based on viewport width and height - more conservative scaling
+    const widthRatio = viewportWidth / 3840; // Use 3840 as baseline for 4K
+    const heightRatio = viewportHeight / 360; // Use 360 as baseline height
     const sizeMultiplier = Math.min(widthRatio, heightRatio);
     
-    // Calculate final speed with bounds
-    scrollSpeed = Math.max(0.5, Math.min(4.0, baseSpeed * sizeMultiplier));
+    // Calculate final speed with more conservative bounds
+    scrollSpeed = Math.max(0.3, Math.min(3.0, baseSpeed * sizeMultiplier));
     
     console.log(`Scroll speed calculated: ${scrollSpeed} (viewport: ${viewportWidth}x${viewportHeight}, platform: ${window.PLATFORM_CONFIG?.isEyemagnet ? 'Eyemagnet' : window.PLATFORM_CONFIG?.isTizen ? 'Tizen' : window.PLATFORM_CONFIG?.isOnelan ? 'Onelan' : 'Unknown'})`);
     
@@ -284,9 +284,10 @@ function populateTicker() {
     
     let html = '';
     
-    // Calculate number of copies based on viewport width and item width
+    // Calculate number of copies based on viewport width and item width - more conservative
     const viewportWidth = window.innerWidth;
-    const estimatedItemWidth = Math.min(65, Math.max(70, Math.min(85, viewportWidth / 10))); // Responsive item width in vw
+    // More conservative item width calculation for better readability
+    const estimatedItemWidth = Math.min(55, Math.max(60, Math.min(75, viewportWidth / 8))); // Reduced from /10
     const itemWidthPx = (estimatedItemWidth / 100) * viewportWidth;
     const copies = Math.ceil((viewportWidth * 2) / itemWidthPx) + 2; // Ensure seamless scrolling
     
@@ -321,9 +322,9 @@ function startScrollAnimation() {
         
         scrollPosition += scrollSpeed;
         
-        // Calculate reset point based on actual content width
+        // Calculate reset point based on actual content width - more conservative
         const viewportWidth = window.innerWidth;
-        const estimatedItemWidth = Math.min(65, Math.max(70, Math.min(85, viewportWidth / 10)));
+        const estimatedItemWidth = Math.min(55, Math.max(60, Math.min(75, viewportWidth / 8)));
         const itemWidthPx = (estimatedItemWidth / 100) * viewportWidth;
         const copies = Math.ceil((viewportWidth * 2) / itemWidthPx) + 2;
         const resetPoint = scrollWidth / copies;

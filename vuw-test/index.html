@@ -37,29 +37,29 @@
             // Eyemagnet detection (Chrome-based with specific characteristics)
             if (isChrome && (hasViewportMismatch || hasHighDPR)) {
                 PLATFORM_CONFIG.isEyemagnet = true;
-                PLATFORM_CONFIG.scaleFactor = 0.8; // Conservative scaling for Eyemagnet
+                PLATFORM_CONFIG.scaleFactor = 0.9; // More conservative scaling for Eyemagnet
             }
             
             // Tizen detection
             if (isTizen) {
                 PLATFORM_CONFIG.isTizen = true;
-                PLATFORM_CONFIG.scaleFactor = 0.9;
+                PLATFORM_CONFIG.scaleFactor = 0.95; // More conservative scaling for Tizen
             }
             
             // Onelan detection (typically has specific viewport characteristics)
             if (!isChrome && !isTizen && window.innerWidth >= 1920) {
                 PLATFORM_CONFIG.isOnelan = true;
-                PLATFORM_CONFIG.scaleFactor = 1.0;
+                PLATFORM_CONFIG.scaleFactor = 1.0; // Standard scaling for Onelan
             }
             
-            // Calculate dynamic scale factor based on viewport
+            // Calculate dynamic scale factor based on viewport - more conservative
             const targetWidth = 3840;
             const targetHeight = 360;
             const widthRatio = window.innerWidth / targetWidth;
             const heightRatio = window.innerHeight / targetHeight;
             const dynamicScale = Math.min(widthRatio, heightRatio);
             
-            // Apply platform-specific adjustments
+            // Apply platform-specific adjustments - more conservative
             PLATFORM_CONFIG.scaleFactor = Math.min(PLATFORM_CONFIG.scaleFactor, dynamicScale);
             
             console.log('Platform detected:', PLATFORM_CONFIG);

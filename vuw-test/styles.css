@@ -57,10 +57,10 @@ body {
     position: relative;
     will-change: transform;
     transform: translateZ(0);
-    min-width: 65vw;
-    max-width: 65vw;
-    height: 20vh;
-    margin-right: 4.8vw;
+    min-width: 55vw;
+    max-width: 55vw;
+    height: 22vh;
+    margin-right: 4vw;
     overflow: hidden;
 }
 
@@ -69,56 +69,56 @@ body {
 }
 
 .bus-badge {
-    width: 8vh;
-    height: 8vh;
+    width: 10vh;
+    height: 10vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 3.6vh;
+    font-size: 4.5vh;
     font-weight: 600;
-    border-radius: 0.8vh;
+    border-radius: 1vh;
     position: relative;
     color: white;
     border: 0.1vh solid rgba(255, 255, 255, 0.4);
     box-shadow: 0 0.2vh 0.4vh rgba(0, 0, 0, 0.2);
-    padding-bottom: 1.2vh;
+    padding-bottom: 1.5vh;
     text-shadow: 0 0.1vh 0.2vh rgba(0, 0, 0, 0.2);
 }
 
 .bus-badge::after {
     content: "";
     position: absolute;
-    bottom: -1vh;
-    width: 0.8vh;
-    height: 1vh;
+    bottom: -1.2vh;
+    width: 1vh;
+    height: 1.2vh;
     background: #D9D9D9;
-    border-radius: 0.4vh;
-    left: 1.2vh;
+    border-radius: 0.5vh;
+    left: 1.5vh;
 }
 
 .bus-badge::before {
     content: "";
     position: absolute;
-    bottom: -1vh;
-    width: 0.8vh;
-    height: 1vh;
+    bottom: -1.2vh;
+    width: 1vh;
+    height: 1.2vh;
     background: #D9D9D9;
-    border-radius: 0.4vh;
-    right: 1.2vh;
+    border-radius: 0.5vh;
+    right: 1.5vh;
 }
 
 .transport-info {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 0.8vh;
+    gap: 1vh;
     min-width: 0;
     overflow: hidden;
 }
 
 .destination {
     color: white;
-    font-size: 2.8vh;
+    font-size: 3.5vh;
     font-weight: 500;
     text-shadow: 0 0.1vh 0.2vh rgba(0, 0, 0, 0.2);
     line-height: 1.2;
@@ -130,18 +130,18 @@ body {
 .info-row {
     display: flex;
     align-items: center;
-    gap: 1.6vw;
-    margin-top: 0.4vh;
+    gap: 2vw;
+    margin-top: 0.5vh;
     flex-wrap: nowrap;
-    min-height: 3.6vh;
+    min-height: 4.5vh;
 }
 
 .time {
     color: white;
-    font-size: 3.2vh;
+    font-size: 4vh;
     font-weight: 500;
     text-shadow: 0 0.1vh 0.2vh rgba(0, 0, 0, 0.2);
-    margin-top: 0.8vh;
+    margin-top: 1vh;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -149,9 +149,9 @@ body {
 
 .stop-badge {
     background: rgba(255, 255, 255, 0.2);
-    padding: 0.6vh 1.6vw;
-    border-radius: 2vh;
-    font-size: 1.8vh;
+    padding: 0.8vh 2vw;
+    border-radius: 2.5vh;
+    font-size: 2.2vh;
     color: white;
     white-space: nowrap;
     flex-shrink: 0;
@@ -160,9 +160,9 @@ body {
 .status {
     background: rgba(62, 179, 56, 0.3);
     color: white;
-    padding: 0.6vh 1.6vw;
-    border-radius: 2vh;
-    font-size: 1.8vh;
+    padding: 0.8vh 2vw;
+    border-radius: 2.5vh;
+    font-size: 2.2vh;
     text-shadow: 0 0.1vh 0.2vh rgba(0, 0, 0, 0.2);
     white-space: nowrap;
     flex-shrink: 0;
@@ -189,18 +189,18 @@ body {
 .occupancy-indicator {
     display: flex;
     align-items: center;
-    gap: 0.4vw;
+    gap: 0.5vw;
     background: rgba(255, 255, 255, 0.15);
-    padding: 0.6vh 1.2vw;
-    border-radius: 2vh;
-    font-size: 1.6vh;
+    padding: 0.8vh 1.5vw;
+    border-radius: 2.5vh;
+    font-size: 2vh;
     color: white;
     white-space: nowrap;
     flex-shrink: 0;
 }
 
 .occupancy-icon {
-    font-size: 1.8vh;
+    font-size: 2.2vh;
 }
 
 .occupancy-low { color: #4caf50; }
@@ -211,11 +211,11 @@ body {
     margin-left: auto;
     display: flex;
     align-items: center;
-    gap: 0.8vw;
+    gap: 1vw;
     background: rgba(255, 255, 255, 0.2);
-    padding: 0.6vh 1.6vw;
-    border-radius: 2vh;
-    font-size: 1.8vh;
+    padding: 0.8vh 2vw;
+    border-radius: 2.5vh;
+    font-size: 2.2vh;
     white-space: nowrap;
     flex-shrink: 0;
 }
@@ -250,13 +250,69 @@ body {
 .bus-badge.route-alert { background: linear-gradient(135deg, #1976d2 60%, #1565c0 100%); }
 .bus-badge { background: linear-gradient(135deg, #78909c 60%, #546e7a 100%); }
 
-/* Platform-specific adjustments */
+/* Conservative scaling for 4K and 1080p displays */
 @media screen and (max-width: 1920px) {
+    .transport-item {
+        min-width: 60vw;
+        max-width: 60vw;
+        height: 20vh;
+        margin-right: 4.5vw;
+    }
+    
+    .bus-badge {
+        width: 9vh;
+        height: 9vh;
+        font-size: 4vh;
+    }
+    
+    .destination {
+        font-size: 3.2vh;
+    }
+    
+    .time {
+        font-size: 3.6vh;
+    }
+    
+    .stop-badge, .status, .direction-info {
+        font-size: 2vh;
+        padding: 0.7vh 1.8vw;
+    }
+}
+
+@media screen and (max-width: 1366px) {
+    .transport-item {
+        min-width: 65vw;
+        max-width: 65vw;
+        height: 18vh;
+        margin-right: 5vw;
+    }
+    
+    .bus-badge {
+        width: 8vh;
+        height: 8vh;
+        font-size: 3.5vh;
+    }
+    
+    .destination {
+        font-size: 3vh;
+    }
+    
+    .time {
+        font-size: 3.2vh;
+    }
+    
+    .stop-badge, .status, .direction-info {
+        font-size: 1.8vh;
+        padding: 0.6vh 1.6vw;
+    }
+}
+
+@media screen and (max-width: 1024px) {
     .transport-item {
         min-width: 70vw;
         max-width: 70vw;
-        height: 18vh;
-        margin-right: 5vw;
+        height: 16vh;
+        margin-right: 5.5vw;
     }
     
     .bus-badge {
@@ -266,11 +322,11 @@ body {
     }
     
     .destination {
-        font-size: 2.4vh;
+        font-size: 2.8vh;
     }
     
     .time {
-        font-size: 2.8vh;
+        font-size: 3vh;
     }
     
     .stop-badge, .status, .direction-info {
@@ -279,26 +335,27 @@ body {
     }
 }
 
-@media screen and (max-width: 1366px) {
+/* Eyemagnet-specific adjustments - more conservative */
+@media screen and (max-device-pixel-ratio: 1.5) {
     .transport-item {
         min-width: 75vw;
         max-width: 75vw;
-        height: 16vh;
-        margin-right: 5.5vw;
+        height: 14vh;
+        margin-right: 6vw;
     }
     
     .bus-badge {
         width: 6vh;
         height: 6vh;
-        font-size: 2.6vh;
+        font-size: 2.5vh;
     }
     
     .destination {
-        font-size: 2.2vh;
+        font-size: 2.5vh;
     }
     
     .time {
-        font-size: 2.6vh;
+        font-size: 2.8vh;
     }
     
     .stop-badge, .status, .direction-info {
@@ -307,12 +364,13 @@ body {
     }
 }
 
-@media screen and (max-width: 1024px) {
+/* Tizen-specific adjustments - more conservative */
+@media screen and (-webkit-min-device-pixel-ratio: 2) {
     .transport-item {
         min-width: 80vw;
         max-width: 80vw;
-        height: 14vh;
-        margin-right: 6vw;
+        height: 12vh;
+        margin-right: 7vw;
     }
     
     .bus-badge {
@@ -322,73 +380,15 @@ body {
     }
     
     .destination {
-        font-size: 2vh;
+        font-size: 2.2vh;
     }
     
     .time {
-        font-size: 2.4vh;
+        font-size: 2.5vh;
     }
     
     .stop-badge, .status, .direction-info {
         font-size: 1.2vh;
         padding: 0.3vh 1vw;
-    }
-}
-
-/* Eyemagnet-specific adjustments */
-@media screen and (max-device-pixel-ratio: 1.5) {
-    .transport-item {
-        min-width: 85vw;
-        max-width: 85vw;
-        height: 12vh;
-        margin-right: 7vw;
-    }
-    
-    .bus-badge {
-        width: 4.5vh;
-        height: 4.5vh;
-        font-size: 2vh;
-    }
-    
-    .destination {
-        font-size: 1.8vh;
-    }
-    
-    .time {
-        font-size: 2.2vh;
-    }
-    
-    .stop-badge, .status, .direction-info {
-        font-size: 1.1vh;
-        padding: 0.3vh 0.8vw;
-    }
-}
-
-/* Tizen-specific adjustments */
-@media screen and (-webkit-min-device-pixel-ratio: 2) {
-    .transport-item {
-        min-width: 90vw;
-        max-width: 90vw;
-        height: 10vh;
-        margin-right: 8vw;
-    }
-    
-    .bus-badge {
-        width: 4vh;
-        height: 4vh;
-        font-size: 1.8vh;
-    }
-    
-    .destination {
-        font-size: 1.6vh;
-    }
-    
-    .time {
-        font-size: 2vh;
-    }
-    
-    .stop-badge, .status, .direction-info {
-        font-size: 1vh;
-        padding: 0.2vh 0.6vw;
     }
 }
