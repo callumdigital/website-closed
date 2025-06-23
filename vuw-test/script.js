@@ -1,6 +1,6 @@
 // Load configuration
 const config = window.VUW_CONFIG || {
-    METLINK_API_KEY: 'YOUR_API_KEY_HERE',
+    METLINK_API_KEY: 'ciFUCbyIQP8lt6Cylk9yn953L6eHYxAnEkaIU8d0',
     STOP_A: '4915',
     STOP_B: '5915',
     EXCLUDED_ROUTES: ['740', '739', '769']
