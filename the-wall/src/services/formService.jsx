@@ -1,4 +1,4 @@
-import { noteService, projectService } from './supabaseClient'
+import { noteService, projectService } from './supabaseClient.jsx'
 
 // Form field types and their default configurations
 export const FIELD_TYPES = {
@@ -37,6 +37,21 @@ export const FIELD_TYPES = {
     validation: {
       required: false
     }
+  },
+  emoji: {
+    type: 'emoji',
+    label: 'Choose an Emoji',
+    validation: {
+      required: false
+    }
+  },
+  color: {
+    type: 'color',
+    label: 'Choose a Color',
+    options: ['yellow', 'blue', 'pink', 'green', 'purple', 'orange', 'red', 'indigo'],
+    validation: {
+      required: false
+    }
   }
 }
 
@@ -58,6 +73,18 @@ export const DEFAULT_FORM_CONFIG = {
       required: true,
       maxLength: 280,
       showCharacterCount: true
+    },
+    {
+      id: 'emoji',
+      type: 'emoji',
+      label: 'Choose an Emoji',
+      required: false
+    },
+    {
+      id: 'color',
+      type: 'color',
+      label: 'Choose a Color',
+      required: false
     }
   ]
 }
@@ -85,9 +112,14 @@ export const validateField = (field, value) => {
 }
 
 // Validate entire form
-export const validateForm = (formConfig, formData) => {
+export const validateForm = (formData, formConfig) => {
   const errors = {}
   let isValid = true
+  
+  if (!formConfig || !formConfig.fields) {
+    console.warn('validateForm: formConfig or formConfig.fields is undefined')
+    return { isValid: false, errors: { general: ['Form configuration is missing'] } }
+  }
   
   formConfig.fields.forEach(field => {
     const fieldErrors = validateField(field, formData[field.id])
@@ -103,19 +135,21 @@ export const validateForm = (formConfig, formData) => {
 // Generate form data from form configuration
 export const generateFormData = (formConfig) => {
   const formData = {}
-  formConfig.fields.forEach(field => {
-    formData[field.id] = ''
-  })
+  if (formConfig && formConfig.fields) {
+    formConfig.fields.forEach(field => {
+      formData[field.id] = ''
+    })
+  }
   return formData
 }
 
 // Render form field component
-export const renderFormField = (field, value, onChange, errors = {}) => {
+export const renderFormField = (field, value, onChange, errors = {}, branding = {}) => {
   const fieldErrors = errors[field.id] || []
   const hasError = fieldErrors.length > 0
   
-  const baseClasses = `w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-    hasError ? 'border-red-500' : 'border-gray-300'
+  const baseClasses = `w-full px-3 py-2 border-2 border-black rounded-xl focus:outline-none focus:ring-0 ${
+    hasError ? 'border-red-500' : 'border-black'
   }`
   
   const fieldProps = {
@@ -134,8 +168,9 @@ export const renderFormField = (field, value, onChange, errors = {}) => {
       fieldElement = (
         <textarea
           {...fieldProps}
-          rows={4}
+          rows={3}
           maxLength={field.maxLength}
+          className={`${baseClasses} resize-none`}
         />
       )
       break
@@ -169,6 +204,78 @@ export const renderFormField = (field, value, onChange, errors = {}) => {
             </option>
           ))}
         </select>
+      )
+      break
+      
+    case 'emoji':
+      const emojiOptions = ['😊', '😢', '😍', '🤔', '😌', '😂', '😮', '😴', '😡', '🥰']
+      fieldElement = (
+        <div>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {emojiOptions.map((emoji, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => onChange(field.id, emoji)}
+                className={`w-10 h-10 text-xl rounded-xl border-2 transition-colors ${
+                  value === emoji 
+                    ? 'border-black' 
+                    : 'border-black hover:bg-gray-100'
+                }`}
+                style={{
+                  backgroundColor: value === emoji ? (branding?.primaryColor || '#FCD34D') + '40' : 'transparent'
+                }}
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => onChange(field.id, '')}
+            className={`px-3 py-1 text-sm rounded-xl border-2 transition-colors ${
+              !value 
+                ? 'border-black' 
+                : 'border-black hover:bg-gray-100'
+            }`}
+            style={{
+              backgroundColor: !value ? (branding?.primaryColor || '#FCD34D') + '40' : 'transparent'
+            }}
+          >
+            None
+          </button>
+        </div>
+      )
+      break
+      
+    case 'color':
+      const colorOptions = [
+        { value: 'yellow', label: 'Yellow', class: 'bg-yellow-200 border-yellow-300' },
+        { value: 'blue', label: 'Blue', class: 'bg-blue-200 border-blue-300' },
+        { value: 'pink', label: 'Pink', class: 'bg-pink-200 border-pink-300' },
+        { value: 'green', label: 'Green', class: 'bg-green-200 border-green-300' },
+        { value: 'purple', label: 'Purple', class: 'bg-purple-200 border-purple-300' },
+        { value: 'orange', label: 'Orange', class: 'bg-orange-200 border-orange-300' },
+        { value: 'red', label: 'Red', class: 'bg-red-200 border-red-300' },
+        { value: 'indigo', label: 'Indigo', class: 'bg-indigo-200 border-indigo-300' }
+      ]
+      fieldElement = (
+        <div className="grid grid-cols-4 gap-3">
+          {colorOptions.map((color, index) => (
+            <button
+              key={index}
+              type="button"
+              onClick={() => onChange(field.id, color.value)}
+              className={`aspect-square rounded-xl border-2 transition-colors ${color.class} ${
+                value === color.value 
+                  ? 'border-black ring-2 ring-black ring-offset-1' 
+                  : 'border-black hover:opacity-80'
+              }`}
+            >
+              <span className="text-xs font-medium text-gray-700">{color.label}</span>
+            </button>
+          ))}
+        </div>
       )
       break
       
@@ -233,24 +340,22 @@ export const formService = {
   async submitForm(projectId, formConfig, formData) {
     try {
       // Validate form data
-      const validation = validateForm(formConfig, formData)
+      const validation = validateForm(formData, formConfig)
       if (!validation.isValid) {
         throw new Error('Form validation failed')
       }
       
-      // Prepare note data (for now, we'll combine all fields into a single note)
-      const noteText = formConfig.fields
-        .map(field => {
-          const value = formData[field.id]
-          if (!value || value.trim() === '') return null
-          return `${field.label}: ${value}`
-        })
-        .filter(Boolean)
-        .join('\n\n')
+      // Prepare note data - use main note text and separate emoji/color
+      const mainNoteField = formConfig.fields.find(f => f.id === 'main-note')
+      const noteText = formData[mainNoteField?.id] || ''
       
       if (!noteText.trim()) {
-        throw new Error('No data to submit')
+        throw new Error('Note text is required')
       }
+      
+      // Get emoji and color from form data
+      const emoji = formData.emoji || ''
+      const color = formData.color || ['yellow', 'blue', 'green', 'pink', 'purple', 'orange'][Math.floor(Math.random() * 6)]
       
       // Get project settings for auto-approval
       const project = await projectService.getProject(projectId)
@@ -262,7 +367,8 @@ export const formService = {
       const noteData = {
         project_id: projectId,
         text: noteText.trim(),
-        color: ['yellow', 'blue', 'green', 'pink', 'purple', 'orange'][Math.floor(Math.random() * 6)]
+        color: color,
+        emoji: emoji
       }
       
       const result = await noteService.createNote(noteData, projectSettings)
