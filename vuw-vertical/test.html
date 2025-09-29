@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en-NZ">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VUW Bus Departures - Test</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Platform detection and initial setup */
+        window.PLATFORM_CONFIG = {
+            isTizen: false,
+            isWebOS: false,
+            devicePixelRatio: window.devicePixelRatio || 1,
+            viewportWidth: window.innerWidth,
+            viewportHeight: window.innerHeight,
+            scaleFactor: 1
+        };
+
+        function detectPlatform() {
+            const ua = navigator.userAgent.toLowerCase();
+            const isTizen = ua.includes('tizen') || ua.includes('samsung');
+            const isWebOS = ua.includes('webos') || ua.includes('web0s');
+            
+            if (isTizen) {
+                PLATFORM_CONFIG.isTizen = true;
+                PLATFORM_CONFIG.scaleFactor = 0.95;
+            } else if (isWebOS) {
+                PLATFORM_CONFIG.isWebOS = true;
+                PLATFORM_CONFIG.scaleFactor = 0.9;
+            }
+            console.log('Platform detected:', PLATFORM_CONFIG);
+        }
+        detectPlatform();
+    </style>
+</head>
+<body>
+    <div class="departures-container">
+        <div class="departures-header">
+            <h1>Bus Departures</h1>
+            <div class="current-time" id="currentTime"></div>
+        </div>
+        <div class="departures-table">
+            <div class="table-header">
+                <div class="header-route">Route</div>
+                <div class="header-destination">Destination</div>
+                <div class="header-stop">Stop</div>
+                <div class="header-time">Departure Time</div>
+                <div class="header-status">Status</div>
+                <div class="header-direction">Direction</div>
+            </div>
+            <div class="departures-scroll" id="departuresScroll">
+                <div class="departure-item">
+                    <div class="route-column">
+                        <div class="route-number">...</div>
+                    </div>
+                    <div class="destination-column">
+                        <div class="route-destination">Loading Bus Times</div>
+                    </div>
+                    <div class="stop-column">
+                        <div class="stop-info">Stop A</div>
+                    </div>
+                    <div class="time-column">
+                        <div class="departure-times">
+                            <div class="next-departure">Please wait...</div>
+                            <div class="following-departure"></div>
+                        </div>
+                    </div>
+                    <div class="status-column">
+                        <div class="status-badge">On time</div>
+                    </div>
+                    <div class="direction-column">
+                        <div class="direction-info">
+                            <span class="direction-text">To City</span>
+                            <span class="direction-arrow">⬆</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

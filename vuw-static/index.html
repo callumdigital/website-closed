@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VUW Kelburn Transport Ticker</title>
+    <title>VUW Bus Departures - Static Display</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* Disable CSS animation - using JavaScript instead */
+        /* Only disable the CSS animation that conflicts with JavaScript */
         .ticker-scroll {
             animation: none !important;
         }
@@ -98,23 +98,29 @@
     </script>
 </head>
 <body>
-    <div class="ticker-container">
-        <div class="ticker-scroll" id="tickerScroll">
-            <div class="transport-item">
-                <div class="bus-section">
-                    <div class="bus-badge">...</div>
-                </div>
-                <div class="transport-info">
-                    <div class="destination">Loading Bus Times</div>
-                    <div class="time">Please wait...</div>
+        <div class="departures-container">
+            <div class="departures-header">
+                <h1>Bus Departures - Live</h1>
+                <div class="current-time" id="currentTime"></div>
+            </div>
+            <div class="departures-scroll" id="departuresScroll">
+                <div class="departure-item">
+                    <div class="route-info">
+                        <div class="route-number">...</div>
+                        <div class="route-destination">Loading Bus Times</div>
+                    </div>
+                    <div class="departure-times">
+                        <div class="next-departure">Please wait...</div>
+                        <div class="following-departure"></div>
+                    </div>
+                    <div class="status-info">
+                        <div class="stop-info">Stop A</div>
+                        <div class="status-badge">On time</div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     
-    <div id="currentTime" style="display: none;"></div>
-    
-    <script src="config.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

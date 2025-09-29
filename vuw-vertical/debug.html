@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en-NZ">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VUW Transport Ticker - Debug</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .debug-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #007bff;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .warning {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #api-test-result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>VUW Transport Ticker - Debug</h1>
+    
+    <div class="debug-panel">
+        <h3>Configuration Check</h3>
+        <div id="config-status">Checking configuration...</div>
+    </div>
+    
+    <div class="debug-panel">
+        <h3>API Test</h3>
+        <button onclick="testAPI()">Test API Connection</button>
+        <div id="api-test-result"></div>
+    </div>
+    
+    <div class="debug-panel">
+        <h3>Console Log</h3>
+        <div id="console-log" style="background: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace; max-height: 200px; overflow-y: auto;"></div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        // Debug logging
+        function log(message, type = 'info') {
+            const consoleDiv = document.getElementById('console-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#007bff';
+            consoleDiv.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+            console.log(message);
+        }
+
+        // Check configuration
+        function checkConfig() {
+            const configStatus = document.getElementById('config-status');
+            
+            if (typeof window.VUW_CONFIG === 'undefined') {
+                configStatus.innerHTML = '<span class="error">❌ VUW_CONFIG not found - config.js may not be loading</span>';
+                log('VUW_CONFIG not found', 'error');
+                return false;
+            }
+            
+            const config = window.VUW_CONFIG;
+            log('VUW_CONFIG loaded successfully', 'success');
+            
+            if (!config.METLINK_API_KEY || config.METLINK_API_KEY === 'YOUR_API_KEY_HERE') {
+                configStatus.innerHTML = '<span class="error">❌ API key not configured or using placeholder</span>';
+                log('API key not configured properly', 'error');
+                return false;
+            }
+            
+            if (config.METLINK_API_KEY === 'ciFUCbyIQP8lt6Cylk9yn953L6eHYxAnEkaIU8d0') {
+                configStatus.innerHTML = '<span class="success">✅ API key configured correctly</span>';
+                log('API key found: ' + config.METLINK_API_KEY.substring(0, 10) + '...', 'success');
+            } else {
+                configStatus.innerHTML = '<span class="warning">⚠️ API key found but may not be correct</span>';
+                log('API key found but may not be correct', 'warning');
+            }
+            
+            log('STOP_A: ' + config.STOP_A, 'info');
+            log('STOP_B: ' + config.STOP_B, 'info');
+            
+            return true;
+        }
+
+        // Test API connection
+        async function testAPI() {
+            const resultDiv = document.getElementById('api-test-result');
+            resultDiv.innerHTML = 'Testing API connection...';
+            
+            if (!window.VUW_CONFIG || !window.VUW_CONFIG.METLINK_API_KEY) {
+                resultDiv.innerHTML = '<span class="error">❌ No API key configured</span>';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`https://api.opendata.metlink.org.nz/v1/stop-predictions?stop_id=4915`, {
+                    headers: {
+                        'x-api-key': window.VUW_CONFIG.METLINK_API_KEY,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = '<span class="success">✅ API connection successful!</span><br>Found ' + (data.departures ? data.departures.length : 0) + ' departures';
+                    log('API test successful', 'success');
+                } else {
+                    resultDiv.innerHTML = '<span class="error">❌ API error: ' + response.status + ' ' + response.statusText + '</span>';
+                    log('API test failed: ' + response.status, 'error');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<span class="error">❌ Network error: ' + error.message + '</span>';
+                log('API test network error: ' + error.message, 'error');
+            }
+        }
+
+        // Run checks when page loads
+        window.addEventListener('load', function() {
+            log('Debug page loaded', 'info');
+            checkConfig();
+        });
+    </script>
+</body>
+</html> 

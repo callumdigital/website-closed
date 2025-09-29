@@ -1,0 +1,16 @@
+# Vercel Environment Variables
+# Add these in your Vercel dashboard under Settings > Environment Variables
+
+# Production Environment Variables:
+VITE_SUPABASE_URL=your-supabase-project-url
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+VITE_SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# Instructions:
+# 1. Go to your Vercel dashboard
+# 2. Select your project
+# 3. Go to Settings > Environment Variables
+# 4. Add each variable above with your actual Supabase values
+# 5. Make sure to set them for "Production", "Preview", and "Development"
+
+

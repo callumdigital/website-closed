@@ -18,7 +18,7 @@ const MAX_RETRIES = config.MAX_RETRIES || 3;
 let scrollPosition = 0;
 let scrollWidth = 0;
 let animationId = null;
-let scrollSpeed = 2; // Base scroll speed
+let scrollSpeed = 2.0; // Base scroll speed
 
 // Excluded bus routes
 const EXCLUDED_ROUTES = config.EXCLUDED_ROUTES || ['740', '739', '769'];
@@ -29,15 +29,15 @@ function calculateScrollSpeed() {
     const viewportHeight = window.innerHeight;
     
     // Base speed varies by platform - more conservative values
-    let baseSpeed = 1.5; // Reduced from 2.0
+    let baseSpeed = 1.5; // Balanced speed for good readability
     
     if (window.PLATFORM_CONFIG) {
         if (window.PLATFORM_CONFIG.isEyemagnet) {
-            baseSpeed = 0.6; // Reduced from 0.8
+            baseSpeed = 0.8; // Moderate speed for Eyemagnet
         } else if (window.PLATFORM_CONFIG.isTizen) {
-            baseSpeed = 1.0; // Reduced from 1.2
+            baseSpeed = 1.2; // Good speed for Tizen
         } else if (window.PLATFORM_CONFIG.isOnelan) {
-            baseSpeed = 2.0; // Reduced from 2.5
+            baseSpeed = 2.0; // Full speed for Onelan
         }
     }
     
@@ -46,8 +46,8 @@ function calculateScrollSpeed() {
     const heightRatio = viewportHeight / 360; // Use 360 as baseline height
     const sizeMultiplier = Math.min(widthRatio, heightRatio);
     
-    // Calculate final speed with more conservative bounds
-    scrollSpeed = Math.max(0.3, Math.min(3.0, baseSpeed * sizeMultiplier));
+    // Calculate final speed with balanced bounds
+    scrollSpeed = Math.max(0.5, Math.min(2.5, baseSpeed * sizeMultiplier)); // Balanced speed range
     
     console.log(`Scroll speed calculated: ${scrollSpeed} (viewport: ${viewportWidth}x${viewportHeight}, platform: ${window.PLATFORM_CONFIG?.isEyemagnet ? 'Eyemagnet' : window.PLATFORM_CONFIG?.isTizen ? 'Tizen' : window.PLATFORM_CONFIG?.isOnelan ? 'Onelan' : 'Unknown'})`);
     
@@ -110,18 +110,24 @@ function formatTimeWithWeight(timestamps) {
 async function fetchStopData(stopId) {
     try {
         console.log(`Fetching data for stop ${stopId}...`);
+        console.log(`Using API key: ${API_KEY.substring(0, 10)}...`);
+        
         const response = await fetch(`https://api.opendata.metlink.org.nz/v1/stop-predictions?stop_id=${stopId}`, {
+            method: 'GET',
             headers: {
                 'x-api-key': API_KEY,
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
         });
         
+        console.log(`Response status: ${response.status} ${response.statusText}`);
+        
         if (!response.ok) {
-            console.error(`HTTP error for stop ${stopId}:`, response.status, response.statusText);
             const errorText = await response.text();
-            console.error('Error response:', errorText);
-            throw new Error(`HTTP error! status: ${response.status}`);
+            console.error(`HTTP error for stop ${stopId}:`, response.status, response.statusText);
+            console.error('Error response body:', errorText);
+            throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
         }
         
         const data = await response.json();
@@ -129,6 +135,11 @@ async function fetchStopData(stopId) {
         return data;
     } catch (error) {
         console.error(`Error fetching stop ${stopId} data:`, error);
+        console.error('Error details:', {
+            name: error.name,
+            message: error.message,
+            stack: error.stack
+        });
         return { error: true, message: error.message };
     }
 }
@@ -146,11 +157,15 @@ async function updateTransportData() {
 
         if ((!stopAData || stopAData.error) && (!stopBData || stopBData.error)) {
             console.error('Failed to fetch data for both stops');
+            console.error('Stop A error:', stopAData?.error ? stopAData.message : 'No data');
+            console.error('Stop B error:', stopBData?.error ? stopBData.message : 'No data');
+            
+            const errorMessage = stopAData?.message || stopBData?.message || 'Network error';
             transportData = [{
                 route: 'alert',
-                destination: 'Temporarily Unable to Load Bus Times',
-                stop: 'Info',
-                nextDepartures: ['Please check back in a moment'],
+                destination: `Unable to Load Bus Times: ${errorMessage}`,
+                stop: 'Error',
+                nextDepartures: ['Check console for details'],
                 status: 'system-message',
                 rawTimestamps: []
             }];
@@ -392,45 +407,6 @@ function schedulePageRefresh() {
     }, 60 * 60 * 1000);
 }
 
-async function initialize() {
-    console.log('Starting initialization...');
-    // Show loading state immediately
-    document.getElementById('tickerScroll').innerHTML = `
-        <div class="transport-item">
-            <div class="bus-section">
-                <div class="bus-badge">...</div>
-            </div>
-            <div class="transport-info">
-                <div class="destination">Loading Bus Times</div>
-                <div class="time">Please wait...</div>
-            </div>
-        </div>`;
-
-    // Start time updates
-    updateCurrentTime();
-    setInterval(updateCurrentTime, 1000);
-
-    try {
-        // Immediate first fetch with minimal delay
-        console.log('Fetching initial data...');
-        await updateTransportData();
-        
-        // Shorter initial interval for the first few updates
-        setTimeout(updateTransportData, 15000); // Quick first refresh
-        setTimeout(() => {
-            // Then switch to normal 60s updates
-            setInterval(updateTransportData, 60000);
-        }, 15000);
-        
-        // Update timings more frequently
-        setInterval(updateTimingsOnly, 1000);
-        schedulePageRefresh();
-    } catch (error) {
-        console.error('Initialization failed:', error);
-        setTimeout(initialize, 5000);
-    }
-}
-
 function updateTimingsOnly() {
     const now = new Date();
     document.querySelectorAll('.transport-item').forEach(item => {
@@ -468,6 +444,49 @@ function handleResize() {
             }
         }
     }, 100);
+}
+
+// Initialize the application
+async function initialize() {
+    console.log('Starting initialization...');
+    // Show loading state immediately
+    const tickerScroll = document.getElementById('tickerScroll');
+    if (tickerScroll) {
+        tickerScroll.innerHTML = `
+            <div class="transport-item">
+                <div class="bus-section">
+                    <div class="bus-badge">...</div>
+                </div>
+                <div class="transport-info">
+                    <div class="destination">Loading Bus Times</div>
+                    <div class="time">Please wait...</div>
+                </div>
+            </div>`;
+    }
+
+    // Start time updates
+    updateCurrentTime();
+    setInterval(updateCurrentTime, 1000);
+
+    try {
+        // Immediate first fetch with minimal delay
+        console.log('Fetching initial data...');
+        await updateTransportData();
+        
+        // Shorter initial interval for the first few updates
+        setTimeout(updateTransportData, 15000); // Quick first refresh
+        setTimeout(() => {
+            // Then switch to normal 60s updates
+            setInterval(updateTransportData, 60000);
+        }, 15000);
+        
+        // Update timings more frequently
+        setInterval(updateTimingsOnly, 1000);
+        schedulePageRefresh();
+    } catch (error) {
+        console.error('Initialization failed:', error);
+        setTimeout(initialize, 5000);
+    }
 }
 
 // Start immediately when DOM is ready
