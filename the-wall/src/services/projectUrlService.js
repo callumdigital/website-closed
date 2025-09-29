@@ -8,29 +8,29 @@ export const projectUrlService = {
         id: 'demo',
         name: 'Demo Project',
         description: 'A sample project for testing',
-        url: '/demo',
-        displayUrl: '/display/demo'
+        url: 'demo',
+        displayUrl: 'demo/display'
       },
       'workshop-2024': {
         id: 'workshop-2024',
         name: 'Design Workshop 2024',
         description: 'Annual design workshop feedback',
-        url: '/workshop-2024',
-        displayUrl: '/display/workshop-2024'
+        url: 'workshop-2024',
+        displayUrl: 'workshop-2024/display'
       },
       'feedback-session': {
         id: 'feedback-session',
         name: 'Product Feedback Session',
         description: 'User feedback collection',
-        url: '/feedback-session',
-        displayUrl: '/display/feedback-session'
+        url: 'feedback-session',
+        displayUrl: 'feedback-session/display'
       },
       'team-retro': {
         id: 'team-retro',
         name: 'Team Retrospective',
         description: 'Team retrospective notes',
-        url: '/team-retro',
-        displayUrl: '/display/team-retro'
+        url: 'team-retro',
+        displayUrl: 'team-retro/display'
       }
     }
 
@@ -39,8 +39,8 @@ export const projectUrlService = {
       id: projectId,
       name: this.formatProjectName(projectId),
       description: 'Custom project',
-      url: `/${projectId}`,
-      displayUrl: `/display/${projectId}`,
+      url: `${projectId}`,
+      displayUrl: `${projectId}/display`,
       fullUrl: `callum.digital/the-wall/${projectId}`
     }
   },

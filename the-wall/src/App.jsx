@@ -8,11 +8,12 @@ import AdminPage from './pages/AdminPage'
 const basename = import.meta.env.BASE_URL || '/'
 
 function App() {
+
   return (
     <Router basename={basename}>
       <Routes>
         <Route path="/admin" element={<AdminPage />} />
-        <Route path="/display/:projectId" element={<DisplayBoard />} />
+        <Route path="/:projectId/display" element={<DisplayBoard />} />
         <Route path="/:projectId" element={<FormPage />} />
         <Route path="/" element={<FormPage />} />
       </Routes>

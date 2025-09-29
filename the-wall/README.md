@@ -66,7 +66,7 @@ A lightweight digital sticky-note wall for capturing student or workshop feedbac
 
 ### For Participants
 - Visit `/the-wall/project-name` to add notes
-- Visit `/the-wall/display/project-name` to view the live wall
+- Visit `/the-wall/project-name/display` to view the live wall
 
 ### For Admins
 - Visit `/the-wall/admin` to manage projects and approve notes

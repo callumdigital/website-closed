@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { projectService, noteService, realtimeService } from '../services/supabaseClient'
+import { projectService, noteService, realtimeService } from '../services/supabaseClient.jsx'
 import { formService, formUtils, DEFAULT_FORM_CONFIG } from '../services/formService.jsx'
+import BrandingEditor from '../components/BrandingEditor.jsx'
 
 // Utility function to format timestamps in full date/time format for admin
 const formatTimestamp = (timestamp) => {
@@ -40,6 +41,7 @@ const AdminPage = () => {
   const [archivedProjects, setArchivedProjects] = useState([])
   const [showProjectSettings, setShowProjectSettings] = useState(false)
   const [projectSettings, setProjectSettings] = useState({ auto_approve: false, show_timestamps: true })
+  const [showBrandingEditor, setShowBrandingEditor] = useState(false)
   const [editingNote, setEditingNote] = useState(null)
   const [editText, setEditText] = useState('')
   const [showFormManagement, setShowFormManagement] = useState(false)
@@ -756,7 +758,13 @@ const AdminPage = () => {
                     {/* Quick Actions */}
                     <div className="flex gap-2">
                       <button
-                        onClick={() => window.open(`/display/${selectedProject.id}`, '_blank')}
+                        onClick={() => setShowBrandingEditor(true)}
+                        className="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
+                      >
+                        🎨 Branding
+                      </button>
+                      <button
+                        onClick={() => window.open(`${selectedProject.id}/display`, '_blank')}
                         className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors text-sm"
                       >
                         👁️ View Wall
@@ -828,10 +836,10 @@ const AdminPage = () => {
                         <p className="text-sm text-blue-700 mb-2">Display URL (for viewing wall):</p>
                         <div className="flex items-center gap-2">
                           <code className="flex-1 text-sm text-blue-600 bg-white p-2 rounded border break-all">
-                            callum.digital/the-wall/display/{selectedProject.id}
+                            callum.digital/the-wall/{selectedProject.id}/display
                           </code>
                           <button
-                            onClick={() => copyUrl(`display/${selectedProject.id}`)}
+                            onClick={() => copyUrl(`${selectedProject.id}/display`)}
                             className={`px-3 py-2 text-sm rounded transition-colors ${
                               copied 
                                 ? 'bg-green-100 text-green-700' 
@@ -1537,6 +1545,36 @@ const AdminPage = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Branding Editor Modal */}
+      {showBrandingEditor && selectedProject && (
+        <BrandingEditor
+          project={selectedProject}
+          onSave={async (branding, titleQuestion) => {
+            try {
+              console.log('🎨 AdminPage: Received save request with:', { branding, titleQuestion })
+              await projectService.updateProjectSettings(selectedProject.id, { 
+                branding,
+                title_question: titleQuestion 
+              })
+              console.log('✅ Branding and titleQuestion updated:', { branding, titleQuestion })
+              
+              // Update local project data
+              setProjects(prev => prev.map(p => 
+                p.id === selectedProject.id 
+                  ? { ...p, branding, titleQuestion }
+                  : p
+              ))
+              
+              setSelectedProject(prev => ({ ...prev, branding, titleQuestion }))
+              setShowBrandingEditor(false)
+            } catch (error) {
+              console.error('❌ Error updating branding:', error)
+            }
+          }}
+          onCancel={() => setShowBrandingEditor(false)}
+        />
       )}
     </div>
   )
