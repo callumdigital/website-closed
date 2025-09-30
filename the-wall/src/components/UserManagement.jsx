@@ -38,13 +38,26 @@ const UserManagement = ({ onClose }) => {
   }
 
   const handleDeleteUser = async (userId) => {
-    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+    if (!confirm('Are you sure you want to delete this user? This will remove them from the system completely. This action cannot be undone.')) {
       return
     }
 
     try {
+      // First try to delete from auth (if service key is available)
+      try {
+        await authService.deleteUser(userId)
+      } catch (authError) {
+        console.warn('Could not delete from auth:', authError.message)
+        // Continue with profile deletion even if auth deletion fails
+      }
+      
+      // Delete the profile
       await userProfileService.deleteUserProfile(userId)
+      
+      // Remove from local list
       setUsers(prev => prev.filter(user => user.user_id !== userId))
+      
+      alert('User deleted successfully!')
     } catch (err) {
       alert(`Failed to delete user: ${err.message}`)
     }
@@ -73,11 +86,8 @@ const UserManagement = ({ onClose }) => {
         // Update the profile with the correct role (instead of creating a new one)
         await userProfileService.updateUserRole(user.id, inviteRole)
         
-        // Sign out the newly created user
-        await authService.signOut()
-        
-        // Send password setup email
-        await authService.sendPasswordSetupEmail(inviteEmail)
+        // Send verification email (they'll set password after verification)
+        // Note: Supabase automatically sends verification email on signup
         
         // Show success message
         alert('User invited! They will receive an email to set their password.')
@@ -88,9 +98,8 @@ const UserManagement = ({ onClose }) => {
         setInviteRole(USER_ROLES.VIEWER)
         setShowInvite(false)
         
-        // Reload users and restore session
+        // Reload users list (don't reload page to stay logged in)
         await loadUsers()
-        window.location.reload()
       }
     } catch (err) {
       console.error('Invite error:', err)

@@ -13,9 +13,14 @@ const ResetPasswordPage = () => {
   useEffect(() => {
     // Check if we have a valid session (from the reset link)
     const checkSession = async () => {
-      const session = await authService.getSession()
-      if (!session) {
-        setError('Invalid or expired reset link. Please request a new one.')
+      try {
+        const session = await authService.getSession()
+        if (!session) {
+          setError('Invalid or expired reset link. Please request a new one.')
+        }
+      } catch (err) {
+        console.error('Session check error:', err)
+        setError('Unable to verify reset link. Please try again.')
       }
     }
     checkSession()

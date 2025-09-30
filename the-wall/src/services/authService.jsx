@@ -2,10 +2,23 @@ import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co'
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-key'
+const supabaseServiceKey = import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY || null
 
 let supabase = null
+let supabaseAdmin = null
+
 try {
   supabase = createClient(supabaseUrl, supabaseAnonKey)
+  
+  // Create admin client if service key is available
+  if (supabaseServiceKey) {
+    supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
+  }
 } catch (error) {
   console.warn('Supabase client creation failed:', error)
 }
@@ -111,6 +124,28 @@ export const authService = {
       password: newPassword
     })
     
+    if (error) throw error
+  },
+
+  // Verify email with token
+  async verifyEmail(token) {
+    if (!supabase) throw new Error('Supabase not initialized')
+    
+    const { error } = await supabase.auth.verifyOtp({
+      token_hash: token,
+      type: 'signup'
+    })
+    
+    if (error) throw error
+  },
+
+  // Delete user from auth (admin only - requires service role)
+  async deleteUser(userId) {
+    if (!supabaseAdmin) {
+      throw new Error('Service role key not available. Cannot delete user from auth.')
+    }
+    
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(userId)
     if (error) throw error
   }
 }
