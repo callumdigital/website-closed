@@ -16,26 +16,52 @@ const VerifyEmailPage = () => {
   useEffect(() => {
     const verifyEmail = async () => {
       try {
-        // Get the token from URL parameters
-        const token = searchParams.get('token')
+        // Get the token from URL parameters - Supabase uses different parameter names
+        const token = searchParams.get('token') || searchParams.get('access_token')
         const type = searchParams.get('type')
         
-        if (!token || type !== 'signup') {
-          setError('Invalid verification link.')
+        // Also check URL hash for tokens
+        const hashParams = new URLSearchParams(window.location.hash.substring(1))
+        const hashToken = hashParams.get('access_token')
+        const hashType = hashParams.get('type')
+        
+        console.log('URL search params:', Object.fromEntries(searchParams.entries()))
+        console.log('URL hash params:', Object.fromEntries(hashParams.entries()))
+        console.log('Current URL:', window.location.href)
+        
+        const finalToken = token || hashToken
+        const finalType = type || hashType
+        
+        console.log('Final token:', finalToken, 'Final type:', finalType)
+        
+        // Check if we have a valid session first
+        const session = await authService.getSession()
+        console.log('Current session:', session)
+        
+        if (session) {
+          // User is already verified and has a session
+          setMessage('Email verified successfully! Please set your password.')
+          setShowPasswordForm(true)
           setLoading(false)
           return
         }
 
-        // Verify the email
-        const { error: verifyError } = await authService.verifyEmail(token)
-        
-        if (verifyError) {
-          throw verifyError
-        }
+        // If no session, try to verify with the token
+        if (finalToken) {
+          console.log('Attempting to verify with token:', finalToken)
+          const { error: verifyError } = await authService.verifyEmail(finalToken)
+          
+          if (verifyError) {
+            throw verifyError
+          }
 
-        setMessage('Email verified successfully! Please set your password.')
-        setShowPasswordForm(true)
-        setLoading(false)
+          setMessage('Email verified successfully! Please set your password.')
+          setShowPasswordForm(true)
+          setLoading(false)
+        } else {
+          setError('Invalid verification link - no token found.')
+          setLoading(false)
+        }
       } catch (err) {
         console.error('Email verification error:', err)
         setError(err.message || 'Failed to verify email. The link may be expired or invalid.')
