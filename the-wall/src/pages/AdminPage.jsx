@@ -782,6 +782,7 @@ const AdminPage = ({ user, userProfile }) => {
                 </div>
               )}
             </div>
+            </div>
           </div>
 
           {/* Main Content Area */}
