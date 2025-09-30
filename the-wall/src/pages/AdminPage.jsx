@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { projectService, noteService, realtimeService } from '../services/supabaseClient.jsx'
 import { formService, formUtils, DEFAULT_FORM_CONFIG } from '../services/formService.jsx'
 import BrandingEditor from '../components/BrandingEditor.jsx'
+import UserManagement from '../components/UserManagement.jsx'
+import { authService, permissions, USER_ROLES } from '../services/authService.jsx'
 
 // Utility function to format timestamps in full date/time format for admin
 const formatTimestamp = (timestamp) => {
@@ -19,14 +21,15 @@ const formatTimestamp = (timestamp) => {
   })
 }
 
-const AdminPage = () => {
-  console.log('🏗️ AdminPage component rendering...')
+const AdminPage = ({ user, userProfile }) => {
+  console.log('🏗️ AdminPage component rendering...', { user, userProfile })
   const [projects, setProjects] = useState([])
   const [selectedProject, setSelectedProject] = useState(null)
   const [notes, setNotes] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
   const [showCreateProject, setShowCreateProject] = useState(false)
+  const [showUserManagement, setShowUserManagement] = useState(false)
   const [newProject, setNewProject] = useState({ 
     name: '', 
     description: '', 
@@ -220,7 +223,7 @@ const AdminPage = () => {
 
   // Copy URL to clipboard
   const copyUrl = async (projectId) => {
-    const fullUrl = `callum.digital/the-wall/${projectId}`
+    const fullUrl = `thewall.callum.digital/${projectId}`
     try {
       await navigator.clipboard.writeText(fullUrl)
       setCopied(true)
@@ -621,6 +624,42 @@ const AdminPage = () => {
               <h1 className="text-2xl font-bold text-gray-900">The Wall Admin</h1>
               <p className="text-sm text-gray-600">Manage your sticky note projects</p>
             </div>
+            
+            <div className="flex items-center gap-3">
+              {/* User info */}
+              <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg">
+                <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium text-sm">
+                  {userProfile?.display_name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || '?'}
+                </div>
+                <div className="text-left">
+                  <div className="text-sm font-medium text-gray-900">
+                    {userProfile?.display_name || user?.email || 'User'}
+                  </div>
+                  <div className="text-xs text-gray-500 capitalize">{userProfile?.role || 'viewer'}</div>
+                </div>
+              </div>
+
+              {/* User Management button (Owner only) */}
+              {permissions.canManageUsers(userProfile?.role) && (
+                <button
+                  onClick={() => setShowUserManagement(true)}
+                  className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors text-sm font-medium"
+                >
+                  👥 Users
+                </button>
+              )}
+
+              {/* Sign Out button */}
+              <button
+                onClick={async () => {
+                  await authService.signOut()
+                  window.location.href = '/login'
+                }}
+                className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm font-medium"
+              >
+                Sign Out
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -818,7 +857,7 @@ const AdminPage = () => {
                         <p className="text-sm text-blue-700 mb-2">Form URL (for participants):</p>
                         <div className="flex items-center gap-2">
                           <code className="flex-1 text-sm text-blue-600 bg-white p-2 rounded border break-all">
-                            callum.digital/the-wall/{selectedProject.id}
+                            thewall.callum.digital/{selectedProject.id}
                           </code>
                           <button
                             onClick={() => copyUrl(selectedProject.id)}
@@ -836,7 +875,7 @@ const AdminPage = () => {
                         <p className="text-sm text-blue-700 mb-2">Display URL (for viewing wall):</p>
                         <div className="flex items-center gap-2">
                           <code className="flex-1 text-sm text-blue-600 bg-white p-2 rounded border break-all">
-                            callum.digital/the-wall/{selectedProject.id}/display
+                            thewall.callum.digital/{selectedProject.id}/display
                           </code>
                           <button
                             onClick={() => copyUrl(`${selectedProject.id}/display`)}
@@ -1038,14 +1077,14 @@ const AdminPage = () => {
                 />
               </div>
               
-              <div>
-                <label htmlFor="customUrl" className="block text-sm font-medium text-gray-700 mb-1">
-                  Custom URL
-                </label>
-                <div className="flex">
-                  <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                    callum.digital/the-wall/
-                  </span>
+                <div>
+                  <label htmlFor="customUrl" className="block text-sm font-medium text-gray-700 mb-1">
+                    Custom URL
+                  </label>
+                  <div className="flex">
+                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                      thewall.callum.digital/
+                    </span>
                   <input
                     id="customUrl"
                     type="text"
@@ -1575,6 +1614,11 @@ const AdminPage = () => {
           }}
           onCancel={() => setShowBrandingEditor(false)}
         />
+      )}
+
+      {/* User Management Modal (Owner only) */}
+      {showUserManagement && permissions.canManageUsers(userProfile?.role) && (
+        <UserManagement onClose={() => setShowUserManagement(false)} />
       )}
     </div>
   )
