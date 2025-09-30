@@ -6,7 +6,11 @@ export default defineConfig({
   base: '/the-wall/',
   build: {
     outDir: 'dist',
-    assetsDir: 'assets'
+    assetsDir: 'assets',
+    target: 'esnext', // Support top-level await
+    modulePreload: {
+      polyfill: false
+    }
   },
   server: {
     port: process.env.PORT || 3001
