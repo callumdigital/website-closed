@@ -617,18 +617,26 @@ const AdminPage = ({ user, userProfile }) => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Top Navigation */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+      <div className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">The Wall Admin</h1>
-              <p className="text-sm text-gray-600">Manage your sticky note projects</p>
+            <div className="flex items-center gap-4">
+              {/* Logo */}
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">📝</span>
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">The Wall</h1>
+                  <p className="text-sm text-gray-600">Admin Panel</p>
+                </div>
+              </div>
             </div>
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               {/* User info */}
-              <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg">
-                <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium text-sm">
+              <div className="flex items-center gap-3 px-4 py-2 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium text-sm">
                   {userProfile?.display_name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || '?'}
                 </div>
                 <div className="text-left">
@@ -643,7 +651,7 @@ const AdminPage = ({ user, userProfile }) => {
               {permissions.canManageUsers(userProfile?.role) && (
                 <button
                   onClick={() => setShowUserManagement(true)}
-                  className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors text-sm font-medium"
+                  className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors text-sm font-medium border border-purple-600"
                 >
                   👥 Users
                 </button>
@@ -655,9 +663,9 @@ const AdminPage = ({ user, userProfile }) => {
                   await authService.signOut()
                   window.location.href = '/login'
                 }}
-                className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm font-medium"
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium border border-red-600"
               >
-                Sign Out
+                🚪 Sign Out
               </button>
             </div>
           </div>
@@ -665,38 +673,39 @@ const AdminPage = ({ user, userProfile }) => {
       </div>
 
       {/* Main Content Area */}
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Projects Sidebar */}
           <div className="lg:col-span-1">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Projects</h2>
-              <button
-                onClick={() => setShowCreateProject(true)}
-                className="bg-blue-500 text-white px-3 py-1 text-sm rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                + New
-              </button>
-            </div>
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-lg font-semibold text-gray-900">Projects</h2>
+                <button
+                  onClick={() => setShowCreateProject(true)}
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 text-sm rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 font-medium border border-blue-600"
+                >
+                  + New Project
+                </button>
+              </div>
             
             {/* View Toggle */}
-            <div className="flex bg-gray-100 rounded-lg p-1 mb-4">
+            <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
               <button
                 onClick={() => setViewMode('active')}
-                className={`flex-1 px-3 py-2 text-sm rounded transition-colors ${
+                className={`flex-1 px-4 py-2 text-sm rounded-md transition-all duration-200 font-medium ${
                   viewMode === 'active'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-white text-gray-900 shadow-sm border border-gray-200'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
                 Active ({projects.length})
               </button>
               <button
                 onClick={() => setViewMode('archived')}
-                className={`flex-1 px-3 py-2 text-sm rounded transition-colors ${
+                className={`flex-1 px-4 py-2 text-sm rounded-md transition-all duration-200 font-medium ${
                   viewMode === 'archived'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-white text-gray-900 shadow-sm border border-gray-200'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
                 Archived ({archivedProjects.length})
