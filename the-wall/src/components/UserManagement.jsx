@@ -89,11 +89,8 @@ const UserManagement = ({ onClose }) => {
         // Sign out the newly created user
         await authService.signOut()
         
-        // Send password setup email
-        await authService.sendPasswordSetupEmail(inviteEmail)
-        
         // Show success message
-        alert('User invited! They will receive an email to set their password.')
+        alert('User invited! They will receive an email to verify their account and set their password.')
         
         // Reset form
         setInviteEmail('')
