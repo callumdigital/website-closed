@@ -86,8 +86,11 @@ const UserManagement = ({ onClose }) => {
         // Update the profile with the correct role (instead of creating a new one)
         await userProfileService.updateUserRole(user.id, inviteRole)
         
-        // Send verification email (they'll set password after verification)
-        // Note: Supabase automatically sends verification email on signup
+        // Sign out the newly created user
+        await authService.signOut()
+        
+        // Send password setup email
+        await authService.sendPasswordSetupEmail(inviteEmail)
         
         // Show success message
         alert('User invited! They will receive an email to set their password.')

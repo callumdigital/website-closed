@@ -36,11 +36,13 @@ export const authService = {
   async signUp(email, password, metadata = {}) {
     if (!supabase) throw new Error('Supabase not initialized')
     
+    const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: metadata
+        data: metadata,
+        emailRedirectTo: `${siteUrl}/login`
       }
     })
     
@@ -110,7 +112,7 @@ export const authService = {
     
     const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${siteUrl}/reset-password`
+      redirectTo: `${siteUrl}/login`
     })
     
     if (error) throw error
