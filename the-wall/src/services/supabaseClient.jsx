@@ -1,12 +1,14 @@
-// Import Supabase with error handling to avoid binding issues
+// Import Supabase client
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co'
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-key'
+
 let supabase = null
 try {
-  const { createClient } = await import('@supabase/supabase-js')
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co'
-  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-key'
   supabase = createClient(supabaseUrl, supabaseAnonKey)
 } catch (error) {
-  console.warn('Supabase import failed, using mock data:', error)
+  console.warn('Supabase client creation failed, using mock data:', error)
 }
 
 // Project Service
