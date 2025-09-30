@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/the-wall/',
+  base: '/', // Deploy to root domain (thewall.callum.digital)
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
