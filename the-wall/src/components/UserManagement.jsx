@@ -57,17 +57,21 @@ const UserManagement = ({ onClose }) => {
       // Generate a random temporary password
       const tempPassword = Math.random().toString(36).slice(-12) + 'Aa1!'
       
-      // Store current session
-      const currentSession = await authService.getSession()
-      
       // Create the auth user
-      const { user } = await authService.signUp(inviteEmail, tempPassword, {
+      const { user, error: signupError } = await authService.signUp(inviteEmail, tempPassword, {
         display_name: inviteDisplayName
       })
       
+      if (signupError) {
+        throw signupError
+      }
+      
       if (user) {
-        // Create user profile with role
-        await userProfileService.createUserProfile(user.id, inviteRole, inviteDisplayName)
+        // Wait a moment for the auto-trigger to create the profile
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        // Update the profile with the correct role (instead of creating a new one)
+        await userProfileService.updateUserRole(user.id, inviteRole)
         
         // Sign out the newly created user
         await authService.signOut()
@@ -75,9 +79,8 @@ const UserManagement = ({ onClose }) => {
         // Send password setup email
         await authService.sendPasswordSetupEmail(inviteEmail)
         
-        // Reload to restore admin session
+        // Show success message
         alert('User invited! They will receive an email to set their password.')
-        await loadUsers()
         
         // Reset form
         setInviteEmail('')
@@ -85,10 +88,12 @@ const UserManagement = ({ onClose }) => {
         setInviteRole(USER_ROLES.VIEWER)
         setShowInvite(false)
         
-        // Force page reload to restore session
+        // Reload users and restore session
+        await loadUsers()
         window.location.reload()
       }
     } catch (err) {
+      console.error('Invite error:', err)
       alert(`Failed to invite user: ${err.message}`)
     }
   }

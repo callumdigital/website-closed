@@ -4,6 +4,7 @@ import FormPage from './pages/FormPage'
 import DisplayBoard from './pages/DisplayBoard'
 import AdminPage from './pages/AdminPage'
 import LoginPage from './pages/LoginPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 import ProtectedRoute from './components/ProtectedRoute'
 
 // Get the base path from Vite's environment
@@ -15,6 +16,7 @@ function App() {
     <Router basename={basename}>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route 
           path="/admin" 
           element={
