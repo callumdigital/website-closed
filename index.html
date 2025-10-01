@@ -1,32 +1,392 @@
-<html><head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta charset="utf-8">
-        <meta name="description" content="I am Callum Healey and I am a designer from Auckland who likes to make cool stuff!">
-        <meta property="og:url" content="http://callum.digital">
-        <meta property="og:title" content="working on it / callum healey">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>working on it / callum.digital</title>
-        <meta name="description" content="We're still getting stuff sorted. Come back later">
-        <link rel="stylesheet" href="style.css" type="text/css">
-    </head>
-    <body style="">
-        <div id="container">
-            <div class="logo-cont">
-                <a href=""><h1 class="logo">callum.<div id="name">digital</div></h1></a>
-                <a href="http://blog.callum.digital" target=_blank><h1 class="blog-link"><div id="name">blog.</div>callum.<div id="name">digital</div></h1></a>
-            </div>
-            
-                <div class="outer">
-                    <div class="inner">
-                        <h1>Still working on it...</h1>
-                        <h2>But while you wait, take a look at my work</h2>
-                        <ul>
-                            <a href="https://www.behance.net/callumdigital" target=_blank><li>Check it out</li></a>
-                        </ul>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Callum Healey - Service Designer based in Wellington, working on customer experience and service design projects">
+    <title>Callum Healey - Portfolio</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="container">
+            <div class="nav-content">
+                <a href="#" class="logo">callum<span class="dot">.</span></a>
+                <div class="nav-links">
+                    <a href="#work" class="nav-link">Work</a>
+                    <a href="#about" class="nav-link">About</a>
+                    <a href="#contact" class="nav-link pill-link">Get in touch</a>
+                </div>
+                <button class="mobile-menu-btn" aria-label="Toggle menu" aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                
+                <!-- Mobile Menu Dropdown -->
+                <div class="mobile-menu">
+                    <div class="mobile-menu-links">
+                        <a href="#work" class="nav-link">Work</a>
+                        <a href="#about" class="nav-link">About</a>
+                        <a href="#contact" class="nav-link pill-link">Get in touch</a>
                     </div>
                 </div>
             </div>
-    
-    <footer><script> </script></footer>
+        </div>
+    </nav>
 
-</body></html>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-label">👋 Kia ora, I'm Callum</div>
+                <h1 class="hero-title">
+                    I design services that<br>
+                    <span class="highlight">actually work</span> for people
+                </h1>
+                <p class="hero-description">
+                    Service Designer based in Wellington. I spend most of my time mapping out how things work, 
+                    talking to people, and trying to make services less frustrating.
+                </p>
+                <div class="hero-cta">
+                    <a href="#work" class="btn btn-primary">See some work</a>
+                    <a href="#contact" class="btn btn-secondary">Say hi</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Case Studies Section -->
+    <section id="work" class="case-studies">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Case Studies</h2>
+                <p class="section-description">
+                    Some projects I've been involved with recently
+                </p>
+            </div>
+
+            <div class="case-studies-list">
+                <!-- Case Study 1 -->
+                <article class="case-study" style="--case-color: #FFD35A;">
+                    <div class="case-study-number">01</div>
+                    <div class="case-study-content">
+                        <div class="case-study-header">
+                            <div class="case-study-icon">🚌</div>
+                            <h3 class="case-study-title">Backseat</h3>
+                            <div class="case-study-tags">
+                                <span class="tag">Service Design</span>
+                                <span class="tag">CX</span>
+                                <span class="tag">User Research</span>
+                            </div>
+                        </div>
+                        <p class="case-study-description">
+                            Transport feedback app for Wellington commuters to share what's happening 
+                            on buses and trains in real-time. Worked on service mapping, user interviews, 
+                            and designing the feedback flow.
+                        </p>
+                        <a href="#" class="case-study-link">
+                            View case study <span class="arrow">→</span>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Case Study 2 -->
+                <article class="case-study" style="--case-color: #E3F2FF;">
+                    <div class="case-study-number">02</div>
+                    <div class="case-study-content">
+                        <div class="case-study-header">
+                            <div class="case-study-icon">🧱</div>
+                            <h3 class="case-study-title">The Wall</h3>
+                            <div class="case-study-tags">
+                                <span class="tag">UX Design</span>
+                                <span class="tag">Prototyping</span>
+                            </div>
+                        </div>
+                        <p class="case-study-description">
+                            Community platform experiment focused on simple interactions and clear communication. 
+                            Testing assumptions about how people want to share and connect.
+                        </p>
+                        <a href="#" class="case-study-link">
+                            View case study <span class="arrow">→</span>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Case Study 3 -->
+                <article class="case-study" style="--case-color: #D4F5F5;">
+                    <div class="case-study-number">03</div>
+                    <div class="case-study-content">
+                        <div class="case-study-header">
+                            <div class="case-study-icon">🗺️</div>
+                            <h3 class="case-study-title">Metro Map Navigation</h3>
+                            <div class="case-study-tags">
+                                <span class="tag">Service Design</span>
+                                <span class="tag">Information Architecture</span>
+                            </div>
+                        </div>
+                        <p class="case-study-description">
+                            Navigation experiment using transit map principles to make complex 
+                            information structures feel more intuitive and easier to understand.
+                        </p>
+                        <a href="#" class="case-study-link">
+                            View case study <span class="arrow">→</span>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- More Work Note -->
+                <div class="more-work-note">
+                    <p>📁 Some projects can't be shared publicly yet</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Living CV Section -->
+    <section id="cv" class="living-cv">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Experience & Skills</h2>
+                <p class="section-description">
+                    What I've been up to and what I work with
+                </p>
+            </div>
+
+            <div class="cv-grid">
+                <!-- Experience Column -->
+                <div class="cv-column">
+                    <h3 class="cv-column-title">Experience</h3>
+                    
+                    <div class="cv-item">
+                        <div class="cv-item-header">
+                            <h4 class="cv-item-title">Service Designer</h4>
+                            <span class="cv-item-period">2020 – Present</span>
+                        </div>
+                        <p class="cv-item-org">Independent / Various clients</p>
+                        <p class="cv-item-description">
+                            Working with organizations to map services, understand customer journeys, 
+                            and design better experiences. Mix of public and private sector work.
+                        </p>
+                    </div>
+
+                    <div class="cv-item">
+                        <div class="cv-item-header">
+                            <h4 class="cv-item-title">UX Designer</h4>
+                            <span class="cv-item-period">2018 – 2020</span>
+                        </div>
+                        <p class="cv-item-org">Previous role</p>
+                        <p class="cv-item-description">
+                            Digital product design, user research, prototyping, and testing. 
+                            Worked across web and mobile projects.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Skills & Tools Column -->
+                <div class="cv-column">
+                    <h3 class="cv-column-title">Skills & Tools</h3>
+                    
+                    <div class="cv-skills-group">
+                        <h4 class="cv-skills-label">Methods</h4>
+                        <div class="cv-skills-list">
+                            <span class="skill-pill">Service Blueprinting</span>
+                            <span class="skill-pill">Journey Mapping</span>
+                            <span class="skill-pill">User Interviews</span>
+                            <span class="skill-pill">Workshops</span>
+                            <span class="skill-pill">Prototyping</span>
+                            <span class="skill-pill">Usability Testing</span>
+                        </div>
+                    </div>
+
+                    <div class="cv-skills-group">
+                        <h4 class="cv-skills-label">Tools</h4>
+                        <div class="cv-skills-list">
+                            <span class="skill-pill">Figma</span>
+                            <span class="skill-pill">Miro</span>
+                            <span class="skill-pill">Adobe CC</span>
+                            <span class="skill-pill">FigJam</span>
+                        </div>
+                    </div>
+
+                    <div class="cv-skills-group">
+                        <h4 class="cv-skills-label">Other</h4>
+                        <div class="cv-skills-list">
+                            <span class="skill-pill">HTML/CSS</span>
+                            <span class="skill-pill">Basic JavaScript</span>
+                            <span class="skill-pill">Presentation Design</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cv-footer">
+                <a href="#contact" class="btn btn-secondary">Work with me</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- What I Do Section -->
+    <section class="skills">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">What I Actually Do</h2>
+                <p class="section-description">
+                    Day-to-day stuff
+                </p>
+            </div>
+
+            <div class="work-list">
+                <div class="work-item">
+                    <span class="work-emoji">🗺️</span>
+                    <div class="work-text">
+                        <h3>Service mapping</h3>
+                        <p>Drawing out how services currently work and where the problems are</p>
+                    </div>
+                </div>
+                <div class="work-item">
+                    <span class="work-emoji">💬</span>
+                    <div class="work-text">
+                        <h3>Talking to people</h3>
+                        <p>Interviews, workshops, testing things with actual users</p>
+                    </div>
+                </div>
+                <div class="work-item">
+                    <span class="work-emoji">🔄</span>
+                    <div class="work-text">
+                        <h3>Journey mapping</h3>
+                        <p>Understanding how customers experience services from start to finish</p>
+                    </div>
+                </div>
+                <div class="work-item">
+                    <span class="work-emoji">✏️</span>
+                    <div class="work-text">
+                        <h3>Prototyping & testing</h3>
+                        <p>Making quick versions of ideas to see if they actually work</p>
+                    </div>
+                </div>
+                <div class="work-item">
+                    <span class="work-emoji">👥</span>
+                    <div class="work-text">
+                        <h3>Working with teams</h3>
+                        <p>Helping teams understand their users and make better decisions</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <div class="section-label">A bit about me</div>
+                    <h2 class="about-title">
+                        Service Designer working across CX and UX
+                    </h2>
+                    <div class="about-details">
+                        <p>
+                            Currently based in Wellington, working on service design and customer experience projects. 
+                            Most of my day involves mapping services, interviewing people, running workshops, and 
+                            trying to help teams make things less complicated.
+                        </p>
+                        <p>
+                            I have ADHD, which means my brain works a bit differently. Good days: I spot patterns 
+                            others miss and hyperfocus on solving problems. Challenging days: I need to work in ways 
+                            that actually suit how my brain operates. It's part of who I am.
+                        </p>
+                        <p>
+                            I think the best work happens when you actually listen to people, stay curious about 
+                            why things are the way they are, and don't pretend to have all the answers upfront.
+                        </p>
+                    </div>
+                </div>
+                <div class="about-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">🗺️</div>
+                        <div class="stat-label">Based in Wellington</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-label">Service Design & CX</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💬</div>
+                        <div class="stat-label">Available for projects</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <div class="contact-content">
+                <div class="contact-text">
+                    <h2 class="contact-title">
+                        Let's talk
+                    </h2>
+                    <p class="contact-description">
+                        Want to chat about a project? Need a service designer? Just want to say hi? 
+                        I usually respond within a day or two.
+                    </p>
+                </div>
+                <div class="contact-links">
+                    <a href="mailto:hello@callum.digital" class="contact-card">
+                        <div class="contact-icon">✉️</div>
+                        <div class="contact-info">
+                            <div class="contact-label">Email</div>
+                            <div class="contact-value">hello@callum.digital</div>
+                        </div>
+                        <div class="contact-arrow">→</div>
+                    </a>
+                    <a href="https://behance.net/callumdigital" target="_blank" class="contact-card">
+                        <div class="contact-icon">🎨</div>
+                        <div class="contact-info">
+                            <div class="contact-label">Behance</div>
+                            <div class="contact-value">@callumdigital</div>
+                        </div>
+                        <div class="contact-arrow">→</div>
+                    </a>
+                    <a href="https://github.com/callumhealey" target="_blank" class="contact-card">
+                        <div class="contact-icon">💻</div>
+                        <div class="contact-info">
+                            <div class="contact-label">GitHub</div>
+                            <div class="contact-value">@callumhealey</div>
+                        </div>
+                        <div class="contact-arrow">→</div>
+                    </a>
+                    <a href="https://linkedin.com/in/callumhealey" target="_blank" class="contact-card">
+                        <div class="contact-icon">👔</div>
+                        <div class="contact-info">
+                            <div class="contact-label">LinkedIn</div>
+                            <div class="contact-value">Callum Healey</div>
+                        </div>
+                        <div class="contact-arrow">→</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-text">
+                    <p>Made in Wellington with too many browser tabs open. &copy; 2025 Callum Healey</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Back to top ↑</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
