@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { DEFAULT_BRANDING, loadFontForBranding, debugCustomFont } from '../services/brandingService.jsx'
+import { Button, Input } from './ui'
 
-const BrandingEditor = ({ project, onSave, onCancel }) => {
+const BrandingEditor = ({ project, onSave, onCancel, isInline = false }) => {
   const [branding, setBranding] = useState(DEFAULT_BRANDING)
   const [titleQuestion, setTitleQuestion] = useState('')
   const [fontsLoaded, setFontsLoaded] = useState(true)
@@ -64,48 +65,65 @@ const BrandingEditor = ({ project, onSave, onCancel }) => {
     { name: 'Red', primary: '#EF4444', secondary: '#6B7280' }
   ]
 
+  const Wrapper = isInline ? 'div' : ({ children }) => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 admin-layout">
+      <div className="bg-white rounded-[24px] border-[3px] border-black max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        {children}
+      </div>
+    </div>
+  );
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
+    <Wrapper>
+      <div className={isInline ? '' : 'p-6 sm:p-8'}>
+        {!isInline && (
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Branding Settings</h2>
+            <h2 className="text-2xl font-bold text-gray-900 admin-heading">Branding Settings</h2>
             <button
               onClick={onCancel}
-              className="text-gray-400 hover:text-gray-600"
+              className="w-10 h-10 rounded-full border-[3px] border-black hover:bg-gray-100 transition-all flex items-center justify-center text-2xl font-bold"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              ×
             </button>
           </div>
+        )}
+        
+        {isInline && (
+          <h2 className="text-2xl font-bold text-gray-900 admin-heading mb-6">
+            Branding & Appearance
+          </h2>
+        )}
 
           <div className="space-y-6">
             {/* Color Presets */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+              <label className="block text-base font-bold text-gray-900 mb-3 admin-heading">
                 Quick Color Presets
               </label>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {colorPresets.map((preset) => (
                   <button
                     key={preset.name}
+                    type="button"
                     onClick={() => {
-                      updateBranding('primaryColor', preset.primary)
-                      updateBranding('secondaryColor', preset.secondary)
+                      setBranding(prev => ({
+                        ...prev,
+                        primaryColor: preset.primary,
+                        secondaryColor: preset.secondary
+                      }))
                     }}
-                    className="p-3 border rounded-lg hover:border-gray-400 transition-colors"
+                    className="p-4 border-[3px] border-black rounded-[14px] hover:bg-gray-50 transition-all hover:translate-y-[-2px]"
                   >
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center gap-2">
                       <div 
-                        className="w-4 h-4 rounded-full"
+                        className="w-6 h-6 rounded-full border-2 border-black"
                         style={{ backgroundColor: preset.primary }}
                       />
                       <div 
-                        className="w-4 h-4 rounded-full"
+                        className="w-6 h-6 rounded-full border-2 border-black"
                         style={{ backgroundColor: preset.secondary }}
                       />
-                      <span className="text-sm font-medium">{preset.name}</span>
+                      <span className="text-sm font-bold">{preset.name}</span>
                     </div>
                   </button>
                 ))}
@@ -113,44 +131,44 @@ const BrandingEditor = ({ project, onSave, onCancel }) => {
             </div>
 
             {/* Custom Colors */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-base font-bold text-gray-900 mb-2">
                   Primary Color
                 </label>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center gap-2">
                   <input
                     type="color"
                     value={branding.primaryColor}
                     onChange={(e) => updateBranding('primaryColor', e.target.value)}
-                    className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
+                    className="w-14 h-12 border-[3px] border-black rounded-[14px] cursor-pointer bg-gray-50"
                   />
                   <input
                     type="text"
                     value={branding.primaryColor}
                     onChange={(e) => updateBranding('primaryColor', e.target.value)}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 px-4 py-3 border-[3px] border-black rounded-[14px] focus:outline-none bg-gray-50 font-mono text-sm"
                     placeholder="#3B82F6"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-base font-bold text-gray-900 mb-2">
                   Secondary Color
                 </label>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center gap-2">
                   <input
                     type="color"
                     value={branding.secondaryColor}
                     onChange={(e) => updateBranding('secondaryColor', e.target.value)}
-                    className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
+                    className="w-14 h-12 border-[3px] border-black rounded-[14px] cursor-pointer bg-gray-50"
                   />
                   <input
                     type="text"
                     value={branding.secondaryColor}
                     onChange={(e) => updateBranding('secondaryColor', e.target.value)}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 px-4 py-3 border-[3px] border-black rounded-[14px] focus:outline-none bg-gray-50 font-mono text-sm"
                     placeholder="#64748B"
                   />
                 </div>
@@ -159,21 +177,21 @@ const BrandingEditor = ({ project, onSave, onCancel }) => {
 
             {/* Background Color */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-base font-bold text-gray-900 mb-2">
                 Background Color
               </label>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2">
                 <input
                   type="color"
                   value={branding.backgroundColor}
                   onChange={(e) => updateBranding('backgroundColor', e.target.value)}
-                  className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
+                  className="w-14 h-12 border-[3px] border-black rounded-[14px] cursor-pointer bg-gray-50"
                 />
                 <input
                   type="text"
                   value={branding.backgroundColor}
                   onChange={(e) => updateBranding('backgroundColor', e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 px-4 py-3 border-[3px] border-black rounded-[14px] focus:outline-none bg-gray-50 font-mono text-sm"
                   placeholder="#F8FAFC"
                 />
               </div>
@@ -182,13 +200,13 @@ const BrandingEditor = ({ project, onSave, onCancel }) => {
             {/* Font Family */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-base font-bold text-gray-900 mb-2">
                   Font Family
                 </label>
                 <select
                   value={branding.fontFamily}
                   onChange={(e) => updateBranding('fontFamily', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 border-[3px] border-black rounded-[14px] focus:outline-none bg-gray-50 font-bold"
                 >
                   <option value="Inter">Inter</option>
                   <option value="Roboto">Roboto</option>
@@ -209,106 +227,112 @@ const BrandingEditor = ({ project, onSave, onCancel }) => {
               
               {branding.fontFamily === 'CUSTOM' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Custom Font Family
-                  </label>
-                  <input
+                  <Input
                     type="text"
+                    label="Custom Font Family"
                     value={branding.customFontFamily || ''}
                     onChange={(e) => updateBranding('customFontFamily', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="e.g., 'Bitcount Prop Single Ink', 'Helvetica', 'Arial'"
+                    placeholder="e.g., 'Bitcount Prop Single Ink'"
+                    helpText="Enter the exact font name. System fonts will work immediately, Google Fonts will be loaded automatically."
                   />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Enter the exact font name. System fonts will work immediately, Google Fonts will be loaded automatically.
-                  </p>
                 </div>
               )}
             </div>
 
             {/* Title/Question */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Title/Question
-              </label>
-              <input
-                type="text"
-                value={titleQuestion}
-                onChange={(e) => setTitleQuestion(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="e.g., 'What's on your mind?', 'Share your thoughts', 'Tell us something'"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                This will be displayed on the form and in the top-right of the wall display. Leave empty to use the project name.
-              </p>
-            </div>
+            <Input
+              type="text"
+              label="Title/Question"
+              value={titleQuestion}
+              onChange={(e) => setTitleQuestion(e.target.value)}
+              placeholder="e.g., 'What's on your mind?', 'Share your thoughts'"
+              helpText="This will be displayed on the form and in the top-right of the wall display. Leave empty to use the project name."
+            />
 
             {/* Note Colors */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-base font-bold text-gray-900 mb-3">
                 Available Note Colors
               </label>
-              <div className="flex flex-wrap gap-2">
-                {['yellow', 'blue', 'pink', 'green', 'purple', 'orange', 'red', 'indigo'].map((color) => (
-                  <label key={color} className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={branding.noteColors.includes(color)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          updateBranding('noteColors', [...branding.noteColors, color])
-                        } else {
-                          updateBranding('noteColors', branding.noteColors.filter(c => c !== color))
-                        }
-                      }}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm capitalize">{color}</span>
-                  </label>
-                ))}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {['yellow', 'blue', 'pink', 'green', 'purple', 'orange', 'red', 'indigo'].map((color) => {
+                  const colorMap = {
+                    yellow: '#FFEAA7',
+                    blue: '#74B9FF',
+                    pink: '#FD79A8',
+                    green: '#55EFC4',
+                    purple: '#A29BFE',
+                    orange: '#FDCB6E',
+                    red: '#FF7675',
+                    indigo: '#6C5CE7'
+                  }
+                  return (
+                    <label 
+                      key={color} 
+                      className={`flex items-center gap-2 p-3 rounded-[14px] border-[3px] cursor-pointer transition-all ${
+                        branding.noteColors.includes(color) 
+                          ? 'border-black' 
+                          : 'border-gray-300 hover:border-black'
+                      }`}
+                      style={{ backgroundColor: branding.noteColors.includes(color) ? colorMap[color] : 'white' }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={branding.noteColors.includes(color)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            updateBranding('noteColors', [...branding.noteColors, color])
+                          } else {
+                            updateBranding('noteColors', branding.noteColors.filter(c => c !== color))
+                          }
+                        }}
+                        className="h-5 w-5 rounded border-gray-300"
+                      />
+                      <span className="text-sm font-bold capitalize">{color}</span>
+                    </label>
+                  )
+                })}
               </div>
             </div>
 
             {/* Logo URL */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Logo URL (optional)
-              </label>
-              <input
-                type="url"
-                value={branding.logoUrl || ''}
-                onChange={(e) => updateBranding('logoUrl', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="https://example.com/logo.png"
-              />
-            </div>
+            <Input
+              type="url"
+              label="Logo URL (optional)"
+              value={branding.logoUrl || ''}
+              onChange={(e) => updateBranding('logoUrl', e.target.value)}
+              placeholder="https://example.com/logo.png"
+            />
           </div>
 
           {/* Preview */}
-          <div className="mt-6 p-4 border rounded-lg bg-gray-50">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="text-sm font-medium text-gray-700">Preview</h3>
-              <span className="text-xs text-gray-500">
+          <div className="mt-6 p-6 border-[3px] border-black rounded-[14px] bg-gray-50">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-base font-bold text-gray-900 admin-heading">Preview</h3>
+              <span className="text-xs text-gray-600 font-bold">
                 Font: {branding.customFontFamily || branding.fontFamily}
               </span>
             </div>
             <div 
-              className="p-4 rounded-lg"
+              className="p-6 rounded-[14px] border-[3px] border-black"
               style={{ 
                 backgroundColor: branding.backgroundColor,
                 fontFamily: branding.customFontFamily || branding.fontFamily 
               }}
             >
               <h4 
-                className="text-lg font-bold mb-2"
+                className="text-xl font-bold mb-3"
                 style={{ color: branding.headingColor }}
               >
                 Sample Form
               </h4>
-              <p className="text-sm text-gray-600 mb-3">Share your thoughts and ideas</p>
+              <p className="text-sm text-gray-600 mb-4">Share your thoughts and ideas</p>
               <div 
-                className="px-4 py-2 rounded text-white text-sm"
-                style={{ backgroundColor: branding.primaryColor }}
+                className="px-6 py-3 rounded-[14px] text-sm font-bold border-[3px] border-black"
+                style={{ 
+                  backgroundColor: branding.primaryColor,
+                  color: branding.backgroundColor === '#000000' ? '#FFFFFF' : '#000000'
+                }}
               >
                 Submit Button
               </div>
@@ -316,24 +340,39 @@ const BrandingEditor = ({ project, onSave, onCancel }) => {
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end space-x-3 mt-6 pt-6 border-t">
-            <button
-              onClick={onCancel}
-              className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSave}
-              className="px-4 py-2 text-white rounded-lg transition-colors"
-              style={{ backgroundColor: branding.primaryColor }}
-            >
-              Save Branding
-            </button>
-          </div>
+          {!isInline ? (
+            <div className="flex gap-3 mt-6 pt-6 border-t-[3px] border-gray-200">
+              <Button
+                onClick={onCancel}
+                variant="outline"
+                size="medium"
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSave}
+                variant="primary"
+                size="medium"
+                className="flex-1"
+              >
+                Save Branding
+              </Button>
+            </div>
+          ) : (
+            <div className="mt-6 pt-6 border-t-[3px] border-gray-200">
+              <Button
+                onClick={handleSave}
+                variant="primary"
+                size="medium"
+                fullWidth
+              >
+                Save Branding Changes
+              </Button>
+            </div>
+          )}
         </div>
-      </div>
-    </div>
+      </Wrapper>
   )
 }
 

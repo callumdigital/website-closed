@@ -248,28 +248,28 @@ export const generateBrandingCSS = (branding) => {
   return finalCss
 }
 
-// Get note color classes with flat, outlined design like Backseat
+// Vibrant color palette (more saturated, Backseat-inspired but still accessible)
+export const VIBRANT_NOTE_COLORS = {
+  yellow: '#FFEAA7',  // Warm vibrant yellow
+  blue: '#74B9FF',    // Bright sky blue
+  pink: '#FD79A8',    // Vibrant pink
+  green: '#55EFC4',   // Bright mint green
+  purple: '#A29BFE',  // Vivid purple
+  orange: '#FDCB6E',  // Rich orange
+  red: '#FF7675',     // Coral red
+  indigo: '#6C5CE7'   // Deep indigo
+}
+
+// Get note color classes - simplified for inline background colors
 export const getNoteColorClasses = (color, shadow = 'medium') => {
-  // Remove shadows for flat design
   const shadowClasses = {
     none: '',
-    light: '',
-    medium: '',
-    heavy: ''
+    light: 'shadow-sm',
+    medium: 'shadow-md',
+    heavy: 'shadow-lg'
   }
   
-  const colorClasses = {
-    yellow: 'bg-yellow-200 border-4 border-black hover:border-yellow-600',
-    blue: 'bg-blue-200 border-4 border-black hover:border-blue-600',
-    pink: 'bg-pink-200 border-4 border-black hover:border-pink-600',
-    green: 'bg-green-200 border-4 border-black hover:border-green-600',
-    purple: 'bg-purple-200 border-4 border-black hover:border-purple-600',
-    orange: 'bg-orange-200 border-4 border-black hover:border-orange-600',
-    red: 'bg-red-200 border-4 border-black hover:border-red-600',
-    indigo: 'bg-indigo-200 border-4 border-black hover:border-indigo-600'
-  }
-  
-  return `${colorClasses[color] || colorClasses.yellow} ${shadowClasses[shadow] || shadowClasses.medium}`
+  return shadowClasses[shadow] || shadowClasses.medium
 }
 
 // Load a font dynamically when branding changes

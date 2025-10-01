@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { userProfileService, USER_ROLES, authService } from '../services/authService'
+import { Button, Input } from './ui'
 
 const UserManagement = ({ onClose }) => {
   const [users, setUsers] = useState([])
@@ -121,24 +122,28 @@ const UserManagement = ({ onClose }) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 admin-layout">
+      <div className="bg-white rounded-[24px] border-[3px] border-black p-6 sm:p-8 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-lg font-semibold text-gray-900">User Management</h3>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setShowInvite(!showInvite)}
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm"
-            >
-              {showInvite ? 'Cancel' : '+ Invite User'}
-            </button>
-            <button
-              onClick={onClose}
-              className="text-gray-500 hover:text-gray-700 text-2xl"
-            >
-              ×
-            </button>
-          </div>
+          <h3 className="text-2xl font-bold text-gray-900 admin-heading">User Management</h3>
+          <button
+            onClick={onClose}
+            className="w-10 h-10 rounded-full border-[3px] border-black hover:bg-gray-100 transition-all flex items-center justify-center text-2xl font-bold"
+          >
+            ×
+          </button>
+        </div>
+        
+        {/* Invite Button */}
+        <div className="mb-6">
+          <Button
+            onClick={() => setShowInvite(!showInvite)}
+            variant={showInvite ? 'outline' : 'primary'}
+            size="medium"
+            fullWidth
+          >
+            {showInvite ? 'Cancel Invite' : '+ Invite New User'}
+          </Button>
         </div>
 
         {error && (
@@ -147,73 +152,67 @@ const UserManagement = ({ onClose }) => {
           </div>
         )}
 
-        {/* Invite User Form */}
+        {/* Invite User Form - Backseat Style */}
         {showInvite && (
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
-            <h4 className="text-sm font-medium text-gray-900 mb-4">Invite New User</h4>
+          <div className="mb-6 p-6 bg-[#DFF3FF] rounded-[14px] border-[3px] border-black">
+            <h4 className="text-lg font-bold text-gray-900 mb-4 admin-heading">Invite New User</h4>
             <form onSubmit={handleInviteUser} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    value={inviteEmail}
-                    onChange={(e) => setInviteEmail(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="user@example.com"
-                    required
-                  />
-                </div>
+                <Input
+                  type="email"
+                  label="Email Address"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  placeholder="user@example.com"
+                  required
+                />
                 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Display Name
-                  </label>
-                  <input
-                    type="text"
-                    value={inviteDisplayName}
-                    onChange={(e) => setInviteDisplayName(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="John Doe"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Role
-                  </label>
-                  <select
-                    value={inviteRole}
-                    onChange={(e) => setInviteRole(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value={USER_ROLES.VIEWER}>Viewer (Read-only)</option>
-                    <option value={USER_ROLES.ADMIN}>Admin (Manage projects)</option>
-                    <option value={USER_ROLES.OWNER}>Owner (Full access)</option>
-                  </select>
-                  <p className="text-xs text-gray-500 mt-1">
-                    User will receive an email to set their password
-                  </p>
-                </div>
+                <Input
+                  type="text"
+                  label="Display Name"
+                  value={inviteDisplayName}
+                  onChange={(e) => setInviteDisplayName(e.target.value)}
+                  placeholder="John Doe"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-base font-bold text-gray-900 mb-2">
+                  Role
+                </label>
+                <select
+                  value={inviteRole}
+                  onChange={(e) => setInviteRole(e.target.value)}
+                  className="w-full px-4 py-3 border-[3px] border-black rounded-[14px] focus:outline-none bg-gray-50 font-bold"
+                >
+                  <option value={USER_ROLES.VIEWER}>Viewer (Read-only)</option>
+                  <option value={USER_ROLES.ADMIN}>Admin (Manage projects)</option>
+                  <option value={USER_ROLES.OWNER}>Owner (Full access)</option>
+                </select>
+                <p className="text-xs text-gray-600 mt-2">
+                  User will receive an email to set their password
+                </p>
               </div>
 
-              <div className="flex gap-2">
-                <button
+              <div className="flex gap-3 pt-2">
+                <Button
                   type="submit"
-                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm"
+                  variant="primary"
+                  size="medium"
+                  className="flex-1"
                 >
                   Send Invite
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
                   onClick={() => setShowInvite(false)}
-                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors text-sm"
+                  variant="outline"
+                  size="medium"
+                  className="flex-1"
                 >
                   Cancel
-                </button>
+                </Button>
               </div>
             </form>
           </div>
@@ -236,44 +235,44 @@ const UserManagement = ({ onClose }) => {
                 <p>No users found</p>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {users.map((user) => (
                   <div
                     key={user.user_id}
-                    className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
+                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white border-[3px] border-black rounded-[14px] hover:bg-gray-50 gap-3"
                   >
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0 w-full sm:w-auto">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-medium">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold flex-shrink-0">
                           {user.display_name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || '?'}
                         </div>
-                        <div>
-                          <div className="font-medium text-gray-900">
+                        <div className="min-w-0 flex-1">
+                          <div className="font-bold text-gray-900 truncate">
                             {user.display_name || 'No name'}
                           </div>
-                          <div className="text-sm text-gray-500">{user.email || user.user_id}</div>
+                          <div className="text-xs sm:text-sm text-gray-600 truncate">{user.email || user.user_id}</div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto flex-wrap sm:flex-nowrap">
                       <select
                         value={user.role}
                         onChange={(e) => handleRoleChange(user.user_id, e.target.value)}
-                        className={`px-3 py-1 text-sm rounded-full font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 ${getRoleBadgeColor(user.role)}`}
+                        className={`px-3 py-2 text-sm rounded-[14px] border-[3px] border-black font-bold focus:outline-none ${getRoleBadgeColor(user.role)}`}
                       >
                         <option value={USER_ROLES.VIEWER}>Viewer</option>
                         <option value={USER_ROLES.ADMIN}>Admin</option>
                         <option value={USER_ROLES.OWNER}>Owner</option>
                       </select>
 
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-gray-500 font-medium">
                         {new Date(user.created_at).toLocaleDateString()}
                       </div>
 
                       <button
                         onClick={() => handleDeleteUser(user.user_id)}
-                        className="px-3 py-1 bg-red-100 text-red-700 text-sm rounded hover:bg-red-200 transition-colors"
+                        className="px-3 py-2 bg-red-500 text-white text-sm rounded-[14px] hover:bg-red-600 transition-all border-[3px] border-black font-bold hover:translate-y-[-2px]"
                         title="Delete user"
                       >
                         🗑️
@@ -287,12 +286,12 @@ const UserManagement = ({ onClose }) => {
         )}
 
         {/* Role Descriptions */}
-        <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <h4 className="text-sm font-medium text-blue-900 mb-2">Role Permissions</h4>
-          <div className="space-y-1 text-sm text-blue-800">
-            <p><strong>Owner:</strong> Full access, can manage users and all features</p>
-            <p><strong>Admin:</strong> Can manage projects, notes, and settings</p>
-            <p><strong>Viewer:</strong> Read-only access to projects and notes</p>
+        <div className="mt-6 p-4 bg-[#DFF3FF] rounded-[14px] border-[3px] border-black">
+          <h4 className="text-sm font-bold text-gray-900 mb-3 admin-heading">Role Permissions</h4>
+          <div className="space-y-2 text-sm text-gray-700">
+            <p><strong className="font-bold">Owner:</strong> Full access, can manage users and all features</p>
+            <p><strong className="font-bold">Admin:</strong> Can manage projects, notes, and settings</p>
+            <p><strong className="font-bold">Viewer:</strong> Read-only access to projects and notes</p>
           </div>
         </div>
       </div>
