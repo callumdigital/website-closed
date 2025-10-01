@@ -16,17 +16,6 @@ window.addEventListener('scroll', () => {
     } else {
         nav.classList.remove('scrolled');
     }
-    
-    // Hide/show nav on scroll
-    if (scrollTop > lastScrollTop && scrollTop > 100) {
-        // Scrolling down
-        nav.classList.add('hidden');
-    } else {
-        // Scrolling up
-        nav.classList.remove('hidden');
-    }
-    
-    lastScrollTop = scrollTop;
 });
 
 // ================================
