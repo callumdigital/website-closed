@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authService } from '../services/authService'
+import { Button, Input } from '../components/ui'
+import Logo from '../components/Logo'
 
 const LoginPage = () => {
   const [isLogin, setIsLogin] = useState(true)
@@ -68,12 +70,13 @@ const LoginPage = () => {
 
   if (showResetPassword) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-[#F5E6D3] flex items-center justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8 admin-layout">
         <div className="max-w-md w-full">
-          <div className="bg-white rounded-lg shadow-md p-8">
+          <div className="bg-white rounded-[24px] border-[3px] border-black shadow-lg p-8 sm:p-10">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900">Reset Password</h2>
-              <p className="mt-2 text-sm text-gray-600">
+              <div className="text-6xl mb-4">🔑</div>
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 admin-heading">Reset Password</h2>
+              <p className="mt-3 text-base text-gray-600">
                 Enter your email to receive a password reset link
               </p>
             </div>
@@ -91,37 +94,35 @@ const LoginPage = () => {
             )}
 
             <form onSubmit={handleResetPassword} className="space-y-6">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="you@example.com"
-                  required
-                />
-              </div>
+              <Input
+                id="email"
+                type="email"
+                label="Email Address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                required
+              />
 
-              <button
+              <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
+                variant="primary"
+                size="medium"
+                fullWidth
               >
                 {loading ? 'Sending...' : 'Send Reset Link'}
-              </button>
+              </Button>
 
               <div className="text-center">
-                <button
+                <Button
                   type="button"
                   onClick={() => setShowResetPassword(false)}
-                  className="text-sm text-blue-500 hover:text-blue-600"
+                  variant="ghost"
+                  size="small"
                 >
                   Back to Login
-                </button>
+                </Button>
               </div>
             </form>
           </div>
@@ -131,15 +132,18 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#F5E6D3] flex items-center justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8 admin-layout">
       <div className="max-w-md w-full">
-        <div className="bg-white rounded-lg shadow-md p-8">
+        <div className="bg-white rounded-[24px] border-[3px] border-black shadow-lg p-8 sm:p-10">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900">
-              {isLogin ? 'Sign In' : 'Create Account'}
+            <div className="flex justify-center mb-4">
+              <Logo width={80} height={81} />
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 admin-heading">
+              {isLogin ? 'The Wall Admin' : 'Create Account'}
             </h2>
-            <p className="mt-2 text-sm text-gray-600">
-              {isLogin ? 'Access The Wall Admin' : 'Sign up for a new account'}
+            <p className="mt-3 text-base text-gray-600">
+              {isLogin ? 'Sign in to access the admin panel' : 'Sign up for a new account'}
             </p>
           </div>
 
@@ -157,112 +161,98 @@ const LoginPage = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {!isLogin && (
-              <div>
-                <label htmlFor="displayName" className="block text-sm font-medium text-gray-700 mb-2">
-                  Display Name
-                </label>
-                <input
-                  id="displayName"
-                  type="text"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Your Name"
-                  required={!isLogin}
-                />
-              </div>
+              <Input
+                id="displayName"
+                type="text"
+                label="Display Name"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                placeholder="Your Name"
+                required={!isLogin}
+              />
             )}
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="you@example.com"
-                required
-              />
-            </div>
+            <Input
+              id="email"
+              type="email"
+              label="Email Address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              required
+            />
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="••••••••"
-                required
-                minLength={6}
-              />
-            </div>
+            <Input
+              id="password"
+              type="password"
+              label="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+              minLength={6}
+            />
 
             {!isLogin && (
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                  Confirm Password
-                </label>
-                <input
-                  id="confirmPassword"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="••••••••"
-                  required={!isLogin}
-                  minLength={6}
-                />
-              </div>
+              <Input
+                id="confirmPassword"
+                type="password"
+                label="Confirm Password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="••••••••"
+                required={!isLogin}
+                minLength={6}
+              />
             )}
 
-            <button
+            <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
+              variant="primary"
+              size="medium"
+              fullWidth
             >
               {loading ? 'Please wait...' : (isLogin ? 'Sign In' : 'Create Account')}
-            </button>
+            </Button>
           </form>
 
           <div className="mt-6 space-y-3">
             {isLogin && (
               <div className="text-center">
-                <button
+                <Button
                   type="button"
                   onClick={() => setShowResetPassword(true)}
-                  className="text-sm text-blue-500 hover:text-blue-600"
+                  variant="ghost"
+                  size="small"
                 >
                   Forgot your password?
-                </button>
+                </Button>
               </div>
             )}
 
             <div className="text-center">
-              <button
+              <Button
                 type="button"
                 onClick={() => {
                   setIsLogin(!isLogin)
                   setError(null)
                   setMessage(null)
                 }}
-                className="text-sm text-gray-600 hover:text-gray-900"
+                variant="ghost"
+                size="small"
               >
                 {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
 
-        <div className="mt-4 text-center text-sm text-gray-500">
-          <p>Note: New accounts require approval by an administrator</p>
-        </div>
+        {!isLogin && (
+          <div className="mt-4 text-center text-sm text-gray-500">
+            <p>Note: New accounts require approval by an administrator</p>
+          </div>
+        )}
       </div>
     </div>
   )

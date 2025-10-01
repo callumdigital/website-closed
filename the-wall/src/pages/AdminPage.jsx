@@ -4,6 +4,10 @@ import { formService, formUtils, DEFAULT_FORM_CONFIG } from '../services/formSer
 import BrandingEditor from '../components/BrandingEditor.jsx'
 import UserManagement from '../components/UserManagement.jsx'
 import { authService, permissions, USER_ROLES } from '../services/authService.jsx'
+import Logo from '../components/Logo.jsx'
+import ProjectCard from '../components/ProjectCard.jsx'
+import NewProjectCard from '../components/NewProjectCard.jsx'
+import { Tab, Tabs, TabContent, Button, Input } from '../components/ui'
 
 // Utility function to format timestamps in full date/time format for admin
 const formatTimestamp = (timestamp) => {
@@ -42,12 +46,8 @@ const AdminPage = ({ user, userProfile }) => {
   const [copied, setCopied] = useState(false)
   const [viewMode, setViewMode] = useState('active') // active, archived
   const [archivedProjects, setArchivedProjects] = useState([])
-  const [showProjectSettings, setShowProjectSettings] = useState(false)
-  const [projectSettings, setProjectSettings] = useState({ auto_approve: false, show_timestamps: true })
-  const [showBrandingEditor, setShowBrandingEditor] = useState(false)
   const [editingNote, setEditingNote] = useState(null)
   const [editText, setEditText] = useState('')
-  const [showFormManagement, setShowFormManagement] = useState(false)
   const [formSettings, setFormSettings] = useState({
     title: 'The Wall',
     subtitle: 'Share your thoughts and ideas',
@@ -60,6 +60,7 @@ const AdminPage = ({ user, userProfile }) => {
     allowMultipleSubmissions: true
   })
   const [formConfig, setFormConfig] = useState(DEFAULT_FORM_CONFIG)
+  const [activeTab, setActiveTab] = useState('notes') // notes, settings, form, branding
 
   // Add error boundary
   if (error) {
@@ -122,6 +123,7 @@ const AdminPage = ({ user, userProfile }) => {
   const handleProjectSelect = async (project) => {
     console.log('🔄 Admin: Switching to project:', project.id)
     setSelectedProject(project)
+    setActiveTab('notes') // Reset to notes tab when selecting a project
     
     try {
       const notesData = await noteService.getAllNotes(project.id)
@@ -131,6 +133,12 @@ const AdminPage = ({ user, userProfile }) => {
     } catch (error) {
       console.error('❌ Admin: Error loading notes for project:', error)
     }
+  }
+
+  // Go back to dashboard
+  const handleBackToDashboard = () => {
+    setSelectedProject(null)
+    setActiveTab('notes')
   }
 
   // Update statistics
@@ -387,38 +395,6 @@ const AdminPage = ({ user, userProfile }) => {
     }
   }
 
-  // Project settings functions
-  const handleOpenProjectSettings = () => {
-    if (selectedProject) {
-      setProjectSettings({
-        auto_approve: selectedProject.auto_approve || false,
-        show_timestamps: selectedProject.show_timestamps !== false // Default to true
-      })
-      setShowProjectSettings(true)
-    }
-  }
-
-  const handleSaveProjectSettings = async () => {
-    if (!selectedProject) return
-
-    try {
-      await projectService.updateProjectSettings(selectedProject.id, projectSettings)
-      console.log('✅ Project settings updated:', projectSettings)
-      
-      // Update local project data
-      const updatedProject = { ...selectedProject, ...projectSettings }
-      setSelectedProject(updatedProject)
-      
-      // Update projects list
-      const projectsData = await projectService.getProjects()
-      setProjects(projectsData)
-      
-      setShowProjectSettings(false)
-    } catch (error) {
-      console.error('❌ Error updating project settings:', error)
-      alert(`Failed to update project settings: ${error.message || 'Unknown error'}`)
-    }
-  }
 
   const handleApprove = async (noteId) => {
     console.log('✅ Admin: Approving note:', noteId)
@@ -557,10 +533,14 @@ const AdminPage = ({ user, userProfile }) => {
     if (selectedProject) {
       const loadFormConfig = async () => {
         try {
+          console.log('📋 Loading form config for project:', selectedProject.id)
           const config = await formService.getFormConfig(selectedProject.id)
+          console.log('📋 Form config loaded:', config)
           setFormConfig(config)
         } catch (error) {
-          console.error('Error loading form config:', error)
+          console.error('❌ Error loading form config from Supabase:', error)
+          // Fallback to default config if loading fails
+          setFormConfig(DEFAULT_FORM_CONFIG)
         }
       }
       loadFormConfig()
@@ -573,11 +553,22 @@ const AdminPage = ({ user, userProfile }) => {
     
     try {
       await formService.saveFormConfig(selectedProject.id, formConfig)
-      console.log('Form configuration saved successfully')
-      setShowFormManagement(false)
+      console.log('✅ Form configuration saved successfully to Supabase')
+      
+      // Update local project data to reflect the change
+      setProjects(prev => prev.map(p => 
+        p.id === selectedProject.id 
+          ? { ...p, form_config: formConfig }
+          : p
+      ))
+      
+      setSelectedProject(prev => ({ ...prev, form_config: formConfig }))
+      
+      // Show success message
+      alert('Form configuration saved successfully!')
     } catch (error) {
-      console.error('Error saving form config:', error)
-      alert('Failed to save form configuration. Please try again.')
+      console.error('❌ Error saving form config to Supabase:', error)
+      alert(`Failed to save form configuration: ${error.message || 'Please try again.'}`)
     }
   }
 
@@ -615,35 +606,31 @@ const AdminPage = ({ user, userProfile }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Top Navigation */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4">
-              {/* Logo */}
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">📝</span>
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">The Wall</h1>
-                  <p className="text-sm text-gray-600">Admin Panel</p>
-                </div>
+    <div className="min-h-screen bg-[#F5E6D3] admin-layout">
+      {/* Top Navigation - Backseat Style */}
+      <div className="bg-white border-b-[3px] border-black">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            {/* Logo Section */}
+            <div className="flex items-center gap-3">
+              <Logo width={50} height={51} />
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 admin-heading">The Wall</h1>
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
-              {/* User info */}
-              <div className="flex items-center gap-3 px-4 py-2 bg-gray-50 rounded-lg border border-gray-200">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium text-sm">
+            {/* User Actions */}
+            <div className="flex items-center gap-2 flex-wrap justify-center">
+              {/* User info badge */}
+              <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-[14px] border-[3px] border-black">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
                   {userProfile?.display_name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || '?'}
                 </div>
-                <div className="text-left">
-                  <div className="text-sm font-medium text-gray-900">
+                <div className="text-left hidden sm:block">
+                  <div className="text-sm font-bold text-gray-900">
                     {userProfile?.display_name || user?.email || 'User'}
                   </div>
-                  <div className="text-xs text-gray-500 capitalize">{userProfile?.role || 'viewer'}</div>
+                  <div className="text-xs text-gray-600 capitalize">{userProfile?.role || 'viewer'}</div>
                 </div>
               </div>
 
@@ -651,9 +638,9 @@ const AdminPage = ({ user, userProfile }) => {
               {permissions.canManageUsers(userProfile?.role) && (
                 <button
                   onClick={() => setShowUserManagement(true)}
-                  className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors text-sm font-medium border border-purple-600"
+                  className="px-4 py-2 bg-purple-500 text-white rounded-[14px] hover:bg-purple-600 transition-all duration-200 text-sm font-bold border-[3px] border-black hover:translate-y-[-2px]"
                 >
-                  👥 Users
+                  👥 <span className="hidden sm:inline">Users</span>
                 </button>
               )}
 
@@ -663,9 +650,9 @@ const AdminPage = ({ user, userProfile }) => {
                   await authService.signOut()
                   window.location.href = '/login'
                 }}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium border border-red-600"
+                className="px-4 py-2 bg-red-500 text-white rounded-[14px] hover:bg-red-600 transition-all duration-200 text-sm font-bold border-[3px] border-black hover:translate-y-[-2px]"
               >
-                🚪 Sign Out
+                🚪 <span className="hidden sm:inline">Sign Out</span>
               </button>
             </div>
           </div>
@@ -673,252 +660,190 @@ const AdminPage = ({ user, userProfile }) => {
       </div>
 
       {/* Main Content Area */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Projects Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-lg font-semibold text-gray-900">Projects</h2>
-                <button
-                  onClick={() => setShowCreateProject(true)}
-                  className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 text-sm rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 font-medium border border-blue-600"
-                >
-                  + New Project
-                </button>
-              </div>
-            
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        {!selectedProject ? (
+          /* ===== DASHBOARD VIEW ===== */
+          <div>
+            {/* Dashboard Header */}
+            <div className="mb-8">
+              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 admin-heading mb-2">
+                Your Projects
+              </h1>
+              <p className="text-gray-600">
+                Manage your walls and moderate content across all projects
+              </p>
+            </div>
+
             {/* View Toggle */}
-            <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
+            <div className="flex gap-2 mb-6">
               <button
                 onClick={() => setViewMode('active')}
-                className={`flex-1 px-4 py-2 text-sm rounded-md transition-all duration-200 font-medium ${
+                className={`px-6 py-3 text-sm rounded-[14px] transition-all duration-200 font-bold border-[3px] border-black ${
                   viewMode === 'active'
-                    ? 'bg-white text-gray-900 shadow-sm border border-gray-200'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    ? 'bg-[#F4C542] text-black'
+                    : 'bg-white text-gray-700 hover:bg-gray-50'
                 }`}
               >
                 Active ({projects.length})
               </button>
               <button
                 onClick={() => setViewMode('archived')}
-                className={`flex-1 px-4 py-2 text-sm rounded-md transition-all duration-200 font-medium ${
+                className={`px-6 py-3 text-sm rounded-[14px] transition-all duration-200 font-bold border-[3px] border-black ${
                   viewMode === 'archived'
-                    ? 'bg-white text-gray-900 shadow-sm border border-gray-200'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    ? 'bg-[#F4C542] text-black'
+                    : 'bg-white text-gray-700 hover:bg-gray-50'
                 }`}
               >
                 Archived ({archivedProjects.length})
               </button>
             </div>
-            
-            <div className="space-y-3">
+
+            {/* Project Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {viewMode === 'active' && (
+                <NewProjectCard onClick={() => setShowCreateProject(true)} />
+              )}
+              
               {(viewMode === 'active' ? projects : archivedProjects).map((project) => (
-                <div
+                <ProjectCard
                   key={project.id}
-                  className={`p-4 rounded-lg border transition-colors ${
-                    selectedProject?.id === project.id
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 bg-white hover:bg-gray-50'
-                  }`}
-                >
-                  <div 
-                    className="cursor-pointer"
-                    onClick={() => handleProjectSelect(project)}
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-medium text-gray-900">{project.name}</h3>
-                        <p className="text-sm text-gray-500">{project.noteCount || 0} notes</p>
-                      </div>
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        project.status === 'active' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {project.status}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  {/* Action buttons */}
-                  <div className="mt-3 flex gap-2">
-                    {viewMode === 'active' ? (
-                      <button
-                        onClick={() => handleArchiveProject(project.id)}
-                        className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition-colors"
-                        title="Archive project"
-                      >
-                        📦 Archive
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => handleUnarchiveProject(project.id)}
-                        className="text-xs px-2 py-1 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors"
-                        title="Unarchive project"
-                      >
-                        📤 Unarchive
-                      </button>
-                    )}
-                  </div>
-                </div>
+                  project={project}
+                  onClick={() => handleProjectSelect(project)}
+                />
               ))}
               
               {viewMode === 'active' && projects.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  <p>No active projects</p>
-                  <button
-                    onClick={() => setShowCreateProject(true)}
-                    className="mt-2 text-blue-500 hover:text-blue-600 text-sm"
-                  >
-                    Create your first project
-                  </button>
+                <div className="col-span-full text-center py-16 text-gray-500">
+                  <div className="text-6xl mb-4">📝</div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">No projects yet</h3>
+                  <p className="mb-4">Create your first project to get started</p>
                 </div>
               )}
               
               {viewMode === 'archived' && archivedProjects.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  <p>No archived projects</p>
+                <div className="col-span-full text-center py-16 text-gray-500">
+                  <div className="text-6xl mb-4">📦</div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">No archived projects</h3>
+                  <p>Projects you archive will appear here</p>
                 </div>
               )}
             </div>
-            </div>
           </div>
-
-          {/* Main Content Area */}
-          <div className="lg:col-span-3">
-            {selectedProject ? (
-              <>
-                {/* Project Header with Quick Actions */}
-                <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <div className="flex items-center gap-3 mb-2">
-                        <h2 className="text-2xl font-bold text-gray-900">{selectedProject.name}</h2>
-                        {selectedProject.auto_approve && (
-                          <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
-                            ⚡ Auto-Approval
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-gray-600">{selectedProject.description || 'No description'}</p>
-                    </div>
-                    
-                    {/* Quick Actions */}
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => setShowBrandingEditor(true)}
-                        className="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
-                      >
-                        🎨 Branding
-                      </button>
-                      <button
-                        onClick={() => window.open(`${selectedProject.id}/display`, '_blank')}
-                        className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors text-sm"
-                      >
-                        👁️ View Wall
-                      </button>
-                      <button
-                        onClick={() => window.open(`/${selectedProject.id}`, '_blank')}
-                        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm"
-                      >
-                        ✏️ Add Note
-                      </button>
-                      <button
-                        onClick={handleOpenProjectSettings}
-                        className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors text-sm"
-                      >
-                        ⚙️ Settings
-                      </button>
-                      <button
-                        onClick={() => setShowFormManagement(true)}
-                        className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors text-sm"
-                      >
-                        📝 Form
-                      </button>
-                    </div>
+        ) : (
+          /* ===== PROJECT DETAIL VIEW ===== */
+          <div>
+            {/* Back Button & Project Header */}
+            <div className="mb-6">
+              <button
+                onClick={handleBackToDashboard}
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 font-bold transition-colors"
+              >
+                <span>←</span>
+                <span>Back to Dashboard</span>
+              </button>
+              
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <h1 className="text-3xl font-bold text-gray-900 admin-heading">
+                      {selectedProject.name}
+                    </h1>
+                    {selectedProject.auto_approve && (
+                      <span className="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full font-bold border-2 border-green-300">
+                        ⚡ Auto-Approval
+                      </span>
+                    )}
                   </div>
-
-                  {/* Statistics */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
-                      <div className="text-sm text-gray-600">Total Notes</div>
-                    </div>
-                    <div className="bg-yellow-50 rounded-lg p-4">
-                      <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
-                      <div className="text-sm text-gray-600">Pending</div>
-                    </div>
-                    <div className="bg-green-50 rounded-lg p-4">
-                      <div className="text-2xl font-bold text-green-600">{stats.approved}</div>
-                      <div className="text-sm text-gray-600">Approved</div>
-                    </div>
-                    <div className="bg-red-50 rounded-lg p-4">
-                      <div className="text-2xl font-bold text-red-600">{stats.rejected}</div>
-                      <div className="text-sm text-gray-600">Rejected</div>
-                    </div>
-                  </div>
-
-                  {/* Project URL Sharing */}
-                  <div className="p-4 bg-blue-50 rounded-lg">
-                    <h3 className="text-lg font-semibold text-blue-900 mb-3">Share Project</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-blue-700 mb-2">Form URL (for participants):</p>
-                        <div className="flex items-center gap-2">
-                          <code className="flex-1 text-sm text-blue-600 bg-white p-2 rounded border break-all">
-                            thewall.callum.digital/{selectedProject.id}
-                          </code>
-                          <button
-                            onClick={() => copyUrl(selectedProject.id)}
-                            className={`px-3 py-2 text-sm rounded transition-colors ${
-                              copied 
-                                ? 'bg-green-100 text-green-700' 
-                                : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                            }`}
-                          >
-                            {copied ? '✓ Copied!' : 'Copy'}
-                          </button>
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-sm text-blue-700 mb-2">Display URL (for viewing wall):</p>
-                        <div className="flex items-center gap-2">
-                          <code className="flex-1 text-sm text-blue-600 bg-white p-2 rounded border break-all">
-                            thewall.callum.digital/{selectedProject.id}/display
-                          </code>
-                          <button
-                            onClick={() => copyUrl(`${selectedProject.id}/display`)}
-                            className={`px-3 py-2 text-sm rounded transition-colors ${
-                              copied 
-                                ? 'bg-green-100 text-green-700' 
-                                : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                            }`}
-                          >
-                            {copied ? '✓ Copied!' : 'Copy'}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  {selectedProject.description && (
+                    <p className="text-gray-600">{selectedProject.description}</p>
+                  )}
                 </div>
+                
+                {/* Quick Actions */}
+                <div className="flex gap-2 flex-wrap">
+                  <button
+                    onClick={() => window.open(`${selectedProject.id}/display`, '_blank')}
+                    className="bg-green-500 text-white px-4 py-2 rounded-[14px] hover:bg-green-600 transition-all text-sm border-[3px] border-black font-bold hover:translate-y-[-2px]"
+                  >
+                    👁️ View Wall
+                  </button>
+                  <button
+                    onClick={() => window.open(`/${selectedProject.id}`, '_blank')}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-[14px] hover:bg-blue-600 transition-all text-sm border-[3px] border-black font-bold hover:translate-y-[-2px]"
+                  >
+                    ✏️ Add Note
+                  </button>
+                </div>
+              </div>
+            </div>
 
-                {/* Notes Management */}
-                <div className="bg-white rounded-lg shadow-sm border p-6">
-                  <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-lg font-semibold text-gray-900">Notes Management</h3>
+            {/* Tab Navigation */}
+            <Tabs>
+              <Tab
+                label="Notes"
+                icon="📝"
+                active={activeTab === 'notes'}
+                onClick={() => setActiveTab('notes')}
+                badge={stats.pending > 0 ? stats.pending : null}
+              />
+              <Tab
+                label="Settings"
+                icon="⚙️"
+                active={activeTab === 'settings'}
+                onClick={() => setActiveTab('settings')}
+              />
+              <Tab
+                label="Form Builder"
+                icon="📋"
+                active={activeTab === 'form'}
+                onClick={() => setActiveTab('form')}
+              />
+              <Tab
+                label="Branding"
+                icon="🎨"
+                active={activeTab === 'branding'}
+                onClick={() => setActiveTab('branding')}
+              />
+            </Tabs>
+
+            {/* Tab Content */}
+            <TabContent>
+              {activeTab === 'notes' && (
+              <div>
+                  {/* Statistics - Backseat Style */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div className="bg-gray-50 rounded-[14px] border-[3px] border-black p-4">
+                      <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
+                      <div className="text-sm text-gray-600 font-bold">Total Notes</div>
+                    </div>
+                    <div className="bg-[#FFF4C7] rounded-[14px] border-[3px] border-black p-4">
+                      <div className="text-2xl font-bold text-yellow-700">{stats.pending}</div>
+                      <div className="text-sm text-gray-600 font-bold">Pending</div>
+                    </div>
+                    <div className="bg-[#D1FAE5] rounded-[14px] border-[3px] border-black p-4">
+                      <div className="text-2xl font-bold text-green-700">{stats.approved}</div>
+                      <div className="text-sm text-gray-600 font-bold">Approved</div>
+                    </div>
+                    <div className="bg-[#FFE4E6] rounded-[14px] border-[3px] border-black p-4">
+                      <div className="text-2xl font-bold text-red-700">{stats.rejected}</div>
+                      <div className="text-sm text-gray-600 font-bold">Rejected</div>
+                    </div>
+                  </div>
+
+                  <div className="mb-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-4 admin-heading">Moderate Notes</h3>
                     
-                    <div className="flex gap-2">
-                      {/* Filter buttons */}
-                      <div className="flex gap-1">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                      {/* Filter buttons - Backseat Style Pills */}
+                      <div className="flex gap-2 flex-wrap">
                         {['all', 'pending', 'approved', 'rejected'].map((status) => (
                           <button
                             key={status}
                             onClick={() => setFilter(status)}
-                            className={`px-3 py-1 text-sm rounded ${
+                            className={`px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-[14px] border-[3px] border-black font-bold transition-all ${
                               filter === status
-                                ? 'bg-blue-500 text-white'
-                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                ? 'bg-[#F4C542] text-black'
+                                : 'bg-white text-gray-700 hover:bg-gray-50'
                             }`}
                           >
                             {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -930,31 +855,31 @@ const AdminPage = ({ user, userProfile }) => {
                       {stats.pending > 0 && (
                         <button
                           onClick={handleBulkApprove}
-                          className="bg-green-500 text-white px-3 py-1 text-sm rounded hover:bg-green-600"
+                          className="bg-green-500 text-white px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-[14px] hover:bg-green-600 whitespace-nowrap border-[3px] border-black font-bold transition-all hover:translate-y-[-2px]"
                         >
-                          Approve All ({stats.pending})
+                          ✓ Approve All ({stats.pending})
                         </button>
                       )}
                       
                       {/* Export actions */}
-                      <div className="flex gap-1">
+                      <div className="flex gap-2 flex-wrap">
                         <button
                           onClick={exportToCSV}
-                          className="bg-blue-500 text-white px-3 py-1 text-sm rounded hover:bg-blue-600"
+                          className="bg-blue-500 text-white px-3 py-2 text-xs sm:text-sm rounded-[14px] hover:bg-blue-600 border-[3px] border-black font-bold transition-all hover:translate-y-[-2px]"
                           title="Export to CSV"
                         >
                           📊 CSV
                         </button>
                         <button
                           onClick={exportToPDF}
-                          className="bg-purple-500 text-white px-3 py-1 text-sm rounded hover:bg-purple-600"
+                          className="bg-purple-500 text-white px-3 py-2 text-xs sm:text-sm rounded-[14px] hover:bg-purple-600 border-[3px] border-black font-bold transition-all hover:translate-y-[-2px]"
                           title="Export to PDF"
                         >
                           📄 PDF
                         </button>
                         <button
                           onClick={printWall}
-                          className="bg-gray-500 text-white px-3 py-1 text-sm rounded hover:bg-gray-600"
+                          className="bg-gray-500 text-white px-3 py-2 text-xs sm:text-sm rounded-[14px] hover:bg-gray-600 border-[3px] border-black font-bold transition-all hover:translate-y-[-2px]"
                           title="Print Wall"
                         >
                           🖨️ Print
@@ -963,290 +888,532 @@ const AdminPage = ({ user, userProfile }) => {
                     </div>
                   </div>
                   
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {filteredNotes.filter(note => note && note.id).map((note) => (
                       <div
                         key={note.id}
-                        className={`sticky-note ${note.color || 'yellow'} p-4 ${
+                        className={`rounded-[14px] border-[3px] border-black p-5 transition-all ${
                           note.status === 'rejected' ? 'opacity-50' : ''
                         }`}
+                        style={{
+                          backgroundColor: note.color === 'yellow' ? '#FFF4C7' :
+                            note.color === 'blue' ? '#DFF3FF' :
+                            note.color === 'pink' ? '#FFBFFE' :
+                            note.color === 'green' ? '#D1FAE5' :
+                            note.color === 'purple' ? '#E9D5FF' :
+                            note.color === 'orange' ? '#FED7AA' :
+                            note.color === 'red' ? '#FFE4E6' :
+                            '#FFF4C7'
+                        }}
                       >
                         {editingNote === note.id ? (
                           <div className="space-y-3">
                             <textarea
                               value={editText}
                               onChange={(e) => setEditText(e.target.value)}
-                              className="w-full p-2 border border-gray-300 rounded text-sm resize-none"
+                              className="w-full p-3 border-[3px] border-black rounded-[14px] text-sm resize-none bg-white focus:outline-none"
                               rows={3}
                               autoFocus
                             />
                             <div className="flex gap-2">
                               <button
                                 onClick={handleSaveEdit}
-                                className="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 transition-colors"
+                                className="px-4 py-2 bg-green-500 text-white text-sm rounded-[14px] hover:bg-green-600 transition-all border-[3px] border-black font-bold hover:translate-y-[-2px]"
                               >
                                 Save
                               </button>
                               <button
                                 onClick={handleCancelEdit}
-                                className="px-3 py-1 bg-gray-500 text-white text-xs rounded hover:bg-gray-600 transition-colors"
+                                className="px-4 py-2 bg-gray-500 text-white text-sm rounded-[14px] hover:bg-gray-600 transition-all border-[3px] border-black font-bold hover:translate-y-[-2px]"
                               >
                                 Cancel
                               </button>
                             </div>
                           </div>
                         ) : (
-                          <p className="sticky-note-text text-gray-800 font-medium leading-relaxed mb-3">
+                          <p className="text-gray-900 font-medium leading-relaxed mb-4 text-base">
                             {note.text || 'No text content'}
                           </p>
                         )}
-                        <div className="flex justify-between items-center">
-                          <div className="text-xs text-gray-600">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pt-3 border-t-2 border-gray-900/10">
+                          <div className="text-xs text-gray-600 font-medium">
                             {formatTimestamp(note?.created_at || note?.timestamp)}
                           </div>
-                          <div className="flex space-x-2">
+                          <div className="flex gap-2 flex-wrap">
                             {note.status === 'pending' && (
                               <>
                                 <button
                                   onClick={() => handleApprove(note.id)}
-                                  className="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 transition-colors"
+                                  className="px-3 py-2 bg-green-500 text-white text-xs rounded-[14px] hover:bg-green-600 transition-all border-[3px] border-black font-bold hover:translate-y-[-2px]"
                                 >
-                                  Approve
+                                  ✓ Approve
                                 </button>
                                 <button
                                   onClick={() => handleReject(note.id)}
-                                  className="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition-colors"
+                                  className="px-3 py-2 bg-red-500 text-white text-xs rounded-[14px] hover:bg-red-600 transition-all border-[3px] border-black font-bold hover:translate-y-[-2px]"
                                 >
-                                  Reject
+                                  ✗ Reject
                                 </button>
                               </>
                             )}
                             {note.status === 'approved' && (
-                              <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
-                                Approved
+                              <span className="px-3 py-1 bg-green-100 border-[2px] border-green-500 text-green-800 text-xs rounded-full font-bold">
+                                ✓ Approved
                               </span>
                             )}
                             {note.status === 'rejected' && (
-                              <span className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded">
-                                Rejected
+                              <span className="px-3 py-1 bg-red-100 border-[2px] border-red-500 text-red-800 text-xs rounded-full font-bold">
+                                ✗ Rejected
                               </span>
                             )}
                             
                             {/* Additional action buttons */}
                             <button
                               onClick={() => handleEditNote(note)}
-                              className="px-2 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition-colors"
+                              className="px-3 py-2 bg-blue-500 text-white text-xs rounded-[14px] hover:bg-blue-600 transition-all border-[3px] border-black font-bold hover:translate-y-[-2px]"
                               title="Edit note"
                             >
-                              ✏️ Edit
+                              ✏️
                             </button>
                             <button
                               onClick={() => handleRemoveNote(note.id)}
-                              className="px-2 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition-colors"
+                              className="px-3 py-2 bg-red-500 text-white text-xs rounded-[14px] hover:bg-red-600 transition-all border-[3px] border-black font-bold hover:translate-y-[-2px]"
                               title="Remove note"
                             >
-                              🗑️ Remove
+                              🗑️
                             </button>
                           </div>
                         </div>
                       </div>
                     ))}
                   </div>
-                </div>
-              </>
-            ) : (
-              <div className="bg-white rounded-lg shadow-sm border p-12 text-center">
-                <div className="text-gray-400 text-6xl mb-4">📝</div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No Project Selected</h3>
-                <p className="text-gray-600">Select a project from the sidebar to manage its notes</p>
               </div>
-            )}
+              )}
+
+              {activeTab === 'settings' && (
+                <div className="space-y-6">
+                  <h2 className="text-2xl font-bold text-gray-900 admin-heading mb-4">
+                    Project Settings
+                  </h2>
+                  
+                  {/* Project URL Sharing */}
+                  <div className="p-6 bg-[#DFF3FF] rounded-[14px] border-[3px] border-black">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4 admin-heading">Share Project</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-sm text-gray-700 font-bold mb-2">Form URL (for participants):</p>
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                          <code className="flex-1 text-sm text-gray-700 bg-white p-3 rounded-[14px] border-[3px] border-black break-all overflow-x-auto font-mono">
+                            thewall.callum.digital/{selectedProject.id}
+                          </code>
+                          <button
+                            onClick={() => copyUrl(selectedProject.id)}
+                            className={`px-4 py-3 text-sm rounded-[14px] border-[3px] border-black transition-all whitespace-nowrap font-bold ${
+                              copied 
+                                ? 'bg-green-500 text-white' 
+                                : 'bg-[#F4C542] text-black hover:bg-[#E5B73B]'
+                            }`}
+                          >
+                            {copied ? '✓ Copied!' : 'Copy'}
+                          </button>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-700 font-bold mb-2">Display URL (for viewing wall):</p>
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                          <code className="flex-1 text-sm text-gray-700 bg-white p-3 rounded-[14px] border-[3px] border-black break-all overflow-x-auto font-mono">
+                            thewall.callum.digital/{selectedProject.id}/display
+                          </code>
+                          <button
+                            onClick={() => copyUrl(`${selectedProject.id}/display`)}
+                            className={`px-4 py-3 text-sm rounded-[14px] border-[3px] border-black transition-all whitespace-nowrap font-bold ${
+                              copied 
+                                ? 'bg-green-500 text-white' 
+                                : 'bg-[#F4C542] text-black hover:bg-[#E5B73B]'
+                            }`}
+                          >
+                            {copied ? '✓ Copied!' : 'Copy'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Project Settings */}
+                  <div className="bg-white rounded-[14px] border-[3px] border-black p-6">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4 admin-heading">Project Options</h3>
+                    <div className="space-y-4">
+                      <label className="flex items-start gap-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedProject.auto_approve || false}
+                          onChange={async (e) => {
+                            await projectService.updateProjectSettings(selectedProject.id, { 
+                              auto_approve: e.target.checked 
+                            })
+                            setSelectedProject(prev => ({ ...prev, auto_approve: e.target.checked }))
+                            const projectsData = await projectService.getProjects()
+                            setProjects(projectsData)
+                          }}
+                          className="mt-1 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                        <div>
+                          <div className="text-sm font-bold text-gray-900">Auto-Approval Mode</div>
+                          <div className="text-xs text-gray-600">
+                            Notes will be automatically approved and appear on the wall immediately
+                          </div>
+                        </div>
+                      </label>
+                      
+                      <label className="flex items-start gap-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedProject.show_timestamps !== false}
+                          onChange={async (e) => {
+                            await projectService.updateProjectSettings(selectedProject.id, { 
+                              show_timestamps: e.target.checked 
+                            })
+                            setSelectedProject(prev => ({ ...prev, show_timestamps: e.target.checked }))
+                            const projectsData = await projectService.getProjects()
+                            setProjects(projectsData)
+                          }}
+                          className="mt-1 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                        <div>
+                          <div className="text-sm font-bold text-gray-900">Show Timestamps</div>
+                          <div className="text-xs text-gray-600">
+                            Display timestamps on notes in the wall view
+                          </div>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Archive Project */}
+                  <div className="bg-red-50 rounded-[14px] border-[3px] border-black p-6">
+                    <h3 className="text-lg font-bold text-red-900 mb-2 admin-heading">Danger Zone</h3>
+                    <p className="text-sm text-gray-700 mb-4">
+                      Archive this project to hide it from the active list. You can unarchive it later.
+                    </p>
+                    <button
+                      onClick={() => handleArchiveProject(selectedProject.id)}
+                      className="px-4 py-2 bg-red-500 text-white rounded-[14px] hover:bg-red-600 transition-all text-sm border-[3px] border-black font-bold"
+                    >
+                      📦 Archive Project
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'form' && (
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 admin-heading mb-6">
+                    Form Builder
+                  </h2>
+
+                  {/* Form Field Builder */}
+                  <div className="bg-white rounded-[14px] border-[3px] border-black p-6 mb-6">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-bold text-gray-900 admin-heading">Form Fields</h3>
+                      <div className="flex gap-2 flex-wrap">
+                        <button
+                          onClick={() => addFormField('text')}
+                          className="px-3 py-2 bg-blue-500 text-white text-sm rounded-[14px] hover:bg-blue-600 border-[3px] border-black font-bold transition-all hover:translate-y-[-2px]"
+                        >
+                          + Text
+                        </button>
+                        <button
+                          onClick={() => addFormField('textarea')}
+                          className="px-3 py-2 bg-green-500 text-white text-sm rounded-[14px] hover:bg-green-600 border-[3px] border-black font-bold transition-all hover:translate-y-[-2px]"
+                        >
+                          + Textarea
+                        </button>
+                        <button
+                          onClick={() => addFormField('email')}
+                          className="px-3 py-2 bg-purple-500 text-white text-sm rounded-[14px] hover:bg-purple-600 border-[3px] border-black font-bold transition-all hover:translate-y-[-2px]"
+                        >
+                          + Email
+                        </button>
+                        <button
+                          onClick={() => addFormField('select')}
+                          className="px-3 py-2 bg-orange-500 text-white text-sm rounded-[14px] hover:bg-orange-600 border-[3px] border-black font-bold transition-all hover:translate-y-[-2px]"
+                        >
+                          + Select
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      {formConfig.fields.map((field, index) => (
+                        <div key={field.id} className="border-[3px] border-black rounded-[14px] p-4 bg-gray-50">
+                          <div className="flex justify-between items-start mb-3">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-3">
+                                <span className="text-xs bg-white border-[2px] border-black text-gray-900 px-3 py-1 rounded-full font-bold">
+                                  {field.type}
+                                </span>
+                                {field.required && (
+                                  <span className="text-xs bg-red-100 border-[2px] border-red-500 text-red-700 px-3 py-1 rounded-full font-bold">
+                                    Required
+                                  </span>
+                                )}
+                              </div>
+                              <Input
+                                type="text"
+                                value={field.label}
+                                onChange={(e) => updateFormField(field.id, { label: e.target.value })}
+                                placeholder="Field label"
+                                className="mb-2"
+                              />
+                              <Input
+                                type="text"
+                                value={field.placeholder}
+                                onChange={(e) => updateFormField(field.id, { placeholder: e.target.value })}
+                                placeholder="Placeholder text"
+                                className="mb-2"
+                              />
+                              {field.type === 'select' && (
+                                <div className="mb-2">
+                                  <label className="block text-xs text-gray-700 font-bold mb-1">Options (one per line)</label>
+                                  <textarea
+                                    value={field.options?.join('\n') || ''}
+                                    onChange={(e) => updateFormField(field.id, { 
+                                      options: e.target.value.split('\n').filter(opt => opt.trim()) 
+                                    })}
+                                    className="w-full px-4 py-3 border-[3px] border-black rounded-[14px] bg-gray-50 text-sm resize-none focus:outline-none"
+                                    rows={3}
+                                    placeholder="Option 1&#10;Option 2&#10;Option 3"
+                                  />
+                                </div>
+                              )}
+                              {(field.type === 'text' || field.type === 'textarea') && (
+                                <div className="flex items-center gap-4 mb-2">
+                                  <label className="flex items-center gap-2">
+                                    <input
+                                      type="checkbox"
+                                      checked={field.required}
+                                      onChange={(e) => updateFormField(field.id, { required: e.target.checked })}
+                                      className="h-4 w-4"
+                                    />
+                                    <span className="text-sm text-gray-700 font-bold">Required</span>
+                                  </label>
+                                  <label className="flex items-center gap-2">
+                                    <input
+                                      type="checkbox"
+                                      checked={field.showCharacterCount}
+                                      onChange={(e) => updateFormField(field.id, { showCharacterCount: e.target.checked })}
+                                      className="h-4 w-4"
+                                    />
+                                    <span className="text-sm text-gray-700 font-bold">Show count</span>
+                                  </label>
+                                </div>
+                              )}
+                              {field.maxLength && (
+                                <Input
+                                  type="number"
+                                  value={field.maxLength}
+                                  onChange={(e) => updateFormField(field.id, { maxLength: parseInt(e.target.value) || 280 })}
+                                  placeholder="Max length"
+                                  className="w-32"
+                                  min="1"
+                                  max="1000"
+                                />
+                              )}
+                            </div>
+                            <div className="flex flex-col gap-1 ml-2">
+                              <button
+                                onClick={() => moveFormField(field.id, 'up')}
+                                disabled={index === 0}
+                                className="p-2 text-gray-600 hover:text-gray-900 disabled:opacity-30 font-bold text-xl"
+                                title="Move up"
+                              >
+                                ↑
+                              </button>
+                              <button
+                                onClick={() => moveFormField(field.id, 'down')}
+                                disabled={index === formConfig.fields.length - 1}
+                                className="p-2 text-gray-600 hover:text-gray-900 disabled:opacity-30 font-bold text-xl"
+                                title="Move down"
+                              >
+                                ↓
+                              </button>
+                              <button
+                                onClick={() => removeFormField(field.id)}
+                                className="p-2 text-red-500 hover:text-red-700 font-bold text-xl"
+                                title="Remove field"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Save Button */}
+                  <Button
+                    onClick={saveFormConfig}
+                    variant="primary"
+                    size="medium"
+                    fullWidth
+                  >
+                    Save Form Configuration
+                  </Button>
+                </div>
+              )}
+
+              {activeTab === 'branding' && (
+                <BrandingEditor
+                  project={selectedProject}
+                  onSave={async (branding, titleQuestion) => {
+                    try {
+                      console.log('🎨 AdminPage: Saving branding inline:', { branding, titleQuestion })
+                      await projectService.updateProjectSettings(selectedProject.id, { 
+                        branding,
+                        title_question: titleQuestion 
+                      })
+                      console.log('✅ Branding updated')
+                      
+                      // Update local project data
+                      setProjects(prev => prev.map(p => 
+                        p.id === selectedProject.id 
+                          ? { ...p, branding, titleQuestion }
+                          : p
+                      ))
+                      
+                      setSelectedProject(prev => ({ ...prev, branding, titleQuestion }))
+                      
+                      // Show success message
+                      alert('Branding saved successfully!')
+                    } catch (error) {
+                      console.error('❌ Error updating branding:', error)
+                      alert('Failed to save branding. Please try again.')
+                    }
+                  }}
+                  onCancel={null}
+                  isInline={true}
+                />
+              )}
+            </TabContent>
           </div>
-        </div>
+        )}
       </div>
 
-      {/* Project Creation Modal */}
+      {/* Project Creation Modal - Backseat Style */}
       {showCreateProject && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Create New Project</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-[24px] border-[3px] border-black p-6 sm:p-8 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <h3 className="text-2xl font-bold text-gray-900 mb-6 admin-heading">Create New Project</h3>
             
-            <form onSubmit={handleCreateProject} className="space-y-4">
-              <div>
-                <label htmlFor="projectName" className="block text-sm font-medium text-gray-700 mb-1">
-                  Project Name
-                </label>
-                <input
-                  id="projectName"
-                  type="text"
-                  value={newProject.name}
-                  onChange={(e) => handleNameChange(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., Design Workshop 2024"
-                  required
-                />
-              </div>
+            <form onSubmit={handleCreateProject} className="space-y-6">
+              <Input
+                id="projectName"
+                type="text"
+                label="Project Name"
+                value={newProject.name}
+                onChange={(e) => handleNameChange(e.target.value)}
+                placeholder="e.g., Design Workshop 2024"
+                required
+              />
               
-                <div>
-                  <label htmlFor="customUrl" className="block text-sm font-medium text-gray-700 mb-1">
-                    Custom URL
-                  </label>
-                  <div className="flex">
-                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                      thewall.callum.digital/
-                    </span>
+              <div>
+                <label htmlFor="customUrl" className="block text-base font-bold text-gray-900 mb-2">
+                  Custom URL
+                </label>
+                <div className="flex items-stretch">
+                  <span className="inline-flex items-center px-4 rounded-l-[14px] border-[3px] border-r-0 border-black bg-gray-50 text-gray-700 text-sm font-bold">
+                    thewall.callum.digital/
+                  </span>
                   <input
                     id="customUrl"
                     type="text"
                     value={newProject.customUrl}
                     onChange={(e) => setNewProject({ ...newProject, customUrl: e.target.value })}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 px-4 py-3 border-[3px] border-black rounded-r-[14px] focus:outline-none bg-gray-50 focus:border-black"
                     placeholder="design-workshop-2024"
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-600 mt-2">
                   Auto-generated from project name. You can customize it.
                 </p>
               </div>
               
-              <div>
-                <label htmlFor="projectDescription" className="block text-sm font-medium text-gray-700 mb-1">
-                  Description (Optional)
-                </label>
-                <textarea
-                  id="projectDescription"
-                  value={newProject.description}
-                  onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Brief description of the project"
-                  rows={3}
-                />
-              </div>
+              <Input
+                id="projectDescription"
+                type="textarea"
+                label="Description (Optional)"
+                value={newProject.description}
+                onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
+                placeholder="Brief description of the project"
+                rows={3}
+              />
               
               {/* Project Settings */}
-              <div className="space-y-4 pt-4 border-t border-gray-200">
-                <h4 className="text-sm font-medium text-gray-900">Project Settings</h4>
+              <div className="space-y-4 pt-4 border-t-[3px] border-gray-200">
+                <h4 className="text-base font-bold text-gray-900 admin-heading">Project Settings</h4>
                 
-                <div>
-                  <label className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      checked={newProject.auto_approve}
-                      onChange={(e) => setNewProject({ ...newProject, auto_approve: e.target.checked })}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">Auto-Approval Mode</div>
-                      <div className="text-xs text-gray-500">
-                        Notes will be automatically approved and appear on the wall immediately
-                      </div>
+                <label className="flex items-start gap-3 cursor-pointer p-4 rounded-[14px] border-[3px] border-gray-200 hover:border-black transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={newProject.auto_approve}
+                    onChange={(e) => setNewProject({ ...newProject, auto_approve: e.target.checked })}
+                    className="mt-1 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <div>
+                    <div className="text-sm font-bold text-gray-900">Auto-Approval Mode</div>
+                    <div className="text-xs text-gray-600">
+                      Notes will be automatically approved and appear on the wall immediately
                     </div>
-                  </label>
-                </div>
+                  </div>
+                </label>
                 
-                <div>
-                  <label className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      checked={newProject.show_timestamps}
-                      onChange={(e) => setNewProject({ ...newProject, show_timestamps: e.target.checked })}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">Show Timestamps</div>
-                      <div className="text-xs text-gray-500">
-                        Display timestamps on notes in the wall view (🕐 1m 17:15 format)
-                      </div>
+                <label className="flex items-start gap-3 cursor-pointer p-4 rounded-[14px] border-[3px] border-gray-200 hover:border-black transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={newProject.show_timestamps}
+                    onChange={(e) => setNewProject({ ...newProject, show_timestamps: e.target.checked })}
+                    className="mt-1 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <div>
+                    <div className="text-sm font-bold text-gray-900">Show Timestamps</div>
+                    <div className="text-xs text-gray-600">
+                      Display timestamps on notes in the wall view (🕐 1m 17:15 format)
                     </div>
-                  </label>
-                </div>
+                  </div>
+                </label>
               </div>
               
               <div className="flex gap-3 pt-4">
-                <button
+                <Button
                   type="submit"
-                  className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors"
+                  variant="primary"
+                  size="medium"
+                  className="flex-1"
                 >
                   Create Project
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
                   onClick={() => setShowCreateProject(false)}
-                  className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors"
+                  variant="outline"
+                  size="medium"
+                  className="flex-1"
                 >
                   Cancel
-                </button>
+                </Button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* Project Settings Modal */}
-      {showProjectSettings && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Project Settings</h3>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="flex items-center space-x-3">
-                  <input
-                    type="checkbox"
-                    checked={projectSettings.auto_approve}
-                    onChange={(e) => setProjectSettings({ ...projectSettings, auto_approve: e.target.checked })}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <div>
-                    <div className="text-sm font-medium text-gray-900">Auto-Approval Mode</div>
-                    <div className="text-xs text-gray-500">
-                      Notes will be automatically approved and appear on the wall immediately
-                    </div>
-                  </div>
-                </label>
-              </div>
-              
-              <div>
-                <label className="flex items-center space-x-3">
-                  <input
-                    type="checkbox"
-                    checked={projectSettings.show_timestamps}
-                    onChange={(e) => setProjectSettings({ ...projectSettings, show_timestamps: e.target.checked })}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <div>
-                    <div className="text-sm font-medium text-gray-900">Show Timestamps</div>
-                    <div className="text-xs text-gray-500">
-                      Display timestamps on notes in the wall view
-                    </div>
-                  </div>
-                </label>
-              </div>
-            </div>
-            
-            <div className="flex gap-3 pt-4">
-              <button
-                onClick={handleSaveProjectSettings}
-                className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                Save Settings
-              </button>
-              <button
-                onClick={() => setShowProjectSettings(false)}
-                className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* Form Management Modal */}
-      {showFormManagement && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Form Management</h3>
+      {/* Form Management Modal - DEPRECATED: Now integrated into tabs */}
+      {false && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 admin-heading">Form Management</h3>
             
             <div className="space-y-6">
               {/* Form Preview */}
@@ -1596,8 +1763,8 @@ const AdminPage = ({ user, userProfile }) => {
         </div>
       )}
 
-      {/* Branding Editor Modal */}
-      {showBrandingEditor && selectedProject && (
+      {/* Branding Editor Modal - DEPRECATED: Now integrated into tabs */}
+      {false && selectedProject && (
         <BrandingEditor
           project={selectedProject}
           onSave={async (branding, titleQuestion) => {

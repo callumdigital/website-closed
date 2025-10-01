@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authService } from '../services/authService'
+import Logo from '../components/Logo'
 
 const LandingPage = () => {
   const [user, setUser] = useState(null)
@@ -11,13 +12,32 @@ const LandingPage = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const session = await authService.getSession()
+        // Add timeout to prevent infinite loading
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Auth check timeout')), 3000)
+        )
+        
+        const session = await Promise.race([
+          authService.getSession(),
+          timeoutPromise
+        ])
+        
         if (session?.user) {
           setUser(session.user)
           
-          // Get user profile
-          const profile = await authService.getUserProfile(session.user.id)
-          setUserProfile(profile)
+          try {
+            // Get user profile with timeout
+            const profile = await Promise.race([
+              authService.getUserProfile(session.user.id),
+              new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Profile fetch timeout')), 2000)
+              )
+            ])
+            setUserProfile(profile)
+          } catch (profileError) {
+            console.warn('Profile fetch error:', profileError)
+            // Continue anyway, just without profile
+          }
           
           // If user is authenticated, redirect to admin
           navigate('/admin')
@@ -35,155 +55,276 @@ const LandingPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#F5E6D3] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-[4px] border-black border-t-transparent mx-auto mb-4"></div>
+          <p className="text-gray-900 font-bold">Loading...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#F5E6D3]">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+      <div className="bg-white border-b-[3px] border-black">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-5">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">📝</span>
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">The Wall</h1>
-                <p className="text-sm text-gray-600">Interactive Sticky Note Platform</p>
-              </div>
+              <Logo width={45} height={46} />
+              <h1 className="text-2xl font-bold text-black" style={{ fontFamily: 'Roboto Condensed, sans-serif', letterSpacing: '-0.02em' }}>
+                The Wall
+              </h1>
             </div>
             
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => navigate('/login')}
-                className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium border border-blue-600"
-              >
-                Sign In
-              </button>
-            </div>
+            <button
+              onClick={() => navigate('/login')}
+              className="btn-primary px-7 py-2.5 bg-[#F5E6D3] text-black rounded-full font-bold text-sm border-[3px] border-black"
+              style={{ 
+                fontFamily: 'Roboto Condensed, sans-serif'
+              }}
+            >
+              Sign In
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-6 py-16">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Welcome to The Wall
+      {/* Hero Section */}
+      <div className="max-w-6xl mx-auto px-6 lg:px-12 py-20 md:py-32">
+        <div className="max-w-4xl mx-auto">
+          {/* Badge */}
+          <div className="flex justify-center mb-8">
+            <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border-[2px] border-black rounded-full">
+              <span className="text-xl">📝</span>
+              <span className="text-sm font-bold text-black" style={{ fontFamily: 'Roboto Condensed, sans-serif' }}>
+                LIVE STICKY NOTE DISPLAYS
+              </span>
+            </div>
+          </div>
+
+          <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-black mb-10 text-center" style={{ fontFamily: 'Roboto Condensed, sans-serif', letterSpacing: '-0.03em', lineHeight: '1.05' }}>
+            Collect thoughts.{' '}
+            <span className="relative inline-block">
+              <span className="relative z-10">Display them</span>
+              <span className="absolute bottom-2 left-0 w-full h-4 bg-[#F4C542] -rotate-1 -z-0"></span>
+            </span>{' '}
+            live.
           </h2>
-          <p className="text-xl text-gray-600 mb-8">
-            Create interactive sticky note walls for workshops, brainstorming, and collaboration
+
+          <p className="text-xl sm:text-2xl text-gray-800 mb-8 text-center max-w-3xl mx-auto leading-relaxed" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 400 }}>
+            Gather sticky notes from anyone via a form, then watch them appear in real-time on a big screen. Perfect for workshops, events, and live feedback.
           </p>
-        </div>
 
-        {/* Feature Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-          <div className="bg-white rounded-lg border border-gray-200 p-6 text-center">
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl">📝</span>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Create Walls</h3>
-            <p className="text-gray-600 text-sm">
-              Set up custom sticky note walls for any project or event
-            </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+            <button
+              onClick={() => navigate('/login')}
+              className="btn-primary px-10 py-4 bg-[#F4C542] text-black text-lg rounded-full font-bold border-[3px] border-black w-full sm:w-auto"
+              style={{ 
+                fontFamily: 'Roboto Condensed, sans-serif'
+              }}
+            >
+              Get Started
+            </button>
+            <button
+              onClick={() => navigate('/login')}
+              className="btn-secondary px-10 py-4 bg-white text-black text-lg rounded-full font-bold border-[3px] border-black w-full sm:w-auto"
+              style={{ 
+                fontFamily: 'Roboto Condensed, sans-serif'
+              }}
+            >
+              View Demo
+            </button>
           </div>
 
-          <div className="bg-white rounded-lg border border-gray-200 p-6 text-center">
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl">👥</span>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Collaborate</h3>
-            <p className="text-gray-600 text-sm">
-              Share links with participants to add notes in real-time
-            </p>
-          </div>
-
-          <div className="bg-white rounded-lg border border-gray-200 p-6 text-center">
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl">⚡</span>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Manage</h3>
-            <p className="text-gray-600 text-sm">
-              Moderate, approve, and organize notes with admin controls
-            </p>
+          {/* Flow */}
+          <div className="flex items-center justify-center gap-3 text-base text-gray-700 flex-wrap" style={{ fontFamily: 'Inter, sans-serif' }}>
+            <span className="font-medium">Share link</span>
+            <span className="text-2xl">→</span>
+            <span className="font-medium">People submit</span>
+            <span className="text-2xl">→</span>
+            <span className="font-medium">Appear instantly</span>
           </div>
         </div>
+      </div>
 
-        {/* How to Access */}
-        <div className="bg-white rounded-lg border border-gray-200 p-8">
-          <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-            How to Access Your Walls
+      {/* Features Section */}
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 py-20 md:py-28">
+        <h3 className="text-4xl md:text-5xl font-bold text-black mb-4 text-center" style={{ fontFamily: 'Roboto Condensed, sans-serif', letterSpacing: '-0.02em' }}>
+          Everything you need
+        </h3>
+        <p className="text-xl text-gray-700 mb-16 text-center max-w-2xl mx-auto" style={{ fontFamily: 'Inter, sans-serif' }}>
+          From form creation to live display, we've got you covered
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Custom Forms */}
+          <div className="group bg-gradient-to-br from-[#FFD35A] to-[#FFEAA7] rounded-[28px] border-[3px] border-black p-8 hover:translate-y-[-4px] transition-all duration-200 cursor-pointer">
+            <div className="w-16 h-16 bg-black rounded-[16px] flex items-center justify-center mb-6 group-hover:rotate-[-5deg] transition-transform duration-200">
+              <span className="text-3xl">📝</span>
+            </div>
+            <h3 className="text-3xl font-bold text-black mb-4" style={{ fontFamily: 'Roboto Condensed, sans-serif', letterSpacing: '-0.01em' }}>
+              Custom Forms
+            </h3>
+            <p className="text-gray-900 leading-relaxed text-lg mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>
+              Build your form with drag-and-drop questions, emoji reactions, and color-coded responses
+            </p>
+            <ul className="space-y-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+              <li className="flex items-center gap-2 text-gray-800">
+                <span className="text-lg">•</span> Multiple question types
+              </li>
+              <li className="flex items-center gap-2 text-gray-800">
+                <span className="text-lg">•</span> Custom branding
+              </li>
+              <li className="flex items-center gap-2 text-gray-800">
+                <span className="text-lg">•</span> Mobile optimized
+              </li>
+            </ul>
+          </div>
+
+          {/* Live Display */}
+          <div className="group bg-gradient-to-br from-[#74B9FF] to-[#C9E7FF] rounded-[28px] border-[3px] border-black p-8 hover:translate-y-[-4px] transition-all duration-200 cursor-pointer">
+            <div className="w-16 h-16 bg-black rounded-[16px] flex items-center justify-center mb-6 group-hover:rotate-[5deg] transition-transform duration-200">
+              <span className="text-3xl">📺</span>
+            </div>
+            <h3 className="text-3xl font-bold text-black mb-4" style={{ fontFamily: 'Roboto Condensed, sans-serif', letterSpacing: '-0.01em' }}>
+              Live Display
+            </h3>
+            <p className="text-gray-900 leading-relaxed text-lg mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>
+              Watch notes appear instantly on any screen, from phones to 8K displays
+            </p>
+            <ul className="space-y-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+              <li className="flex items-center gap-2 text-gray-800">
+                <span className="text-lg">•</span> Real-time updates
+              </li>
+              <li className="flex items-center gap-2 text-gray-800">
+                <span className="text-lg">•</span> TV optimized (4K/8K)
+              </li>
+              <li className="flex items-center gap-2 text-gray-800">
+                <span className="text-lg">•</span> Auto-scaling text
+              </li>
+            </ul>
+          </div>
+
+          {/* Moderation */}
+          <div className="group bg-gradient-to-br from-[#A29BFE] to-[#E9D5FF] rounded-[28px] border-[3px] border-black p-8 hover:translate-y-[-4px] transition-all duration-200 cursor-pointer">
+            <div className="w-16 h-16 bg-black rounded-[16px] flex items-center justify-center mb-6 group-hover:rotate-[-5deg] transition-transform duration-200">
+              <span className="text-3xl">✅</span>
+            </div>
+            <h3 className="text-3xl font-bold text-black mb-4" style={{ fontFamily: 'Roboto Condensed, sans-serif', letterSpacing: '-0.01em' }}>
+              Moderation
+            </h3>
+            <p className="text-gray-900 leading-relaxed text-lg mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>
+              Full control over what appears on your wall with powerful admin tools
+            </p>
+            <ul className="space-y-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+              <li className="flex items-center gap-2 text-gray-800">
+                <span className="text-lg">•</span> Approve/reject notes
+              </li>
+              <li className="flex items-center gap-2 text-gray-800">
+                <span className="text-lg">•</span> Hide inappropriate content
+              </li>
+              <li className="flex items-center gap-2 text-gray-800">
+                <span className="text-lg">•</span> Export to CSV
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* How It Works */}
+      <div className="max-w-5xl mx-auto px-6 lg:px-12 py-16 md:py-24">
+        <div className="bg-white rounded-[32px] border-[2px] border-black p-10 lg:p-16">
+          <h3 className="text-4xl md:text-5xl font-bold text-black mb-16 text-center" style={{ fontFamily: 'Roboto Condensed, sans-serif', letterSpacing: '-0.02em' }}>
+            How It Works
           </h3>
           
-          <div className="space-y-6">
-            <div className="flex items-start gap-4">
-              <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+          <div className="space-y-12">
+            <div className="flex items-start gap-6 md:gap-8">
+              <div className="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0" style={{ fontFamily: 'Roboto Condensed, sans-serif' }}>
                 1
               </div>
-              <div>
-                <h4 className="text-lg font-semibold text-gray-900 mb-2">Sign In to Admin</h4>
-                <p className="text-gray-600 mb-3">
-                  Use the "Sign In" button above to access the admin panel where you can create and manage your walls.
+              <div className="flex-1">
+                <h4 className="text-2xl md:text-3xl font-bold text-black mb-3" style={{ fontFamily: 'Roboto Condensed, sans-serif', letterSpacing: '-0.01em' }}>
+                  Create Your Wall
+                </h4>
+                <p className="text-gray-700 text-lg leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  Sign in, create a project, and customize your form with questions, colors, and emojis.
                 </p>
-                <button
-                  onClick={() => navigate('/login')}
-                  className="inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
-                >
-                  Go to Admin Panel →
-                </button>
               </div>
             </div>
 
-            <div className="flex items-start gap-4">
-              <div className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+            <div className="flex items-start gap-6 md:gap-8">
+              <div className="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0" style={{ fontFamily: 'Roboto Condensed, sans-serif' }}>
                 2
               </div>
-              <div>
-                <h4 className="text-lg font-semibold text-gray-900 mb-2">Access Project Walls</h4>
-                <p className="text-gray-600 mb-3">
-                  Once you have a project, you can access it directly using these URL patterns:
+              <div className="flex-1">
+                <h4 className="text-2xl md:text-3xl font-bold text-black mb-3" style={{ fontFamily: 'Roboto Condensed, sans-serif', letterSpacing: '-0.01em' }}>
+                  Share the Link
+                </h4>
+                <p className="text-gray-700 text-lg mb-4 leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  Give participants your form URL so they can submit their thoughts:
                 </p>
-                <div className="bg-gray-50 rounded-lg p-4 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <code className="bg-white px-2 py-1 rounded text-sm border">
-                      thewall.callum.digital/your-project-id
-                    </code>
-                    <span className="text-sm text-gray-500">← Add notes</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <code className="bg-white px-2 py-1 rounded text-sm border">
-                      thewall.callum.digital/your-project-id/display
-                    </code>
-                    <span className="text-sm text-gray-500">← View wall</span>
-                  </div>
-                </div>
+                <code className="bg-[#F5E6D3] px-5 py-3 rounded-full text-sm md:text-base font-mono border-[2px] border-black inline-block break-all">
+                  thewall.callum.digital/<span className="text-blue-600">project</span>
+                </code>
               </div>
             </div>
 
-            <div className="flex items-start gap-4">
-              <div className="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+            <div className="flex items-start gap-6 md:gap-8">
+              <div className="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0" style={{ fontFamily: 'Roboto Condensed, sans-serif' }}>
                 3
               </div>
-              <div>
-                <h4 className="text-lg font-semibold text-gray-900 mb-2">Share with Participants</h4>
-                <p className="text-gray-600">
-                  Share the project URLs with your team or workshop participants so they can add their notes to your wall.
+              <div className="flex-1">
+                <h4 className="text-2xl md:text-3xl font-bold text-black mb-3" style={{ fontFamily: 'Roboto Condensed, sans-serif', letterSpacing: '-0.01em' }}>
+                  Display Live
+                </h4>
+                <p className="text-gray-700 text-lg mb-4 leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  Open the display URL on a big screen and watch notes appear instantly:
                 </p>
+                <code className="bg-[#F5E6D3] px-5 py-3 rounded-full text-sm md:text-base font-mono border-[2px] border-black inline-block break-all">
+                  thewall.callum.digital/<span className="text-blue-600">project</span>/display
+                </code>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Footer */}
-        <div className="text-center mt-12 text-gray-500 text-sm">
-          <p>Need help? Contact support or check the documentation for more details.</p>
+          <div className="mt-12 text-center">
+            <button
+              onClick={() => navigate('/login')}
+              className="btn-primary px-12 py-4 bg-[#F4C542] text-black text-lg rounded-full font-bold border-[3px] border-black"
+              style={{ 
+                fontFamily: 'Roboto Condensed, sans-serif'
+              }}
+            >
+              Start Building Your Wall
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="border-t-[2px] border-black bg-white">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-3">
+              <Logo width={35} height={36} />
+              <span className="text-lg font-bold text-black" style={{ fontFamily: 'Roboto Condensed, sans-serif' }}>
+                The Wall
+              </span>
+            </div>
+            <p className="text-gray-700 text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
+              Built by{' '}
+              <a 
+                href="https://callum.digital" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-black font-bold hover:underline transition-all"
+              >
+                Callum Healey
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </div>

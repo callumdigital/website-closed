@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { noteService, projectService } from '../services/supabaseClient.jsx'
-import { getNoteColorClasses, loadSingleFont } from '../services/brandingService.jsx'
+import { noteService, projectService, realtimeService } from '../services/supabaseClient.jsx'
+import { getNoteColorClasses, loadSingleFont, VIBRANT_NOTE_COLORS } from '../services/brandingService.jsx'
 import Logo from '../components/Logo.jsx'
 
 // Utility function to format timestamps in short format for display
@@ -118,6 +118,40 @@ const DisplayBoard = () => {
     }
 
     loadData()
+  }, [projectId])
+
+  // Subscribe to realtime updates
+  useEffect(() => {
+    if (!projectId) return
+
+    console.log('🔴 Setting up realtime subscription for project:', projectId)
+    
+    const subscription = realtimeService.subscribeToNotes(projectId, (payload) => {
+      console.log('🔴 Realtime event received:', payload)
+      
+      if (payload.eventType === 'INSERT' && payload.new) {
+        // Only show approved notes on the wall
+        if (payload.new.status === 'approved') {
+          console.log('✅ New approved note, adding to wall:', payload.new)
+          setNotes(prev => [payload.new, ...prev])
+        }
+      } else if (payload.eventType === 'UPDATE' && payload.new) {
+        console.log('🔄 Note updated:', payload.new)
+        setNotes(prev => prev.map(note => 
+          note.id === payload.new.id ? payload.new : note
+        ))
+      } else if (payload.eventType === 'DELETE' && payload.old) {
+        console.log('🗑️ Note deleted:', payload.old)
+        setNotes(prev => prev.filter(note => note.id !== payload.old.id))
+      }
+    })
+
+    return () => {
+      console.log('🔴 Cleaning up realtime subscription')
+      if (subscription) {
+        realtimeService.unsubscribe(subscription)
+      }
+    }
   }, [projectId])
 
   // Load Roboto Condensed for the title
@@ -248,66 +282,78 @@ const DisplayBoard = () => {
           font-family: 'Roboto Condensed', sans-serif !important;
         }
         
+        /* Full HD (1920x1080) - Common TV size */
         @media (min-width: 1920px) {
           .wall-container {
-            font-size: 1.125rem;
+            padding: 2rem;
           }
           .wall-title {
-            font-size: 3.5rem;
+            font-size: 4rem !important;
             line-height: 1.1;
           }
-          .wall-card {
-            min-height: 200px;
-            padding: 1.5rem;
-          }
           .wall-card-text {
-            font-size: 1.25rem;
-            line-height: 1.4;
+            font-size: 1.125rem;
+            line-height: 1.3;
           }
         }
         
+        /* 2K/QHD (2560x1440) - Large monitors */
         @media (min-width: 2560px) {
           .wall-container {
-            font-size: 1.5rem;
+            padding: 3rem;
           }
           .wall-title {
-            font-size: 5rem;
-          }
-          .wall-card {
-            min-height: 300px;
-            padding: 2.5rem;
+            font-size: 5rem !important;
           }
           .wall-card-text {
-            font-size: 1.75rem;
+            font-size: 1.5rem;
+            line-height: 1.3;
           }
         }
         
+        /* 4K UHD (3840x2160) - 55" TVs, Large displays */
         @media (min-width: 3840px) {
           .wall-container {
-            font-size: 2rem;
+            padding: 4rem;
           }
           .wall-title {
-            font-size: 6rem;
-          }
-          .wall-card {
-            min-height: 350px;
-            padding: 3rem;
+            font-size: 7rem !important;
           }
           .wall-card-text {
-            font-size: 2.25rem;
+            font-size: 2rem;
+            line-height: 1.4;
+          }
+          .note-emoji {
+            font-size: 4rem !important;
+          }
+        }
+        
+        /* 8K (7680x4320) - Ultra large displays */
+        @media (min-width: 7680px) {
+          .wall-container {
+            padding: 6rem;
+          }
+          .wall-title {
+            font-size: 10rem !important;
+          }
+          .wall-card-text {
+            font-size: 3rem;
+            line-height: 1.4;
+          }
+          .note-emoji {
+            font-size: 6rem !important;
           }
         }
       `}</style>
       
     <div 
-      className="wall-container min-h-screen w-full p-6 lg:p-8 xl:p-12" 
+      className="wall-container min-h-screen w-full p-4 md:p-6 lg:p-8 xl:p-10" 
       style={{
         backgroundColor: project?.branding?.backgroundColor || '#F8FAFC',
         fontFamily: fontToUse,
         width: '100vw',
         maxWidth: '100vw',
-        // Custom styles for large displays
-        fontSize: 'clamp(16px, 1.2vw, 24px)', // Responsive base font size
+        overflow: 'hidden'
       }}
     >
       <div 
@@ -316,12 +362,12 @@ const DisplayBoard = () => {
           fontFamily: fontToUse
         }}
       >
-        {/* Header Section */}
-        <div className="flex items-center justify-between mb-8 lg:mb-12 xl:mb-16 px-4">
+        {/* Header Section - Optimized for large screens */}
+        <div className="flex items-center justify-between mb-6 lg:mb-8 xl:mb-10">
           <div className="flex items-center">
-            <Logo width={80} height={80} />
+            <Logo width={60} height={61} className="lg:w-20 lg:h-20 xl:w-24 xl:h-24" />
             <h1 
-              className="wall-title text-5xl lg:text-6xl xl:text-7xl font-bold ml-1 whitespace-nowrap"
+              className="wall-title font-bold ml-2 whitespace-nowrap"
               style={{
                 color: '#000000',
                 fontFamily: 'Roboto Condensed, sans-serif !important',
@@ -332,28 +378,27 @@ const DisplayBoard = () => {
             </h1>
             {project?.branding?.logoUrl && (
               <>
-                <div className="h-12 w-px bg-black mx-4"></div>
+                <div className="h-10 lg:h-12 xl:h-16 w-px bg-black mx-3 lg:mx-4"></div>
                 <img 
                   src={project.branding.logoUrl} 
                   alt="Custom Logo" 
-                  className="h-16 w-auto"
-                  style={{ maxHeight: '64px' }}
+                  className="h-12 lg:h-16 xl:h-20 w-auto"
                 />
               </>
             )}
           </div>
           {project?.titleQuestion && (
             <div 
-              className="text-right max-w-lg lg:max-w-xl xl:max-w-2xl"
+              className="text-right max-w-md lg:max-w-lg xl:max-w-2xl px-4 py-2 lg:px-6 lg:py-3 xl:px-8 xl:py-4 bg-[#F4C542] border-[3px] border-black rounded-[20px] shadow-md"
               style={{
-                fontFamily: fontToUse,
-                color: project?.branding?.headingColor || '#1E293B'
+                fontFamily: fontToUse
               }}
             >
               <h2 
-                className="text-3xl lg:text-4xl xl:text-5xl font-semibold leading-tight"
+                className="wall-question-title font-bold leading-tight"
                 style={{
-                  fontFamily: fontToUse
+                  fontFamily: fontToUse,
+                  color: project?.branding?.headingColor || '#000000'
                 }}
               >
                 {project.titleQuestion}
@@ -363,42 +408,47 @@ const DisplayBoard = () => {
         </div>
 
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 lg:gap-3 xl:gap-4">
+        <div className="wall-notes-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 lg:gap-5">
           {notes.map((note) => (
             <div
               key={note.id}
-              className={`wall-card p-2 lg:p-3 xl:p-4 rounded-3xl transform hover:scale-105 transition-all duration-300 ${getNoteColorClasses(note.color, project?.branding?.noteShadow)}`}
+              className={`wall-card rounded-[32px] lg:rounded-[40px] border-[3px] border-[#111] transition-all duration-200 shadow-md ${getNoteColorClasses(note.color, project?.branding?.noteShadow)}`}
               style={{
-                borderRadius: '32px', // Much more rounded corners
                 fontFamily: fontToUse,
-                minHeight: '200px',
-                aspectRatio: '1/1', // Make cards square like the example
-                overflow: 'hidden', // Prevent content from overflowing
-                wordWrap: 'break-word' // Break long words
+                width: '100%',
+                height: '0',
+                paddingBottom: '100%',
+                position: 'relative',
+                overflow: 'hidden',
+                backgroundColor: VIBRANT_NOTE_COLORS[note.color] || VIBRANT_NOTE_COLORS.yellow
               }}
             >
-              <div className="flex flex-col h-full text-center relative" style={{ minHeight: '100%' }}>
-                <div className="flex-1 flex flex-col items-center justify-center space-y-3 px-1 py-2">
+              <div className="absolute inset-0 flex flex-col text-center p-4 lg:p-5">
+                <div className="flex-1 flex flex-col items-center justify-center min-h-0 overflow-hidden">
                   <p 
-                    className="wall-card-text text-sm lg:text-base xl:text-lg text-gray-800 leading-tight font-medium overflow-hidden" 
+                    className="wall-card-text text-gray-900 font-medium w-full" 
                     style={{ 
                       fontFamily: fontToUse,
                       display: '-webkit-box',
-                      WebkitLineClamp: 6,
+                      WebkitLineClamp: note.emoji ? 7 : 9,
                       WebkitBoxOrient: 'vertical',
-                      lineHeight: '1.3'
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      wordBreak: 'break-word',
+                      overflowWrap: 'break-word',
+                      hyphens: 'auto'
                     }}
                   >
                     {note.text}
                   </p>
-                  {note.emoji && (
-                    <div className="text-2xl lg:text-3xl xl:text-4xl flex-shrink-0 mt-2">
-                      {note.emoji}
-                    </div>
-                  )}
                 </div>
+                {note.emoji && (
+                  <div className="note-emoji flex-shrink-0 mt-3">
+                    {note.emoji}
+                  </div>
+                )}
                 {project?.show_timestamps && (
-                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-xs lg:text-sm text-gray-600 flex-shrink-0">
+                  <div className="wall-timestamp flex-shrink-0 text-gray-600 font-medium pt-2">
                     🕐 {formatShortTimestamp(note.created_at)}
                   </div>
                 )}
