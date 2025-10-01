@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authService } from '../services/authService'
+import { Button, Input } from '../components/ui'
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState('')
@@ -57,12 +58,13 @@ const ResetPasswordPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#F5E6D3] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 admin-layout">
       <div className="max-w-md w-full">
-        <div className="bg-white rounded-lg shadow-md p-8">
+        <div className="bg-white rounded-[24px] border-[3px] border-black shadow-lg p-10">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900">Set Your Password</h2>
-            <p className="mt-2 text-sm text-gray-600">
+            <div className="text-6xl mb-4">🔐</div>
+            <h2 className="text-4xl font-bold text-gray-900 admin-heading">Set Your Password</h2>
+            <p className="mt-3 text-base text-gray-600">
               Create a secure password for your account
             </p>
           </div>
@@ -80,46 +82,38 @@ const ResetPasswordPage = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                New Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="••••••••"
-                required
-                minLength={6}
-              />
-              <p className="text-xs text-gray-500 mt-1">Must be at least 6 characters</p>
-            </div>
+            <Input
+              id="password"
+              type="password"
+              label="New Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              helpText="Must be at least 6 characters"
+              required
+              minLength={6}
+            />
 
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                Confirm Password
-              </label>
-              <input
-                id="confirmPassword"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="••••••••"
-                required
-                minLength={6}
-              />
-            </div>
+            <Input
+              id="confirmPassword"
+              type="password"
+              label="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+              minLength={6}
+            />
 
-            <button
+            <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
+              variant="primary"
+              size="medium"
+              fullWidth
             >
               {loading ? 'Updating...' : 'Set Password'}
-            </button>
+            </Button>
           </form>
         </div>
       </div>

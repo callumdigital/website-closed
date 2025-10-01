@@ -148,8 +148,8 @@ export const renderFormField = (field, value, onChange, errors = {}, branding = 
   const fieldErrors = errors[field.id] || []
   const hasError = fieldErrors.length > 0
   
-  const baseClasses = `w-full px-3 py-2 border-2 border-black rounded-xl focus:outline-none focus:ring-0 ${
-    hasError ? 'border-red-500' : 'border-black'
+  const baseClasses = `w-full px-3 py-2.5 sm:px-4 sm:py-3 border-[3px] border-black rounded-[14px] focus:outline-none leading-normal text-sm sm:text-base ${
+    hasError ? 'border-red-500 bg-red-50' : 'border-black bg-[#F5E6D3]'
   }`
   
   const fieldProps = {
@@ -211,68 +211,63 @@ export const renderFormField = (field, value, onChange, errors = {}, branding = 
       const emojiOptions = ['😊', '😢', '😍', '🤔', '😌', '😂', '😮', '😴', '😡', '🥰']
       fieldElement = (
         <div>
-          <div className="flex flex-wrap gap-2 mb-2">
+          {/* Emoji input field */}
+          <div className="relative mb-2">
+            <input
+              type="text"
+              value={value || ''}
+              readOnly
+              placeholder="Type an emoji or select from below"
+              className="w-full px-3 py-2.5 sm:px-4 sm:py-3 border-[3px] border-black rounded-[14px] bg-[#F5E6D3] focus:outline-none text-center text-lg sm:text-xl"
+            />
+          </div>
+          {/* Emoji buttons */}
+          <div className="flex flex-wrap gap-1.5 sm:gap-2 justify-center">
             {emojiOptions.map((emoji, index) => (
               <button
                 key={index}
                 type="button"
                 onClick={() => onChange(field.id, emoji)}
-                className={`w-10 h-10 text-xl rounded-xl border-2 transition-colors ${
+                className={`w-10 h-10 sm:w-12 sm:h-12 text-xl sm:text-2xl rounded-[14px] border-[3px] transition-all hover:translate-y-[-2px] ${
                   value === emoji 
-                    ? 'border-black' 
-                    : 'border-black hover:bg-gray-100'
+                    ? 'border-black bg-[#F4C542]' 
+                    : 'border-black bg-white hover:bg-gray-50'
                 }`}
-                style={{
-                  backgroundColor: value === emoji ? (branding?.primaryColor || '#FCD34D') + '40' : 'transparent'
-                }}
               >
                 {emoji}
               </button>
             ))}
           </div>
-          <button
-            type="button"
-            onClick={() => onChange(field.id, '')}
-            className={`px-3 py-1 text-sm rounded-xl border-2 transition-colors ${
-              !value 
-                ? 'border-black' 
-                : 'border-black hover:bg-gray-100'
-            }`}
-            style={{
-              backgroundColor: !value ? (branding?.primaryColor || '#FCD34D') + '40' : 'transparent'
-            }}
-          >
-            None
-          </button>
         </div>
       )
       break
       
     case 'color':
       const colorOptions = [
-        { value: 'yellow', label: 'Yellow', class: 'bg-yellow-200 border-yellow-300' },
-        { value: 'blue', label: 'Blue', class: 'bg-blue-200 border-blue-300' },
-        { value: 'pink', label: 'Pink', class: 'bg-pink-200 border-pink-300' },
-        { value: 'green', label: 'Green', class: 'bg-green-200 border-green-300' },
-        { value: 'purple', label: 'Purple', class: 'bg-purple-200 border-purple-300' },
-        { value: 'orange', label: 'Orange', class: 'bg-orange-200 border-orange-300' },
-        { value: 'red', label: 'Red', class: 'bg-red-200 border-red-300' },
-        { value: 'indigo', label: 'Indigo', class: 'bg-indigo-200 border-indigo-300' }
+        { value: 'yellow', label: 'Yellow', bg: '#FFEAA7' },
+        { value: 'blue', label: 'Blue', bg: '#74B9FF' },
+        { value: 'pink', label: 'Pink', bg: '#FD79A8' },
+        { value: 'green', label: 'Green', bg: '#55EFC4' },
+        { value: 'purple', label: 'Purple', bg: '#A29BFE' },
+        { value: 'orange', label: 'Orange', bg: '#FDCB6E' },
+        { value: 'red', label: 'Red', bg: '#FF7675' },
+        { value: 'indigo', label: 'Indigo', bg: '#6C5CE7' }
       ]
       fieldElement = (
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {colorOptions.map((color, index) => (
             <button
               key={index}
               type="button"
               onClick={() => onChange(field.id, color.value)}
-              className={`aspect-square rounded-xl border-2 transition-colors ${color.class} ${
+              className={`h-12 sm:h-14 rounded-[14px] border-[3px] transition-all hover:translate-y-[-2px] flex items-center justify-center ${
                 value === color.value 
-                  ? 'border-black ring-2 ring-black ring-offset-1' 
-                  : 'border-black hover:opacity-80'
+                  ? 'border-black ring-4 ring-black ring-offset-2' 
+                  : 'border-black hover:border-gray-600'
               }`}
+              style={{ backgroundColor: color.bg }}
             >
-              <span className="text-xs font-medium text-gray-700">{color.label}</span>
+              <span className="text-xs sm:text-sm font-bold text-gray-900">{color.label}</span>
             </button>
           ))}
         </div>
@@ -289,19 +284,21 @@ export const renderFormField = (field, value, onChange, errors = {}, branding = 
   }
   
   return (
-    <div key={field.id}>
-      <label htmlFor={field.id} className="block text-sm font-medium text-gray-700 mb-2">
+    <div key={field.id} className="mb-4">
+      <label htmlFor={field.id} className="block text-sm sm:text-base font-bold text-gray-900 mb-1.5" style={{ letterSpacing: '0em' }}>
         {field.label}
         {field.required && <span className="text-red-500 ml-1">*</span>}
       </label>
-      {fieldElement}
-      {field.showCharacterCount && field.maxLength && (
-        <div className="text-right text-sm text-gray-500 mt-1">
-          {(value || '').length}/{field.maxLength}
-        </div>
-      )}
+      <div className="relative">
+        {fieldElement}
+        {field.showCharacterCount && field.maxLength && (field.type === 'textarea' || field.type === 'text') && (
+          <div className="absolute bottom-2 right-3 text-xs text-gray-500 pointer-events-none">
+            {(value || '').length}/{field.maxLength}
+          </div>
+        )}
+      </div>
       {fieldErrors.length > 0 && (
-        <div className="text-red-600 text-sm mt-1">
+        <div className="text-red-600 text-sm mt-2 font-bold">
           {fieldErrors.map((error, index) => (
             <div key={index}>{error}</div>
           ))}

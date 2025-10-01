@@ -5,6 +5,7 @@ import { projectUrlService } from '../services/projectUrlService'
 import { formService, renderFormField, generateFormData, validateForm } from '../services/formService.jsx'
 import { loadSingleFont } from '../services/brandingService.jsx'
 import Logo from '../components/Logo.jsx'
+import { Button } from '../components/ui'
 
 const FormPage = () => {
   const { projectId } = useParams()
@@ -136,23 +137,28 @@ const FormPage = () => {
   if (submitted) {
     return (
       <div 
-        className="min-h-screen flex items-center justify-center bg-gray-50"
-        style={{ fontFamily: 'Inter, sans-serif' }}
+        className="min-h-screen flex items-center justify-center p-4"
+        style={{ 
+          backgroundColor: project?.branding?.backgroundColor || '#F5E6D3',
+          fontFamily: fontToUse 
+        }}
       >
-        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
-          <div className="text-green-500 text-6xl mb-4">✓</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        <div className="max-w-md w-full bg-white rounded-[24px] border-[3px] border-black shadow-lg p-8 sm:p-10 text-center">
+          <div className="text-green-500 text-7xl mb-4">✓</div>
+          <h2 className="text-3xl font-bold text-gray-900 mb-3">
             {formConfig?.successTitle || 'Thank you!'}
           </h2>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-700 mb-6 text-base">
             {formConfig?.successMessage || 'Your submission has been received.'}
           </p>
-          <button 
+          <Button 
             onClick={() => setSubmitted(false)}
-            className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+            variant="primary"
+            size="medium"
+            fullWidth
           >
             Submit Another
-          </button>
+          </Button>
         </div>
       </div>
     )
@@ -186,57 +192,56 @@ const FormPage = () => {
     <div 
       className="min-h-screen flex flex-col"
       style={{
-        backgroundColor: project?.branding?.backgroundColor || '#F8FAFC',
+        backgroundColor: project?.branding?.backgroundColor || '#F5E6D3',
         fontFamily: fontToUse
       }}
     >
       <div 
-        className="flex-1 flex flex-col justify-center p-4 max-w-md mx-auto w-full"
+        className="flex-1 flex flex-col justify-center p-3 sm:p-6 max-w-lg mx-auto w-full py-4 sm:py-8"
         style={{
           fontFamily: fontToUse
         }}
       >
-        <div className="mb-6">
-          {/* Header Section - Same as DisplayBoard */}
-          <div className="flex items-center justify-between mb-6 px-4">
-            <div className="flex items-center" style={{ minWidth: '200px' }}>
-              <Logo width={80} height={80} />
-              <h1 
-                className="wall-title text-3xl lg:text-4xl xl:text-5xl font-bold ml-1 whitespace-nowrap"
-                style={{
-                  color: '#000000',
-                  fontFamily: 'Roboto Condensed, sans-serif !important',
-                  letterSpacing: '-0.02em'
-                }}
-              >
-                The Wall
-              </h1>
-              {project?.branding?.logoUrl && (
-                <>
-                  <div className="h-10 w-px bg-black mx-3"></div>
-                  <img 
-                    src={project.branding.logoUrl} 
-                    alt="Custom Logo" 
-                    className="h-12 w-auto"
-                    style={{ maxHeight: '48px' }}
-                  />
-                </>
-              )}
-            </div>
+        {/* Header Section - Compact */}
+        <div className="mb-4 sm:mb-6 text-center">
+          <div className="flex items-center justify-center gap-2 mb-3 sm:mb-4">
+            <Logo width={50} height={51} />
+            <h1 
+              className="wall-title text-2xl sm:text-3xl font-bold"
+              style={{
+                color: '#000000',
+                fontFamily: 'Roboto Condensed, sans-serif !important',
+                letterSpacing: '-0.02em'
+              }}
+            >
+              The Wall
+            </h1>
+            {project?.branding?.logoUrl && (
+              <>
+                <div className="h-10 w-px bg-black mx-2"></div>
+                <img 
+                  src={project.branding.logoUrl} 
+                  alt="Custom Logo" 
+                  className="h-10 w-auto"
+                  style={{ maxHeight: '50px' }}
+                />
+              </>
+            )}
           </div>
+          
           {project?.titleQuestion && (
             <div 
-              className="mt-3 p-4 border-2 border-black rounded-xl text-center"
+              className="p-3 sm:p-4 border-[3px] border-black rounded-[14px] bg-white"
               style={{ 
-                fontFamily: fontToUse,
-                backgroundColor: project?.branding?.secondaryColor ? `${project.branding.secondaryColor}20` : '#FCD34D20',
-                color: project?.branding?.headingColor || '#1E293B'
+                fontFamily: fontToUse
               }}
             >
               <h2 
-                className="text-lg lg:text-xl xl:text-2xl font-semibold"
+                className="text-lg sm:text-xl font-bold leading-tight"
                 style={{ 
-                  fontFamily: fontToUse
+                  fontFamily: fontToUse,
+                  color: project?.branding?.headingColor || '#000000',
+                  letterSpacing: '0em'
                 }}
               >
                 {project.titleQuestion}
@@ -245,45 +250,35 @@ const FormPage = () => {
           )}
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <div 
-              className="bg-red-50 border border-red-200 rounded-lg p-4"
-              style={{ fontFamily: fontToUse }}
+        <div className="bg-white rounded-[20px] border-[3px] border-black p-4 sm:p-6 shadow-lg">
+          <form onSubmit={handleSubmit}>
+            {error && (
+              <div 
+                className="bg-red-50 border-[3px] border-red-500 rounded-[14px] p-4"
+                style={{ fontFamily: fontToUse }}
+              >
+                <p className="text-red-700 text-sm font-bold">{error}</p>
+              </div>
+            )}
+            
+            {formConfig.fields.map((field) => 
+              renderFormField(field, formData[field.id], handleFieldChange, validationErrors, project?.branding)
+            )}
+
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              variant="primary"
+              size="large"
+              fullWidth
+              style={{
+                backgroundColor: project?.branding?.primaryColor || '#F4C542',
+                color: '#000000'
+              }}
             >
-              <p className="text-red-600 text-sm">{error}</p>
-            </div>
-          )}
-          
-          {formConfig.fields.map((field) => 
-            renderFormField(field, formData[field.id], handleFieldChange, validationErrors, project?.branding)
-          )}
-
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full py-3 px-4 rounded-xl font-medium border-2 border-black focus:outline-none focus:ring-0 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            style={{
-              backgroundColor: project?.branding?.primaryColor || '#FCD34D',
-              color: project?.branding?.backgroundColor === '#000000' ? '#FFFFFF' : '#000000',
-              fontFamily: fontToUse
-            }}
-          >
-            {isSubmitting ? 'Submitting...' : formConfig.buttonText}
-          </button>
-        </form>
-
-        <div 
-          className="mt-6 text-center"
-          style={{ fontFamily: fontToUse }}
-        >
-          <a 
-            href={projectInfo?.displayUrl || 'demo/display'}
-            className="text-blue-500 hover:text-blue-600 text-sm"
-            style={{ fontFamily: fontToUse }}
-          >
-            View The Wall →
-          </a>
+              {isSubmitting ? 'Submitting...' : (formConfig.buttonText || 'Submit')}
+            </Button>
+          </form>
         </div>
       </div>
       
