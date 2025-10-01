@@ -618,28 +618,28 @@ const AdminPage = ({ user, userProfile }) => {
     <div className="min-h-screen bg-gray-50">
       {/* Top Navigation */}
       <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               {/* Logo */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-lg">📝</span>
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">The Wall</h1>
-                  <p className="text-sm text-gray-600">Admin Panel</p>
+                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900">The Wall</h1>
+                  <p className="text-xs sm:text-sm text-gray-600">Admin Panel</p>
                 </div>
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
               {/* User info */}
-              <div className="flex items-center gap-3 px-4 py-2 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 bg-gray-50 rounded-lg border border-gray-200">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium text-sm">
                   {userProfile?.display_name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || '?'}
                 </div>
-                <div className="text-left">
+                <div className="text-left hidden sm:block">
                   <div className="text-sm font-medium text-gray-900">
                     {userProfile?.display_name || user?.email || 'User'}
                   </div>
@@ -673,8 +673,8 @@ const AdminPage = ({ user, userProfile }) => {
       </div>
 
       {/* Main Content Area */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
           {/* Projects Sidebar */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg border border-gray-200 p-6">
@@ -805,28 +805,28 @@ const AdminPage = ({ user, userProfile }) => {
                     </div>
                     
                     {/* Quick Actions */}
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <button
                         onClick={() => setShowBrandingEditor(true)}
-                        className="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
+                        className="px-3 py-2 text-xs sm:text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
                       >
                         🎨 Branding
                       </button>
                       <button
                         onClick={() => window.open(`${selectedProject.id}/display`, '_blank')}
-                        className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors text-sm"
+                        className="bg-green-500 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-green-600 transition-colors text-xs sm:text-sm"
                       >
                         👁️ View Wall
                       </button>
                       <button
                         onClick={() => window.open(`/${selectedProject.id}`, '_blank')}
-                        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm"
+                        className="bg-blue-500 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-xs sm:text-sm"
                       >
                         ✏️ Add Note
                       </button>
                       <button
                         onClick={handleOpenProjectSettings}
-                        className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors text-sm"
+                        className="bg-gray-500 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors text-xs sm:text-sm"
                       >
                         ⚙️ Settings
                       </button>
