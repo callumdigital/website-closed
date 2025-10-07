@@ -535,12 +535,7 @@ const DisplayBoard = () => {
         }}
       >
         {/* Header Section - Optimized for large screens */}
-        <div 
-          className="header-section flex items-center justify-between mb-6 lg:mb-8 xl:mb-10"
-          style={{
-            paddingRight: project?.branding?.sidebar?.enabled ? `${project.branding.sidebar.width || '300px'}` : '0'
-          }}
-        >
+        <div className="header-section flex items-center justify-between mb-6 lg:mb-8 xl:mb-10">
           <div className="flex items-center">
             <Logo width={60} height={61} className="lg:w-20 lg:h-20 xl:w-24 xl:h-24" />
             <h1 
@@ -570,7 +565,7 @@ const DisplayBoard = () => {
               style={{
                 fontFamily: fontToUse,
                 backgroundColor: project?.branding?.questionBackgroundColor || '#F4C542',
-                maxWidth: project?.branding?.sidebar?.enabled ? 'calc(100% - 2rem)' : 'none'
+                marginRight: project?.branding?.sidebar?.enabled ? `${project.branding.sidebar.width || '300px'}` : '0'
               }}
             >
               <h2 
