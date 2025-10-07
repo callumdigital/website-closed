@@ -205,3 +205,21 @@ body {
     -ms-transition: all 0.15s ease;
     -moz-transition: all 0.15s ease;
 }
+
+/* Focus accessibility improvements */
+.focus-visible:focus-visible {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}
+
+/* Ensure interactive elements have proper focus states */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}

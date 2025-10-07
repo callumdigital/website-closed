@@ -9,6 +9,8 @@ export const DEFAULT_BRANDING = {
   fontFamily: 'Inter',
   customFontFamily: '',
   headingColor: '#1E293B',
+  questionBackgroundColor: '#F4C542',
+  questionTextColor: '#000000',
   noteColors: ['yellow', 'blue', 'pink', 'green', 'purple'],
   noteBorderRadius: '12px',
   noteShadow: 'medium',

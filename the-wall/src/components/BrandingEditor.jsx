@@ -197,6 +197,51 @@ const BrandingEditor = ({ project, onSave, onCancel, isInline = false }) => {
               </div>
             </div>
 
+            {/* Question/Title Colors */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-base font-bold text-gray-900 mb-2">
+                  Question Background Color
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={branding.questionBackgroundColor || '#F4C542'}
+                    onChange={(e) => updateBranding('questionBackgroundColor', e.target.value)}
+                    className="w-14 h-12 border-[3px] border-black rounded-[14px] cursor-pointer bg-gray-50"
+                  />
+                  <input
+                    type="text"
+                    value={branding.questionBackgroundColor || '#F4C542'}
+                    onChange={(e) => updateBranding('questionBackgroundColor', e.target.value)}
+                    className="flex-1 px-4 py-3 border-[3px] border-black rounded-[14px] focus:outline-none bg-gray-50 font-mono text-sm"
+                    placeholder="#F4C542"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-base font-bold text-gray-900 mb-2">
+                  Question Text Color
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={branding.questionTextColor || '#000000'}
+                    onChange={(e) => updateBranding('questionTextColor', e.target.value)}
+                    className="w-14 h-12 border-[3px] border-black rounded-[14px] cursor-pointer bg-gray-50"
+                  />
+                  <input
+                    type="text"
+                    value={branding.questionTextColor || '#000000'}
+                    onChange={(e) => updateBranding('questionTextColor', e.target.value)}
+                    className="flex-1 px-4 py-3 border-[3px] border-black rounded-[14px] focus:outline-none bg-gray-50 font-mono text-sm"
+                    placeholder="#000000"
+                  />
+                </div>
+              </div>
+            </div>
+
             {/* Font Family */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -327,6 +372,22 @@ const BrandingEditor = ({ project, onSave, onCancel, isInline = false }) => {
                 Sample Form
               </h4>
               <p className="text-sm text-gray-600 mb-4">Share your thoughts and ideas</p>
+              
+              {/* Question Preview */}
+              {titleQuestion && (
+                <div 
+                  className="mb-4 px-4 py-2 rounded-[20px] border-[3px] border-black"
+                  style={{
+                    backgroundColor: branding.questionBackgroundColor || '#F4C542',
+                    color: branding.questionTextColor || '#000000'
+                  }}
+                >
+                  <h5 className="font-bold text-sm">
+                    {titleQuestion}
+                  </h5>
+                </div>
+              )}
+              
               <div 
                 className="px-6 py-3 rounded-[14px] text-sm font-bold border-[3px] border-black"
                 style={{ 

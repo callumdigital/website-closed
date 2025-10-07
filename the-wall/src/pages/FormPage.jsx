@@ -134,6 +134,14 @@ const FormPage = () => {
     }
   }
 
+  // Determine the font to use - simple approach
+  let fontToUse = 'Inter, sans-serif'
+  if (project?.branding?.customFontFamily) {
+    fontToUse = project.branding.customFontFamily
+  } else if (project?.branding?.fontFamily) {
+    fontToUse = project.branding.fontFamily
+  }
+
   if (submitted) {
     return (
       <div 
@@ -175,14 +183,6 @@ const FormPage = () => {
         </div>
       </div>
     )
-  }
-
-  // Determine the font to use - simple approach
-  let fontToUse = 'Inter, sans-serif'
-  if (project?.branding?.customFontFamily) {
-    fontToUse = project.branding.customFontFamily
-  } else if (project?.branding?.fontFamily) {
-    fontToUse = project.branding.fontFamily
   }
 
   console.log('🎨 Using font:', fontToUse)
@@ -231,16 +231,17 @@ const FormPage = () => {
           
           {project?.titleQuestion && (
             <div 
-              className="p-3 sm:p-4 border-[3px] border-black rounded-[14px] bg-white"
+              className="p-3 sm:p-4 border-[3px] border-black rounded-[14px]"
               style={{ 
-                fontFamily: fontToUse
+                fontFamily: fontToUse,
+                backgroundColor: project?.branding?.questionBackgroundColor || '#F4C542'
               }}
             >
               <h2 
                 className="text-lg sm:text-xl font-bold leading-tight"
                 style={{ 
                   fontFamily: fontToUse,
-                  color: project?.branding?.headingColor || '#000000',
+                  color: project?.branding?.questionTextColor || '#000000',
                   letterSpacing: '0em'
                 }}
               >

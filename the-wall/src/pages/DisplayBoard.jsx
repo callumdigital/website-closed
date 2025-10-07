@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { noteService, projectService, realtimeService } from '../services/supabaseClient.jsx'
 import { getNoteColorClasses, loadSingleFont, VIBRANT_NOTE_COLORS } from '../services/brandingService.jsx'
 import Logo from '../components/Logo.jsx'
+import QRCode from '../components/QRCode.jsx'
 
 // Utility function to format timestamps in short format for display
 const formatShortTimestamp = (timestamp) => {
@@ -63,6 +64,7 @@ const DisplayBoard = () => {
   const [loading, setLoading] = useState(true)
   const [project, setProject] = useState(null)
   const [fontLoaded, setFontLoaded] = useState(false)
+  const [qrSize, setQrSize] = useState(120)
 
   useEffect(() => {
     const loadData = async () => {
@@ -167,6 +169,27 @@ const DisplayBoard = () => {
       }
     }
     loadRobotoCondensed()
+  }, [])
+
+  // Calculate QR code size based on screen size
+  useEffect(() => {
+    const calculateQrSize = () => {
+      const width = window.innerWidth
+      let size = 120 // Default size
+      
+      if (width >= 1920) size = 250      // Full HD - bigger
+      else if (width >= 1440) size = 220  // Large desktop - bigger
+      else if (width >= 1024) size = 180  // Desktop - bigger
+      else if (width >= 768) size = 140   // Tablet
+      else size = 120                     // Mobile
+      
+      setQrSize(size)
+    }
+
+    calculateQrSize()
+    window.addEventListener('resize', calculateQrSize)
+    
+    return () => window.removeEventListener('resize', calculateQrSize)
   }, [])
 
   // Reapply fonts when project data changes
@@ -288,7 +311,7 @@ const DisplayBoard = () => {
             padding: 2rem;
           }
           .wall-title {
-            font-size: 4rem !important;
+            font-size: 3.5rem !important;
             line-height: 1.1;
           }
           .wall-card-text {
@@ -300,6 +323,20 @@ const DisplayBoard = () => {
         /* 2K/QHD (2560x1440) - Large monitors */
         @media (min-width: 2560px) {
           .wall-container {
+            padding: 2.5rem;
+          }
+          .wall-title {
+            font-size: 4rem !important;
+          }
+          .wall-card-text {
+            font-size: 1.25rem;
+            line-height: 1.3;
+          }
+        }
+        
+        /* 4K UHD (3840x2160) - 55" TVs, Large displays */
+        @media (min-width: 3840px) {
+          .wall-container {
             padding: 3rem;
           }
           .wall-title {
@@ -307,12 +344,15 @@ const DisplayBoard = () => {
           }
           .wall-card-text {
             font-size: 1.5rem;
-            line-height: 1.3;
+            line-height: 1.4;
+          }
+          .note-emoji {
+            font-size: 3rem !important;
           }
         }
         
-        /* 4K UHD (3840x2160) - 55" TVs, Large displays */
-        @media (min-width: 3840px) {
+        /* 8K (7680x4320) - Ultra large displays */
+        @media (min-width: 7680px) {
           .wall-container {
             padding: 4rem;
           }
@@ -325,23 +365,6 @@ const DisplayBoard = () => {
           }
           .note-emoji {
             font-size: 4rem !important;
-          }
-        }
-        
-        /* 8K (7680x4320) - Ultra large displays */
-        @media (min-width: 7680px) {
-          .wall-container {
-            padding: 6rem;
-          }
-          .wall-title {
-            font-size: 10rem !important;
-          }
-          .wall-card-text {
-            font-size: 3rem;
-            line-height: 1.4;
-          }
-          .note-emoji {
-            font-size: 6rem !important;
           }
         }
       `}</style>
@@ -389,16 +412,17 @@ const DisplayBoard = () => {
           </div>
           {project?.titleQuestion && (
             <div 
-              className="text-right max-w-md lg:max-w-lg xl:max-w-2xl px-4 py-2 lg:px-6 lg:py-3 xl:px-8 xl:py-4 bg-[#F4C542] border-[3px] border-black rounded-[20px] shadow-md"
+              className="text-right px-4 py-2 lg:px-6 lg:py-3 xl:px-8 xl:py-4 border-[3px] border-black rounded-[20px] shadow-md"
               style={{
-                fontFamily: fontToUse
+                fontFamily: fontToUse,
+                backgroundColor: project?.branding?.questionBackgroundColor || '#F4C542'
               }}
             >
               <h2 
-                className="wall-question-title font-bold leading-tight"
+                className="wall-question-title font-bold leading-tight whitespace-nowrap"
                 style={{
                   fontFamily: fontToUse,
-                  color: project?.branding?.headingColor || '#000000'
+                  color: project?.branding?.questionTextColor || '#000000'
                 }}
               >
                 {project.titleQuestion}
@@ -471,6 +495,22 @@ const DisplayBoard = () => {
           </div>
         )}
       </div>
+      
+      {/* QR Code - Fixed to bottom right */}
+      {projectId && (
+        <div className="fixed bottom-4 right-4 z-10">
+          <div className="text-center">
+            <QRCode 
+              url={`${window.location.origin}/form/${projectId}`}
+              size={qrSize}
+              className="hover:scale-105 transition-transform duration-200 mb-2"
+            />
+            <div className="text-xs sm:text-sm text-gray-600 font-bold bg-white px-2 py-1 sm:px-3 sm:py-2 rounded border border-gray-300 shadow-sm">
+              Scan to add note
+            </div>
+          </div>
+        </div>
+      )}
     </div>
     </>
   )

@@ -1,17 +1,17 @@
 import React from 'react';
 
-const Button = ({ 
-  children, 
-  variant = 'primary', 
+const Button = ({
+  children,
+  variant = 'primary',
   size = 'medium',
-  onClick, 
+  onClick,
   disabled = false,
   type = 'button',
   className = '',
   fullWidth = false,
-  ...props 
+  ...props
 }) => {
-  const baseClasses = 'inline-flex items-center justify-center text-center transition-all duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed font-bold';
+  const baseClasses = 'inline-flex items-center justify-center text-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed font-bold';
   
   const variants = {
     primary: 'bg-[#F4C542] text-black hover:bg-[#E5B73B] border-[3px] border-black',
@@ -24,9 +24,10 @@ const Button = ({
   };
   
   const sizes = {
-    small: 'px-3 py-2 text-sm rounded-[14px]',
-    medium: 'px-4 py-3 text-base rounded-[14px]',
-    large: 'px-6 py-4 text-lg rounded-[14px]',
+    small: 'px-3 py-2 text-sm rounded-[18px]',
+    medium: 'px-4 py-3 text-base rounded-[18px]',
+    large: 'px-6 py-4 text-lg rounded-[18px]',
+    compact: 'px-3 py-2 text-sm rounded-[18px]', // For "Back to work" style buttons
   };
   
   const widthClass = fullWidth ? 'w-full' : '';

@@ -19,10 +19,10 @@ const Input = ({
   ...props 
 }) => {
   const inputClasses = `
-    w-full px-4 py-3 border-[3px] rounded-[14px] transition-colors duration-200 leading-normal
-    focus:outline-none focus:border-black
+    w-full px-4 py-3 border-[3px] rounded-[18px] transition-colors duration-200 leading-normal
+    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500
     disabled:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50
-    ${error ? 'border-red-500 focus:border-red-500 bg-red-50' : 'border-black bg-[#F5E6D3]'}
+    ${error ? 'border-red-500 focus-visible:ring-red-500 bg-red-50' : 'border-black bg-[#F5E6D3]'}
     ${className}
   `;
   

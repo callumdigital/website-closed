@@ -454,8 +454,9 @@ const AdminPage = ({ user, userProfile }) => {
 
     try {
       await noteService.removeNote(noteId)
-      setNotes(prev => prev.filter(note => note.id !== noteId))
-      updateStats(notes.filter(note => note.id !== noteId))
+      const updatedNotes = notes.filter(note => note.id !== noteId)
+      setNotes(updatedNotes)
+      updateStats(updatedNotes)
       console.log('✅ Note removed successfully')
     } catch (error) {
       console.error('❌ Error removing note:', error)
@@ -1112,6 +1113,22 @@ const AdminPage = ({ user, userProfile }) => {
                   <h2 className="text-2xl font-bold text-gray-900 admin-heading mb-6">
                     Form Builder
                   </h2>
+                  
+                  <div className="bg-blue-50 border-[3px] border-blue-200 rounded-[14px] p-4 mb-6">
+                    <div className="flex items-start gap-3">
+                      <div className="text-blue-500 text-xl">💡</div>
+                      <div>
+                        <h3 className="text-sm font-bold text-blue-900 mb-1">Form Builder Tips</h3>
+                        <ul className="text-xs text-blue-800 space-y-1">
+                          <li>• <strong>Text/Textarea:</strong> Required for note content - at least one text field is needed</li>
+                          <li>• <strong>Emoji:</strong> Optional emoji selector for notes</li>
+                          <li>• <strong>Color:</strong> Optional color picker (uses your branding colors)</li>
+                          <li>• <strong>Email/Select:</strong> Additional form fields for data collection</li>
+                          <li>• You can remove the default "main-note" field and create your own text fields</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
 
                   {/* Form Field Builder */}
                   <div className="bg-white rounded-[14px] border-[3px] border-black p-6 mb-6">
@@ -1141,6 +1158,18 @@ const AdminPage = ({ user, userProfile }) => {
                           className="px-3 py-2 bg-orange-500 text-white text-sm rounded-[14px] hover:bg-orange-600 border-[3px] border-black font-bold transition-all hover:translate-y-[-2px]"
                         >
                           + Select
+                        </button>
+                        <button
+                          onClick={() => addFormField('emoji')}
+                          className="px-3 py-2 bg-pink-500 text-white text-sm rounded-[14px] hover:bg-pink-600 border-[3px] border-black font-bold transition-all hover:translate-y-[-2px]"
+                        >
+                          + Emoji
+                        </button>
+                        <button
+                          onClick={() => addFormField('color')}
+                          className="px-3 py-2 bg-indigo-500 text-white text-sm rounded-[14px] hover:bg-indigo-600 border-[3px] border-black font-bold transition-all hover:translate-y-[-2px]"
+                        >
+                          + Color
                         </button>
                       </div>
                     </div>
@@ -1188,38 +1217,97 @@ const AdminPage = ({ user, userProfile }) => {
                                   />
                                 </div>
                               )}
-                              {(field.type === 'text' || field.type === 'textarea') && (
-                                <div className="flex items-center gap-4 mb-2">
-                                  <label className="flex items-center gap-2">
-                                    <input
-                                      type="checkbox"
-                                      checked={field.required}
-                                      onChange={(e) => updateFormField(field.id, { required: e.target.checked })}
-                                      className="h-4 w-4"
+                              {field.type === 'emoji' && (
+                                <div className="mb-2">
+                                  <div className="flex items-center gap-4 mb-2">
+                                    <label className="flex items-center gap-2">
+                                      <input
+                                        type="checkbox"
+                                        checked={field.required}
+                                        onChange={(e) => updateFormField(field.id, { required: e.target.checked })}
+                                        className="h-4 w-4"
+                                      />
+                                      <span className="text-sm text-gray-700 font-bold">Required</span>
+                                    </label>
+                                    <label className="flex items-center gap-2">
+                                      <input
+                                        type="checkbox"
+                                        checked={field.allowCustomEmoji !== false}
+                                        onChange={(e) => updateFormField(field.id, { allowCustomEmoji: e.target.checked })}
+                                        className="h-4 w-4"
+                                      />
+                                      <span className="text-sm text-gray-700 font-bold">Allow custom emojis</span>
+                                    </label>
+                                  </div>
+                                  <div className="mb-2">
+                                    <label className="block text-xs text-gray-700 font-bold mb-1">Available Emojis (one per line)</label>
+                                    <textarea
+                                      value={field.emojis?.join('\n') || '😀\n😊\n😍\n🤔\n😢\n😡\n🎉\n❤️\n👍\n👎'}
+                                      onChange={(e) => updateFormField(field.id, { 
+                                        emojis: e.target.value.split('\n').filter(emoji => emoji.trim()) 
+                                      })}
+                                      className="w-full px-4 py-3 border-[3px] border-black rounded-[14px] bg-gray-50 text-sm resize-none focus:outline-none"
+                                      rows={4}
+                                      placeholder="😀&#10;😊&#10;😍&#10;🤔&#10;😢"
                                     />
-                                    <span className="text-sm text-gray-700 font-bold">Required</span>
-                                  </label>
-                                  <label className="flex items-center gap-2">
-                                    <input
-                                      type="checkbox"
-                                      checked={field.showCharacterCount}
-                                      onChange={(e) => updateFormField(field.id, { showCharacterCount: e.target.checked })}
-                                      className="h-4 w-4"
-                                    />
-                                    <span className="text-sm text-gray-700 font-bold">Show count</span>
-                                  </label>
+                                    <span className="text-xs text-gray-500 italic">
+                                      {field.allowCustomEmoji !== false 
+                                        ? 'Users can select from these emojis or type their own' 
+                                        : 'Users can only select from these emojis'}
+                                    </span>
+                                  </div>
                                 </div>
                               )}
-                              {field.maxLength && (
-                                <Input
-                                  type="number"
-                                  value={field.maxLength}
-                                  onChange={(e) => updateFormField(field.id, { maxLength: parseInt(e.target.value) || 280 })}
-                                  placeholder="Max length"
-                                  className="w-32"
-                                  min="1"
-                                  max="1000"
-                                />
+                              {field.type === 'color' && (
+                                <div className="mb-2">
+                                  <div className="flex items-center gap-4 mb-2">
+                                    <label className="flex items-center gap-2">
+                                      <input
+                                        type="checkbox"
+                                        checked={field.required}
+                                        onChange={(e) => updateFormField(field.id, { required: e.target.checked })}
+                                        className="h-4 w-4"
+                                      />
+                                      <span className="text-sm text-gray-700 font-bold">Required</span>
+                                    </label>
+                                  </div>
+                                  <span className="text-xs text-gray-500 italic">Users can select from the note colors configured in branding settings</span>
+                                </div>
+                              )}
+                              {(field.type === 'text' || field.type === 'textarea') && (
+                                <div className="mb-2">
+                                  <div className="flex items-center gap-4 mb-2">
+                                    <label className="flex items-center gap-2">
+                                      <input
+                                        type="checkbox"
+                                        checked={field.required}
+                                        onChange={(e) => updateFormField(field.id, { required: e.target.checked })}
+                                        className="h-4 w-4"
+                                      />
+                                      <span className="text-sm text-gray-700 font-bold">Required</span>
+                                    </label>
+                                    <label className="flex items-center gap-2">
+                                      <input
+                                        type="checkbox"
+                                        checked={field.showCharacterCount}
+                                        onChange={(e) => updateFormField(field.id, { showCharacterCount: e.target.checked })}
+                                        className="h-4 w-4"
+                                      />
+                                      <span className="text-sm text-gray-700 font-bold">Show count</span>
+                                    </label>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <label className="text-xs text-gray-700 font-bold">Max Length:</label>
+                                    <input
+                                      type="number"
+                                      value={field.maxLength || (field.type === 'textarea' ? 280 : 100)}
+                                      onChange={(e) => updateFormField(field.id, { maxLength: parseInt(e.target.value) || (field.type === 'textarea' ? 280 : 100) })}
+                                      className="w-20 px-2 py-1 text-sm border-[2px] border-black rounded bg-gray-50"
+                                      min="1"
+                                      max="1000"
+                                    />
+                                  </div>
+                                </div>
                               )}
                             </div>
                             <div className="flex flex-col gap-1 ml-2">
@@ -1515,6 +1603,18 @@ const AdminPage = ({ user, userProfile }) => {
                       className="px-3 py-1 bg-orange-500 text-white text-xs rounded hover:bg-orange-600"
                     >
                       + Select
+                    </button>
+                    <button
+                      onClick={() => addFormField('emoji')}
+                      className="px-3 py-1 bg-pink-500 text-white text-xs rounded hover:bg-pink-600"
+                    >
+                      + Emoji
+                    </button>
+                    <button
+                      onClick={() => addFormField('color')}
+                      className="px-3 py-1 bg-indigo-500 text-white text-xs rounded hover:bg-indigo-600"
+                    >
+                      + Color
                     </button>
                   </div>
                 </div>

@@ -41,6 +41,8 @@ export const FIELD_TYPES = {
   emoji: {
     type: 'emoji',
     label: 'Choose an Emoji',
+    emojis: ['😀', '😊', '😍', '🤔', '😢', '😡', '🎉', '❤️', '👍', '👎'],
+    allowCustomEmoji: true,
     validation: {
       required: false
     }
@@ -48,7 +50,7 @@ export const FIELD_TYPES = {
   color: {
     type: 'color',
     label: 'Choose a Color',
-    options: ['yellow', 'blue', 'pink', 'green', 'purple', 'orange', 'red', 'indigo'],
+    options: ['yellow', 'blue', 'pink', 'green', 'purple', 'orange', 'red', 'indigo'], // Default options, will be filtered by branding
     validation: {
       required: false
     }
@@ -208,19 +210,22 @@ export const renderFormField = (field, value, onChange, errors = {}, branding = 
       break
       
     case 'emoji':
-      const emojiOptions = ['😊', '😢', '😍', '🤔', '😌', '😂', '😮', '😴', '😡', '🥰']
+      const emojiOptions = field.emojis || ['😊', '😢', '😍', '🤔', '😌', '😂', '😮', '😴', '😡', '🥰']
+      const allowCustomEmoji = field.allowCustomEmoji !== false // Default to true
       fieldElement = (
         <div>
-          {/* Emoji input field */}
-          <div className="relative mb-2">
-            <input
-              type="text"
-              value={value || ''}
-              readOnly
-              placeholder="Type an emoji or select from below"
-              className="w-full px-3 py-2.5 sm:px-4 sm:py-3 border-[3px] border-black rounded-[14px] bg-[#F5E6D3] focus:outline-none text-center text-lg sm:text-xl"
-            />
-          </div>
+          {/* Emoji input field - only show if custom emojis are allowed */}
+          {allowCustomEmoji && (
+            <div className="relative mb-2">
+              <input
+                type="text"
+                value={value || ''}
+                onChange={(e) => onChange(field.id, e.target.value)}
+                placeholder="Type an emoji or select from below"
+                className="w-full px-3 py-2.5 sm:px-4 sm:py-3 border-[3px] border-black rounded-[14px] bg-[#F5E6D3] focus:outline-none text-center text-lg sm:text-xl"
+              />
+            </div>
+          )}
           {/* Emoji buttons */}
           <div className="flex flex-wrap gap-1.5 sm:gap-2 justify-center">
             {emojiOptions.map((emoji, index) => (
@@ -243,7 +248,9 @@ export const renderFormField = (field, value, onChange, errors = {}, branding = 
       break
       
     case 'color':
-      const colorOptions = [
+      // Use note colors from branding configuration, fallback to default colors
+      const availableColors = branding?.noteColors || ['yellow', 'blue', 'pink', 'green', 'purple', 'orange', 'red', 'indigo']
+      const allColorOptions = [
         { value: 'yellow', label: 'Yellow', bg: '#FFEAA7' },
         { value: 'blue', label: 'Blue', bg: '#74B9FF' },
         { value: 'pink', label: 'Pink', bg: '#FD79A8' },
@@ -253,6 +260,7 @@ export const renderFormField = (field, value, onChange, errors = {}, branding = 
         { value: 'red', label: 'Red', bg: '#FF7675' },
         { value: 'indigo', label: 'Indigo', bg: '#6C5CE7' }
       ]
+      const colorOptions = allColorOptions.filter(color => availableColors.includes(color.value))
       fieldElement = (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {colorOptions.map((color, index) => (
@@ -342,20 +350,28 @@ export const formService = {
         throw new Error('Form validation failed')
       }
       
-      // Prepare note data - use main note text and separate emoji/color
-      const mainNoteField = formConfig.fields.find(f => f.id === 'main-note')
+      // Prepare note data - find any text field for the note content
+      const textFields = formConfig.fields.filter(f => f.type === 'textarea' || f.type === 'text')
+      const mainNoteField = formConfig.fields.find(f => f.id === 'main-note') || textFields[0]
       const noteText = formData[mainNoteField?.id] || ''
       
-      if (!noteText.trim()) {
+      // If no text field exists, create a default note
+      if (!noteText.trim() && textFields.length === 0) {
+        throw new Error('At least one text field is required for note submission')
+      }
+      
+      if (!noteText.trim() && textFields.length > 0) {
         throw new Error('Note text is required')
       }
       
-      // Get emoji and color from form data
-      const emoji = formData.emoji || ''
-      const color = formData.color || ['yellow', 'blue', 'green', 'pink', 'purple', 'orange'][Math.floor(Math.random() * 6)]
-      
       // Get project settings for auto-approval
       const project = await projectService.getProject(projectId)
+      
+      // Get emoji and color from form data
+      const emoji = formData.emoji || ''
+      // Use available colors from project branding for random selection
+      const availableColors = project?.branding?.noteColors || ['yellow', 'blue', 'green', 'pink', 'purple', 'orange']
+      const color = formData.color || availableColors[Math.floor(Math.random() * availableColors.length)]
       const projectSettings = {
         auto_approve: project.auto_approve || false
       }
