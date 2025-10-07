@@ -430,6 +430,11 @@ const DisplayBoard = () => {
           right: 0 !important;
         }
         
+        /* Ensure main container doesn't extend under sidebar */
+        .wall-container {
+          box-sizing: border-box !important;
+        }
+        
         /* Make title question bigger than logo on all screen sizes */
         .wall-question-title {
           font-size: 1.5rem !important;
@@ -459,6 +464,12 @@ const DisplayBoard = () => {
           word-wrap: break-word !important;
           overflow-wrap: break-word !important;
           hyphens: auto !important;
+        }
+        
+        /* Ensure question banner doesn't extend beyond container */
+        .header-section {
+          max-width: 100% !important;
+          overflow: hidden !important;
         }
         
         /* Large screen scaling for sidebar and banner */
@@ -527,6 +538,13 @@ const DisplayBoard = () => {
           ? `calc(${project.branding.banner.height || '60px'} + 1rem)`
           : undefined
       }}
+      onLoad={() => {
+        console.log('🔍 Wall container loaded - Sidebar enabled:', project?.branding?.sidebar?.enabled)
+        console.log('🔍 Sidebar width:', project?.branding?.sidebar?.width || '300px')
+        console.log('🔍 Container width should be:', project?.branding?.sidebar?.enabled 
+          ? `calc(100vw - ${project.branding.sidebar.width || '300px'})` 
+          : '100vw')
+      }}
     >
       <div 
         className="w-full"
@@ -565,7 +583,7 @@ const DisplayBoard = () => {
               style={{
                 fontFamily: fontToUse,
                 backgroundColor: project?.branding?.questionBackgroundColor || '#F4C542',
-                marginRight: project?.branding?.sidebar?.enabled ? `${project.branding.sidebar.width || '300px'}` : '0'
+                marginRight: project?.branding?.sidebar?.enabled ? '1rem' : '0'
               }}
             >
               <h2 
