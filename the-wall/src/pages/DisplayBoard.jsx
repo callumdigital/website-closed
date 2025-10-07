@@ -4,6 +4,8 @@ import { noteService, projectService, realtimeService } from '../services/supaba
 import { getNoteColorClasses, loadSingleFont, VIBRANT_NOTE_COLORS } from '../services/brandingService.jsx'
 import Logo from '../components/Logo.jsx'
 import QRCode from '../components/QRCode.jsx'
+import Sidebar from '../components/Sidebar.jsx'
+import Banner from '../components/Banner.jsx'
 
 // Utility function to format timestamps in short format for display
 const formatShortTimestamp = (timestamp) => {
@@ -126,10 +128,11 @@ const DisplayBoard = () => {
   useEffect(() => {
     if (!projectId) return
 
-    console.log('🔴 Setting up realtime subscription for project:', projectId)
+    console.log('🔴 Setting up realtime subscriptions for project:', projectId)
     
-    const subscription = realtimeService.subscribeToNotes(projectId, (payload) => {
-      console.log('🔴 Realtime event received:', payload)
+    // Subscribe to notes changes
+    const notesSubscription = realtimeService.subscribeToNotes(projectId, (payload) => {
+      console.log('🔴 Notes realtime event received:', payload)
       
       if (payload.eventType === 'INSERT' && payload.new) {
         // Only show approved notes on the wall
@@ -148,10 +151,23 @@ const DisplayBoard = () => {
       }
     })
 
+    // Subscribe to project changes (for banner updates, etc.)
+    const projectSubscription = realtimeService.subscribeToProject(projectId, (payload) => {
+      console.log('🔴 Project realtime event received:', payload)
+      
+      if (payload.eventType === 'UPDATE' && payload.new) {
+        console.log('🔄 Project updated, refreshing project data:', payload.new)
+        setProject(payload.new)
+      }
+    })
+
     return () => {
-      console.log('🔴 Cleaning up realtime subscription')
-      if (subscription) {
-        realtimeService.unsubscribe(subscription)
+      console.log('🔴 Cleaning up realtime subscriptions')
+      if (notesSubscription) {
+        realtimeService.unsubscribe(notesSubscription)
+      }
+      if (projectSubscription) {
+        realtimeService.unsubscribe(projectSubscription)
       }
     }
   }, [projectId])
@@ -175,13 +191,17 @@ const DisplayBoard = () => {
   useEffect(() => {
     const calculateQrSize = () => {
       const width = window.innerWidth
+      const height = window.innerHeight
       let size = 120 // Default size
       
-      if (width >= 1920) size = 250      // Full HD - bigger
-      else if (width >= 1440) size = 220  // Large desktop - bigger
-      else if (width >= 1024) size = 180  // Desktop - bigger
-      else if (width >= 768) size = 140   // Tablet
-      else size = 120                     // Mobile
+      if (width >= 7680) size = Math.min(400, height * 0.15)      // 8K - cap at 15% of screen height
+      else if (width >= 3840) size = Math.min(350, height * 0.12) // 4K - cap at 12% of screen height
+      else if (width >= 2560) size = Math.min(300, height * 0.1)  // 2K - cap at 10% of screen height
+      else if (width >= 1920) size = 250      // Full HD - bigger
+      else if (width >= 1440) size = 220      // Large desktop - bigger
+      else if (width >= 1024) size = 180      // Desktop - bigger
+      else if (width >= 768) size = 140       // Tablet
+      else size = 120                         // Mobile
       
       setQrSize(size)
     }
@@ -276,11 +296,17 @@ const DisplayBoard = () => {
 
   console.log('🎨 Using font:', fontToUse)
   console.log('🎨 Project branding:', project?.branding)
+  console.log('🎨 Banner config:', project?.branding?.banner)
+  console.log('🎨 Banner height:', project?.branding?.banner?.height)
+  console.log('🎨 Banner position:', project?.branding?.banner?.position)
 
   return (
     <>
       {/* Large screen optimization styles */}
       <style jsx>{`
+        body {
+          overflow-x: hidden;
+        }
         .wall-card {
           display: flex;
           align-items: center;
@@ -314,8 +340,13 @@ const DisplayBoard = () => {
             font-size: 3.5rem !important;
             line-height: 1.1;
           }
+          .wall-question-title {
+            font-size: 2rem !important;
+            line-height: 1.1;
+          }
           .wall-card-text {
-            font-size: 1.125rem;
+            font-size: 1.25rem;
+            font-weight: bold;
             line-height: 1.3;
           }
         }
@@ -328,8 +359,13 @@ const DisplayBoard = () => {
           .wall-title {
             font-size: 4rem !important;
           }
+          .wall-question-title {
+            font-size: 2.5rem !important;
+            line-height: 1.1;
+          }
           .wall-card-text {
-            font-size: 1.25rem;
+            font-size: 1.375rem;
+            font-weight: bold;
             line-height: 1.3;
           }
         }
@@ -342,8 +378,13 @@ const DisplayBoard = () => {
           .wall-title {
             font-size: 5rem !important;
           }
+          .wall-question-title {
+            font-size: 3.5rem !important;
+            line-height: 1.1;
+          }
           .wall-card-text {
-            font-size: 1.5rem;
+            font-size: 1.75rem;
+            font-weight: bold;
             line-height: 1.4;
           }
           .note-emoji {
@@ -359,24 +400,132 @@ const DisplayBoard = () => {
           .wall-title {
             font-size: 7rem !important;
           }
+          .wall-question-title {
+            font-size: 5rem !important;
+            line-height: 1.1;
+          }
           .wall-card-text {
-            font-size: 2rem;
+            font-size: 2.25rem;
+            font-weight: bold;
             line-height: 1.4;
           }
           .note-emoji {
             font-size: 4rem !important;
           }
         }
+        
+        /* Marquee animation */
+        @keyframes marquee {
+          0% { transform: translateX(0%); }
+          100% { transform: translateX(-50%); }
+        }
+        .marquee-content {
+          animation: marquee 120s linear infinite;
+        }
+        
+        /* Ensure banner always spans full width */
+        .banner-container {
+          width: 100vw !important;
+          left: 0 !important;
+          right: 0 !important;
+        }
+        
+        /* Make title question bigger than logo on all screen sizes */
+        .wall-question-title {
+          font-size: 1.5rem !important;
+          line-height: 1.1 !important;
+        }
+        
+        /* Ensure header maintains consistent height */
+        .header-section {
+          min-height: 80px;
+          display: flex;
+          align-items: center;
+        }
+        
+        /* Make card text bigger and bold on all screen sizes */
+        .wall-card-text {
+          font-size: 1.25rem !important;
+          font-weight: bold !important;
+          line-height: 1.3;
+        }
+        
+        /* Force title question to be larger and allow wrapping */
+        h2.wall-question-title {
+          font-size: 1.5rem !important;
+          line-height: 1.1 !important;
+          max-width: none !important;
+          white-space: normal !important;
+          word-wrap: break-word !important;
+          overflow-wrap: break-word !important;
+          hyphens: auto !important;
+        }
+        
+        /* Large screen scaling for sidebar and banner */
+        @media (min-width: 1920px) {
+          .sidebar-container {
+            transform: scale(1.2);
+            transform-origin: top right;
+          }
+          .banner-container {
+            transform: scale(1.2);
+            transform-origin: center;
+            width: 100vw !important;
+            left: 0 !important;
+            right: 0 !important;
+          }
+        }
+        
+        @media (min-width: 2560px) {
+          .sidebar-container {
+            transform: scale(1.5);
+            transform-origin: top right;
+          }
+          .banner-container {
+            transform: scale(1.5);
+            transform-origin: center;
+            width: 100vw !important;
+            left: 0 !important;
+            right: 0 !important;
+          }
+        }
+        
+        @media (min-width: 3840px) {
+          .sidebar-container {
+            transform: scale(2);
+            transform-origin: top right;
+          }
+          .banner-container {
+            transform: scale(2);
+            transform-origin: center;
+            width: 100vw !important;
+            left: 0 !important;
+            right: 0 !important;
+          }
+        }
+        
       `}</style>
       
     <div 
-      className="wall-container min-h-screen w-full p-4 md:p-6 lg:p-8 xl:p-10" 
+      className="wall-container p-4 md:p-6 lg:p-8 xl:p-10" 
       style={{
         backgroundColor: project?.branding?.backgroundColor || '#F8FAFC',
         fontFamily: fontToUse,
-        width: '100vw',
-        maxWidth: '100vw',
-        overflow: 'hidden'
+        width: project?.branding?.sidebar?.enabled 
+          ? `calc(100vw - ${project.branding.sidebar.width || '300px'})` 
+          : '100vw',
+        maxWidth: project?.branding?.sidebar?.enabled 
+          ? `calc(100vw - ${project.branding.sidebar.width || '300px'})` 
+          : '100vw',
+        minHeight: project?.branding?.banner?.enabled && project?.branding?.banner?.position === 'bottom'
+          ? `calc(100vh - ${project.branding.banner.height || '60px'})` 
+          : '100vh',
+        transition: 'width 0.3s ease, max-width 0.3s ease, min-height 0.3s ease',
+        position: 'relative',
+        overflowX: 'hidden',
+        paddingTop: project?.branding?.banner?.enabled && project?.branding?.banner?.position === 'top'
+          ? `calc(${project.branding.banner.height || '60px'} + 1rem)`
+          : undefined
       }}
     >
       <div 
@@ -386,7 +535,7 @@ const DisplayBoard = () => {
         }}
       >
         {/* Header Section - Optimized for large screens */}
-        <div className="flex items-center justify-between mb-6 lg:mb-8 xl:mb-10">
+        <div className="header-section flex items-center justify-between mb-6 lg:mb-8 xl:mb-10">
           <div className="flex items-center">
             <Logo width={60} height={61} className="lg:w-20 lg:h-20 xl:w-24 xl:h-24" />
             <h1 
@@ -419,7 +568,7 @@ const DisplayBoard = () => {
               }}
             >
               <h2 
-                className="wall-question-title font-bold leading-tight whitespace-nowrap"
+                className="wall-question-title font-bold leading-tight"
                 style={{
                   fontFamily: fontToUse,
                   color: project?.branding?.questionTextColor || '#000000'
@@ -431,8 +580,13 @@ const DisplayBoard = () => {
           )}
         </div>
 
+        {/* Banner positioned under header */}
+        {project?.branding?.banner?.enabled && project?.branding?.banner?.position === 'under-header' && (
+          <Banner project={project} />
+        )}
+
         
-        <div className="wall-notes-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 lg:gap-5">
+        <div className={`wall-notes-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 lg:gap-5 ${project?.branding?.banner?.enabled && project?.branding?.banner?.position === 'under-header' ? 'mt-6 lg:mt-8 xl:mt-10' : ''}`}>
           {notes.map((note) => (
             <div
               key={note.id}
@@ -496,22 +650,24 @@ const DisplayBoard = () => {
         )}
       </div>
       
-      {/* QR Code - Fixed to bottom right */}
-      {projectId && (
-        <div className="fixed bottom-4 right-4 z-10">
-          <div className="text-center">
-            <QRCode 
-              url={`${window.location.origin}/form/${projectId}`}
-              size={qrSize}
-              className="hover:scale-105 transition-transform duration-200 mb-2"
-            />
-            <div className="text-xs sm:text-sm text-gray-600 font-bold bg-white px-2 py-1 sm:px-3 sm:py-2 rounded border border-gray-300 shadow-sm">
-              Scan to add note
-            </div>
-          </div>
-        </div>
+      {/* QR Code - Draggable (only if sidebar QR is hidden) */}
+      {projectId && project?.branding?.sidebar?.qrCodePosition === 'hidden' && (
+        <QRCode 
+          url={`${window.location.origin}/${projectId}`}
+          size={qrSize}
+          draggable={true}
+          className="hover:scale-105 transition-transform duration-200"
+        />
       )}
     </div>
+    
+    {/* Sidebar */}
+    <Sidebar project={project} qrSize={qrSize} />
+    
+    {/* Banner - only show if not positioned under header */}
+    {!(project?.branding?.banner?.enabled && project?.branding?.banner?.position === 'under-header') && (
+      <Banner project={project} />
+    )}
     </>
   )
 }

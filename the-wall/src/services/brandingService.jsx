@@ -14,7 +14,32 @@ export const DEFAULT_BRANDING = {
   noteColors: ['yellow', 'blue', 'pink', 'green', 'purple'],
   noteBorderRadius: '12px',
   noteShadow: 'medium',
-  maxWidth: '100vw' // Full viewport width for large displays
+  maxWidth: '100vw', // Full viewport width for large displays
+  sidebar: {
+    enabled: false,
+    backgroundColor: '#FFFFFF',
+    textColor: '#000000',
+    qrCodePosition: 'bottom', // 'top', 'bottom', 'hidden'
+    textBlurb: '',
+    textSize: 'large', // 'small', 'medium', 'large', 'extra-large'
+    imageUrl: '',
+    imageAlt: '',
+    width: '300px'
+  },
+  banner: {
+    enabled: false,
+    backgroundColor: '#F4C542',
+    textColor: '#000000',
+    content: '',
+    height: '60px',
+    fontSize: 'medium', // 'small', 'medium', 'large'
+    fontFamily: 'Inter',
+    pillBackgroundColor: 'rgba(255, 255, 255, 0.3)',
+    pillTextColor: '#000000',
+    pillBorderColor: 'rgba(0, 0, 0, 0.2)',
+    highlightBackgroundColor: 'rgba(255, 255, 255, 0.4)',
+    highlightTextColor: '#000000'
+  }
 }
 
 // Google Fonts mapping

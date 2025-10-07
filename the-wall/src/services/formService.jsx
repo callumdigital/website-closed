@@ -322,7 +322,12 @@ export const formService = {
   async getFormConfig(projectId) {
     try {
       const project = await projectService.getProject(projectId)
-      return project.form_config || DEFAULT_FORM_CONFIG
+      console.log('🔍 Project data for form config:', project)
+      console.log('🔍 Project form_config:', project.form_config)
+      const config = project.form_config || DEFAULT_FORM_CONFIG
+      console.log('🔍 Final form config:', config)
+      console.log('🔍 Form config fields:', config.fields)
+      return config
     } catch (error) {
       console.error('Error loading form config:', error)
       return DEFAULT_FORM_CONFIG
@@ -369,6 +374,7 @@ export const formService = {
       
       // Get emoji and color from form data
       const emoji = formData.emoji || ''
+      console.log('🎨 Form submission - Emoji from form data:', emoji)
       // Use available colors from project branding for random selection
       const availableColors = project?.branding?.noteColors || ['yellow', 'blue', 'green', 'pink', 'purple', 'orange']
       const color = formData.color || availableColors[Math.floor(Math.random() * availableColors.length)]
@@ -384,6 +390,7 @@ export const formService = {
         emoji: emoji
       }
       
+      console.log('🎨 Form submission - Note data being sent to Supabase:', noteData)
       const result = await noteService.createNote(noteData, projectSettings)
       console.log('Form submitted successfully:', result)
       return result

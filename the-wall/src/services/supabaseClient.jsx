@@ -341,6 +341,30 @@ export const realtimeService = {
     }
   },
 
+  subscribeToProject(projectId, callback) {
+    if (!supabase) {
+      return { unsubscribe: () => {} }
+    }
+
+    try {
+      return supabase
+        .channel(`project-${projectId}`)
+        .on('postgres_changes', 
+          { 
+            event: '*', 
+            schema: 'public', 
+            table: 'projects',
+            filter: `id=eq.${projectId}`
+          }, 
+          callback
+        )
+        .subscribe()
+    } catch (error) {
+      console.error('Error subscribing to project:', error)
+      return { unsubscribe: () => {} }
+    }
+  },
+
   unsubscribe(subscription) {
     if (supabase && subscription) {
       supabase.removeChannel(subscription)

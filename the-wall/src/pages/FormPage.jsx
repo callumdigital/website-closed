@@ -108,6 +108,9 @@ const FormPage = () => {
 
     try {
       console.log('📤 Submitting form data:', formData)
+      console.log('📤 Form config:', formConfig)
+      console.log('📤 Form data keys:', Object.keys(formData))
+      console.log('📤 Emoji field value:', formData.emoji)
       // Submit form using the form service
       await formService.submitForm(projectId || 'demo', formConfig, formData)
       setSubmitted(true)
@@ -121,10 +124,15 @@ const FormPage = () => {
   }
 
   const handleFieldChange = (fieldId, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [fieldId]: value
-    }))
+    console.log('🔄 Field change:', fieldId, '=', value)
+    setFormData(prev => {
+      const newData = {
+        ...prev,
+        [fieldId]: value
+      }
+      console.log('🔄 New form data:', newData)
+      return newData
+    })
     // Clear validation error for this field
     if (validationErrors[fieldId]) {
       setValidationErrors(prev => ({
