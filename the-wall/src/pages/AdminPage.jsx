@@ -981,16 +981,22 @@ const AdminPage = ({ user, userProfile }) => {
                                   
                                   {expandedFormData[note.id] && (
                                     <div className="bg-white/80 rounded-[10px] border-[2px] border-gray-300 p-3 space-y-2">
-                                      {additionalFields.map(([key, value]) => (
-                                        <div key={key} className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3 pb-2 border-b border-gray-200 last:border-b-0 last:pb-0">
-                                          <div className="text-xs font-bold text-gray-600 uppercase tracking-wide min-w-[100px] sm:min-w-[120px] pt-0.5">
-                                            {key.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}:
+                                      {additionalFields.map(([key, value]) => {
+                                        // Find the field label from form config
+                                        const fieldConfig = formConfig?.fields?.find(f => f.id === key)
+                                        const fieldLabel = fieldConfig?.label || key.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+                                        
+                                        return (
+                                          <div key={key} className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3 pb-2 border-b border-gray-200 last:border-b-0 last:pb-0">
+                                            <div className="text-xs font-bold text-gray-600 uppercase tracking-wide min-w-[100px] sm:min-w-[120px] pt-0.5">
+                                              {fieldLabel}:
+                                            </div>
+                                            <div className="text-sm text-gray-900 font-medium break-words flex-1">
+                                              {typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)}
+                                            </div>
                                           </div>
-                                          <div className="text-sm text-gray-900 font-medium break-words flex-1">
-                                            {typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)}
-                                          </div>
-                                        </div>
-                                      ))}
+                                        )
+                                      })}
                                     </div>
                                   )}
                                 </div>
