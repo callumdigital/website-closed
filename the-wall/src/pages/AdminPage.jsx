@@ -48,6 +48,7 @@ const AdminPage = ({ user, userProfile }) => {
   const [archivedProjects, setArchivedProjects] = useState([])
   const [editingNote, setEditingNote] = useState(null)
   const [editText, setEditText] = useState('')
+  const [expandedFormData, setExpandedFormData] = useState({}) // Track which notes have expanded form data
   const [formSettings, setFormSettings] = useState({
     title: 'The Wall',
     subtitle: 'Share your thoughts and ideas',
@@ -935,9 +936,67 @@ const AdminPage = ({ user, userProfile }) => {
                             </div>
                           </div>
                         ) : (
-                          <p className="text-gray-900 font-medium leading-relaxed mb-4 text-base">
-                            {note.text || 'No text content'}
-                          </p>
+                          <>
+                            <p className="text-gray-900 font-medium leading-relaxed mb-4 text-base">
+                              {note.text || 'No text content'}
+                            </p>
+                            
+                            {/* Display emoji if present */}
+                            {note.emoji && (
+                              <div className="mb-3 text-2xl">
+                                {note.emoji}
+                              </div>
+                            )}
+                            
+                            {/* Display additional form data */}
+                            {note.form_data && typeof note.form_data === 'object' && Object.keys(note.form_data).length > 0 && (() => {
+                              // Filter out fields that are already displayed or empty
+                              const additionalFields = Object.entries(note.form_data).filter(([key, value]) => {
+                                // Skip if empty or null
+                                if (value === '' || value == null || value === undefined) return false
+                                
+                                // Skip if value exactly matches what's already displayed
+                                // (this handles cases where form_data has the same values as note.text/emoji/color)
+                                if (String(value).trim() === String(note.text).trim()) return false
+                                if (value === note.emoji) return false
+                                if (value === note.color) return false
+                                
+                                return true
+                              })
+                              
+                              if (additionalFields.length === 0) return null
+                              
+                              return (
+                                <div className="mb-4">
+                                  <button
+                                    onClick={() => setExpandedFormData(prev => ({
+                                      ...prev,
+                                      [note.id]: !prev[note.id]
+                                    }))}
+                                    className="flex items-center gap-2 text-sm font-bold text-gray-700 hover:text-gray-900 transition-colors mb-2"
+                                  >
+                                    <span className="text-base">{expandedFormData[note.id] ? '▼' : '▶'}</span>
+                                    <span>Additional Form Data ({additionalFields.length})</span>
+                                  </button>
+                                  
+                                  {expandedFormData[note.id] && (
+                                    <div className="bg-white/80 rounded-[10px] border-[2px] border-gray-300 p-3 space-y-2">
+                                      {additionalFields.map(([key, value]) => (
+                                        <div key={key} className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3 pb-2 border-b border-gray-200 last:border-b-0 last:pb-0">
+                                          <div className="text-xs font-bold text-gray-600 uppercase tracking-wide min-w-[100px] sm:min-w-[120px] pt-0.5">
+                                            {key.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}:
+                                          </div>
+                                          <div className="text-sm text-gray-900 font-medium break-words flex-1">
+                                            {typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)}
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              )
+                            })()}
+                          </>
                         )}
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pt-3 border-t-2 border-gray-900/10">
                           <div className="text-xs text-gray-600 font-medium">
