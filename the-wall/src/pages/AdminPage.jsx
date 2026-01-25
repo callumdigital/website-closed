@@ -180,7 +180,8 @@ const AdminPage = ({ user, userProfile }) => {
         description: newProject.description.trim(),
         status: 'active',
         auto_approve: newProject.auto_approve,
-        show_timestamps: newProject.show_timestamps
+        show_timestamps: newProject.show_timestamps,
+        form_config: DEFAULT_FORM_CONFIG // Initialize with default form config
       }
       
       const createdProject = await projectService.createProject(projectData)

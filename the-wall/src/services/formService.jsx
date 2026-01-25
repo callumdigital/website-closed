@@ -382,15 +382,21 @@ export const formService = {
         auto_approve: project.auto_approve || false
       }
       
-      // Submit to note service
+      // IMPORTANT: Save ALL form data, not just text/emoji/color
+      // This ensures email, select, and other custom fields are preserved
+      const completeFormData = { ...formData }
+      
+      // Submit to note service with complete form data
       const noteData = {
         project_id: projectId,
         text: noteText.trim(),
         color: color,
-        emoji: emoji
+        emoji: emoji,
+        form_data: completeFormData // Store all form field values
       }
       
       console.log('🎨 Form submission - Note data being sent to Supabase:', noteData)
+      console.log('📋 Complete form data being saved:', completeFormData)
       const result = await noteService.createNote(noteData, projectSettings)
       console.log('Form submitted successfully:', result)
       return result
