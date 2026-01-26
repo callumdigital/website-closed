@@ -145,10 +145,11 @@ const AdminPage = ({ user, userProfile }) => {
   // Update statistics
   const updateStats = (notesData) => {
     const stats = {
-      total: notesData.length,
+      total: notesData.filter(note => note.status !== 'deleted').length,
       pending: notesData.filter(note => note.status === 'pending').length,
       approved: notesData.filter(note => note.status === 'approved').length,
-      rejected: notesData.filter(note => note.status === 'rejected').length
+      rejected: notesData.filter(note => note.status === 'rejected').length,
+      deleted: notesData.filter(note => note.status === 'deleted').length
     }
     setStats(stats)
   }
@@ -227,7 +228,13 @@ const AdminPage = ({ user, userProfile }) => {
 
   // Filter notes based on status
   const filteredNotes = notes.filter(note => {
-    if (filter === 'all') return true
+    if (filter === 'all') {
+      // Show all notes except deleted ones in "all" view
+      return note.status !== 'deleted'
+    }
+    if (filter === 'deleted') {
+      return note.status === 'deleted'
+    }
     return note.status === filter
   })
 
@@ -506,14 +513,15 @@ const AdminPage = ({ user, userProfile }) => {
 
   // Note action handlers for admin
   const handleRemoveNote = async (noteId) => {
-    if (!confirm('Are you sure you want to remove this note? This action cannot be undone.')) {
+    if (!confirm('Are you sure you want to deactivate this note? It will be hidden from the display but can be restored later.')) {
       return
     }
 
     try {
-      console.log('🗑️ Admin: Removing note:', noteId)
-      const result = await noteService.removeNote(noteId)
-      console.log('✅ Supabase delete result:', result)
+      console.log('🗑️ Admin: Deactivating note:', noteId)
+      // Soft delete: set status to 'deleted' instead of actually deleting
+      const result = await noteService.updateNoteStatus(noteId, 'deleted')
+      console.log('✅ Supabase update result:', result)
       
       // Reload notes to ensure we have the latest data
       if (selectedProject) {
@@ -522,15 +530,17 @@ const AdminPage = ({ user, userProfile }) => {
         updateStats(notesData)
       } else {
         // Fallback: update local state
-        const updatedNotes = notes.filter(note => note.id !== noteId)
+        const updatedNotes = notes.map(note => 
+          note.id === noteId ? { ...note, status: 'deleted' } : note
+        )
         setNotes(updatedNotes)
         updateStats(updatedNotes)
       }
       
-      console.log('✅ Note removed successfully')
+      console.log('✅ Note deactivated successfully')
     } catch (error) {
-      console.error('❌ Error removing note:', error)
-      alert(`Failed to remove note: ${error.message || 'Unknown error'}`)
+      console.error('❌ Error deactivating note:', error)
+      alert(`Failed to deactivate note: ${error.message || 'Unknown error'}`)
     }
   }
 
@@ -559,6 +569,28 @@ const AdminPage = ({ user, userProfile }) => {
   const handleCancelEdit = () => {
     setEditingNote(null)
     setEditText('')
+  }
+
+  // Restore deleted note
+  const handleRestoreNote = async (noteId) => {
+    try {
+      console.log('♻️ Admin: Restoring note:', noteId)
+      // Restore by setting status back to pending
+      const result = await noteService.updateNoteStatus(noteId, 'pending')
+      console.log('✅ Supabase update result:', result)
+      
+      // Reload notes to ensure we have the latest data
+      if (selectedProject) {
+        const notesData = await noteService.getAllNotes(selectedProject.id)
+        setNotes(notesData)
+        updateStats(notesData)
+      }
+      
+      console.log('✅ Note restored successfully')
+    } catch (error) {
+      console.error('❌ Error restoring note:', error)
+      alert(`Failed to restore note: ${error.message || 'Unknown error'}`)
+    }
   }
 
   // Form field management functions
@@ -909,7 +941,7 @@ const AdminPage = ({ user, userProfile }) => {
                     <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                       {/* Filter buttons - Backseat Style Pills */}
                       <div className="flex gap-2 flex-wrap">
-                        {['all', 'pending', 'approved', 'rejected'].map((status) => (
+                        {['all', 'pending', 'approved', 'rejected', 'deleted'].map((status) => (
                           <button
                             key={status}
                             onClick={() => setFilter(status)}
@@ -920,6 +952,9 @@ const AdminPage = ({ user, userProfile }) => {
                             }`}
                           >
                             {status.charAt(0).toUpperCase() + status.slice(1)}
+                            {status === 'deleted' && stats.deleted > 0 && (
+                              <span className="ml-1">({stats.deleted})</span>
+                            )}
                           </button>
                         ))}
                       </div>
@@ -1103,22 +1138,39 @@ const AdminPage = ({ user, userProfile }) => {
                                 ✗ Rejected
                               </span>
                             )}
+                            {note.status === 'deleted' && (
+                              <span className="px-3 py-1 bg-gray-100 border-[2px] border-gray-500 text-gray-800 text-xs rounded-full font-bold">
+                                🗑️ Deleted
+                              </span>
+                            )}
                             
                             {/* Additional action buttons */}
-                            <button
-                              onClick={() => handleEditNote(note)}
-                              className="px-3 py-2 bg-blue-500 text-white text-xs rounded-[14px] hover:bg-blue-600 transition-all border-[3px] border-black font-bold hover:translate-y-[-2px]"
-                              title="Edit note"
-                            >
-                              ✏️
-                            </button>
-                            <button
-                              onClick={() => handleRemoveNote(note.id)}
-                              className="px-3 py-2 bg-red-500 text-white text-xs rounded-[14px] hover:bg-red-600 transition-all border-[3px] border-black font-bold hover:translate-y-[-2px]"
-                              title="Remove note"
-                            >
-                              🗑️
-                            </button>
+                            {note.status === 'deleted' ? (
+                              <button
+                                onClick={() => handleRestoreNote(note.id)}
+                                className="px-3 py-2 bg-green-500 text-white text-xs rounded-[14px] hover:bg-green-600 transition-all border-[3px] border-black font-bold hover:translate-y-[-2px]"
+                                title="Restore note"
+                              >
+                                ♻️ Restore
+                              </button>
+                            ) : (
+                              <>
+                                <button
+                                  onClick={() => handleEditNote(note)}
+                                  className="px-3 py-2 bg-blue-500 text-white text-xs rounded-[14px] hover:bg-blue-600 transition-all border-[3px] border-black font-bold hover:translate-y-[-2px]"
+                                  title="Edit note"
+                                >
+                                  ✏️
+                                </button>
+                                <button
+                                  onClick={() => handleRemoveNote(note.id)}
+                                  className="px-3 py-2 bg-red-500 text-white text-xs rounded-[14px] hover:bg-red-600 transition-all border-[3px] border-black font-bold hover:translate-y-[-2px]"
+                                  title="Deactivate note"
+                                >
+                                  🗑️
+                                </button>
+                              </>
+                            )}
                           </div>
                         </div>
                       </div>

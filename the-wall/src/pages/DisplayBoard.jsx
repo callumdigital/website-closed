@@ -78,8 +78,15 @@ const DisplayBoard = () => {
         console.log('📋 Project data:', projectData)
         console.log('📝 Notes data:', notesData)
         
+        // Filter notes: only show approved notes, or all notes if auto_approve is enabled
+        const filteredNotes = projectData?.auto_approve 
+          ? notesData.filter(note => note.status !== 'rejected' && note.status !== 'deleted')
+          : notesData.filter(note => note.status === 'approved')
+        
+        console.log('📝 Filtered notes for display:', filteredNotes)
+        
         setProject(projectData)
-        setNotes(notesData)
+        setNotes(filteredNotes)
         
         // Load font if specified - simplified approach
         let fontToLoad = null
@@ -126,25 +133,51 @@ const DisplayBoard = () => {
 
   // Subscribe to realtime updates
   useEffect(() => {
-    if (!projectId) return
+    if (!projectId || !project) return
 
     console.log('🔴 Setting up realtime subscriptions for project:', projectId)
+    const autoApprove = project?.auto_approve || false
     
     // Subscribe to notes changes
     const notesSubscription = realtimeService.subscribeToNotes(projectId, (payload) => {
       console.log('🔴 Notes realtime event received:', payload)
       
       if (payload.eventType === 'INSERT' && payload.new) {
-        // Only show approved notes on the wall
-        if (payload.new.status === 'approved') {
-          console.log('✅ New approved note, adding to wall:', payload.new)
+        // Only show approved notes, or pending if auto_approve is on
+        const shouldShow = autoApprove 
+          ? (payload.new.status !== 'rejected' && payload.new.status !== 'deleted')
+          : (payload.new.status === 'approved')
+        
+        if (shouldShow) {
+          console.log('✅ New note, adding to wall:', payload.new)
           setNotes(prev => [payload.new, ...prev])
         }
       } else if (payload.eventType === 'UPDATE' && payload.new) {
         console.log('🔄 Note updated:', payload.new)
-        setNotes(prev => prev.map(note => 
-          note.id === payload.new.id ? payload.new : note
-        ))
+        
+        // Check if note should be shown based on status
+        const shouldShow = autoApprove 
+          ? (payload.new.status !== 'rejected' && payload.new.status !== 'deleted')
+          : (payload.new.status === 'approved')
+        
+        if (shouldShow) {
+          // Update the note if it's already in the list, or add it if it's newly approved
+          setNotes(prev => {
+            const exists = prev.some(note => note.id === payload.new.id)
+            if (exists) {
+              return prev.map(note => 
+                note.id === payload.new.id ? payload.new : note
+              )
+            } else {
+              // Note was just approved, add it
+              return [payload.new, ...prev]
+            }
+          })
+        } else {
+          // Note was rejected or deleted, remove it from display
+          console.log('❌ Note rejected/deleted, removing from wall:', payload.new.id)
+          setNotes(prev => prev.filter(note => note.id !== payload.new.id))
+        }
       } else if (payload.eventType === 'DELETE' && payload.old) {
         console.log('🗑️ Note deleted:', payload.old)
         setNotes(prev => prev.filter(note => note.id !== payload.old.id))
@@ -170,7 +203,7 @@ const DisplayBoard = () => {
         realtimeService.unsubscribe(projectSubscription)
       }
     }
-  }, [projectId])
+  }, [projectId, project])
 
   // Load Roboto Condensed for the title
   useEffect(() => {
