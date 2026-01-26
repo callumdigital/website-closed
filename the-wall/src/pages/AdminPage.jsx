@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import { projectService, noteService, realtimeService } from '../services/supabaseClient.jsx'
 import { formService, formUtils, DEFAULT_FORM_CONFIG } from '../services/formService.jsx'
 import BrandingEditor from '../components/BrandingEditor.jsx'
@@ -117,24 +118,45 @@ const AdminPage = ({ user, userProfile }) => {
   // Load notes when a different project is selected
   const handleProjectSelect = async (project) => {
     console.log('🔄 Admin: Switching to project:', project.id)
-    setSelectedProject(project)
-    setActiveTab('notes') // Reset to notes tab when selecting a project
-    
-    try {
-      const notesData = await noteService.getAllNotes(project.id)
-      console.log('📋 Admin: Notes loaded for', project.id, ':', notesData)
-      setNotes(notesData)
-      updateStats(notesData)
-    } catch (error) {
-      console.error('❌ Admin: Error loading notes for project:', error)
-    }
+    // Navigate to project-specific URL
+    navigate(`/admin/${project.id}`)
   }
 
   // Go back to dashboard
   const handleBackToDashboard = () => {
-    setSelectedProject(null)
-    setActiveTab('notes')
+    navigate('/admin')
   }
+
+  // Load project data when projectId changes
+  useEffect(() => {
+    const loadProjectData = async () => {
+      if (projectId) {
+        try {
+          console.log('📋 Loading project data for:', projectId)
+          const project = await projectService.getProject(projectId)
+          if (project) {
+            setSelectedProject(project)
+            const notesData = await noteService.getAllNotes(projectId)
+            setNotes(notesData)
+            updateStats(notesData)
+            setActiveTab('notes') // Reset to notes tab
+          } else {
+            // Project not found, go back to dashboard
+            navigate('/admin')
+          }
+        } catch (error) {
+          console.error('❌ Error loading project:', error)
+          navigate('/admin')
+        }
+      } else {
+        // No projectId, show dashboard
+        setSelectedProject(null)
+        setNotes([])
+        setStats({ total: 0, pending: 0, approved: 0, rejected: 0, deleted: 0 })
+      }
+    }
+    loadProjectData()
+  }, [projectId, navigate])
 
   // Update statistics
   const updateStats = (notesData) => {
@@ -190,6 +212,9 @@ const AdminPage = ({ user, userProfile }) => {
       // Reset form
       setNewProject({ name: '', description: '', customUrl: '', auto_approve: false, show_timestamps: true })
       setShowCreateProject(false)
+      
+      // Navigate to the new project
+      navigate(`/admin/${createdProject.id}`)
     } catch (error) {
       console.error('❌ Error creating project:', error)
       // Show user-friendly error message
@@ -627,11 +652,11 @@ const AdminPage = ({ user, userProfile }) => {
 
   // Load form configuration when project changes
   useEffect(() => {
-    if (selectedProject) {
+    if (projectId) {
       const loadFormConfig = async () => {
         try {
-          console.log('📋 Loading form config for project:', selectedProject.id)
-          const config = await formService.getFormConfig(selectedProject.id)
+          console.log('📋 Loading form config for project:', projectId)
+          const config = await formService.getFormConfig(projectId)
           console.log('📋 Form config loaded:', config)
           setFormConfig(config)
         } catch (error) {
@@ -642,24 +667,26 @@ const AdminPage = ({ user, userProfile }) => {
       }
       loadFormConfig()
     }
-  }, [selectedProject])
+  }, [projectId])
 
   // Save form configuration
   const saveFormConfig = async () => {
-    if (!selectedProject) return
+    if (!projectId) return
     
     try {
-      await formService.saveFormConfig(selectedProject.id, formConfig)
+      await formService.saveFormConfig(projectId, formConfig)
       console.log('✅ Form configuration saved successfully to Supabase')
       
       // Update local project data to reflect the change
       setProjects(prev => prev.map(p => 
-        p.id === selectedProject.id 
+        p.id === projectId 
           ? { ...p, form_config: formConfig }
           : p
       ))
       
-      setSelectedProject(prev => ({ ...prev, form_config: formConfig }))
+      if (selectedProject) {
+        setSelectedProject(prev => ({ ...prev, form_config: formConfig }))
+      }
       
       // Show success message
       alert('Form configuration saved successfully!')
@@ -1545,7 +1572,7 @@ const AdminPage = ({ user, userProfile }) => {
                   onSave={async (branding, titleQuestion) => {
                     try {
                       console.log('🎨 AdminPage: Saving branding inline:', { branding, titleQuestion })
-                      await projectService.updateProjectSettings(selectedProject.id, { 
+                      await projectService.updateProjectSettings(projectId, { 
                         branding,
                         title_question: titleQuestion 
                       })
@@ -1553,7 +1580,7 @@ const AdminPage = ({ user, userProfile }) => {
                       
                       // Update local project data
                       setProjects(prev => prev.map(p => 
-                        p.id === selectedProject.id 
+                        p.id === projectId 
                           ? { ...p, branding, titleQuestion }
                           : p
                       ))
