@@ -21,14 +21,6 @@ function App() {
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/verify-email" element={<VerifyEmailPage />} />
         <Route 
-          path="/admin/:projectId" 
-          element={
-            <ProtectedRoute requireRole="canViewProjects">
-              <AdminPage />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
           path="/admin" 
           element={
             <ProtectedRoute requireRole="canViewProjects">
