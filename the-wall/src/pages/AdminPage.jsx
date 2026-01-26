@@ -95,14 +95,8 @@ const AdminPage = ({ user, userProfile }) => {
         setProjects(projectsData)
         setArchivedProjects(archivedData)
         
-        // Load notes for the first project by default
-        if (projectsData.length > 0) {
-          console.log('📝 Admin: Loading notes for project:', projectsData[0].id)
-          const notesData = await noteService.getAllNotes(projectsData[0].id)
-          console.log('📋 Admin: Notes loaded:', notesData)
-          setNotes(notesData)
-          setSelectedProject(projectsData[0])
-        }
+        // Don't auto-select a project - start on dashboard
+        // User can select a project manually
       } catch (error) {
         console.error('❌ Admin: Error loading data:', error)
         setError(error)
@@ -1053,17 +1047,23 @@ const AdminPage = ({ user, userProfile }) => {
                             
                             {/* Display additional form data */}
                             {note.form_data && typeof note.form_data === 'object' && Object.keys(note.form_data).length > 0 && (() => {
+                              // Find the main note field ID from form config
+                              const mainNoteFieldId = formConfig?.fields?.find(f => f.id === 'main-note')?.id || 
+                                                      formConfig?.fields?.find(f => f.type === 'textarea' || f.type === 'text')?.id
+                              
                               // Filter out fields that are already displayed or empty
                               const additionalFields = Object.entries(note.form_data).filter(([key, value]) => {
                                 // Skip if empty or null
                                 if (value === '' || value == null || value === undefined) return false
                                 
-                                // Skip if value exactly matches what's already displayed
-                                // (this handles cases where form_data has the same values as note.text/emoji/color)
-                                if (String(value).trim() === String(note.text).trim()) return false
-                                if (value === note.emoji) return false
-                                if (value === note.color) return false
+                                // Skip the main note field (by ID, not by value) - this is already shown as note.text
+                                if (key === mainNoteFieldId || key === 'main-note') return false
                                 
+                                // Skip emoji and color fields if they match (these are special fields)
+                                if (key === 'emoji' && value === note.emoji) return false
+                                if (key === 'color' && value === note.color) return false
+                                
+                                // Show all other fields, even if they have the same text value
                                 return true
                               })
                               
