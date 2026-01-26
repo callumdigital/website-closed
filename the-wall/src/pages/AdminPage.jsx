@@ -256,25 +256,75 @@ const AdminPage = ({ user, userProfile }) => {
   const exportToCSV = () => {
     if (!selectedProject) return
     
-    const csvData = filteredNotes.map(note => ({
-      'Note ID': note.id,
-      'Text': note.text,
-      'Color': note.color,
-      'Status': note.status,
-      'Created': formatTimestamp(note?.created_at || note?.timestamp),
-      'Project': selectedProject.name
-    }))
+    if (filteredNotes.length === 0) {
+      alert('No notes to export')
+      return
+    }
     
+    // Get all unique form field keys from all notes
+    const allFormFieldKeys = new Set()
+    filteredNotes.forEach(note => {
+      if (note.form_data && typeof note.form_data === 'object') {
+        Object.keys(note.form_data).forEach(key => {
+          // Get field label from form config
+          const fieldConfig = formConfig?.fields?.find(f => f.id === key)
+          if (fieldConfig) {
+            allFormFieldKeys.add(key)
+          }
+        })
+      }
+    })
+    
+    // Create base columns
+    const baseColumns = ['Note ID', 'Text', 'Emoji', 'Color', 'Status', 'Created', 'Project']
+    
+    // Add form field columns with their labels
+    const formFieldColumns = Array.from(allFormFieldKeys).map(key => {
+      const fieldConfig = formConfig?.fields?.find(f => f.id === key)
+      return { key, label: fieldConfig?.label || key }
+    })
+    
+    // Create CSV data
+    const csvData = filteredNotes.map(note => {
+      const row = {
+        'Note ID': note.id || '',
+        'Text': note.text || '',
+        'Emoji': note.emoji || '',
+        'Color': note.color || '',
+        'Status': note.status || '',
+        'Created': formatTimestamp(note?.created_at || note?.timestamp),
+        'Project': selectedProject.name
+      }
+      
+      // Add form data fields
+      formFieldColumns.forEach(({ key, label }) => {
+        const value = note.form_data?.[key]
+        row[label] = value != null ? String(value) : ''
+      })
+      
+      return row
+    })
+    
+    // Get all column names
+    const allColumns = [...baseColumns, ...formFieldColumns.map(({ label }) => label)]
+    
+    // Create CSV content
     const csvContent = [
-      Object.keys(csvData[0]).join(','),
-      ...csvData.map(row => Object.values(row).map(value => `"${value}"`).join(','))
+      allColumns.map(col => `"${String(col).replace(/"/g, '""')}"`).join(','),
+      ...csvData.map(row => 
+        allColumns.map(col => {
+          const value = row[col] || ''
+          // Escape quotes and wrap in quotes
+          return `"${String(value).replace(/"/g, '""')}"`
+        }).join(',')
+      )
     ].join('\n')
     
-    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `${selectedProject.name}-notes.csv`
+    a.download = `${selectedProject.name}-notes-${new Date().toISOString().split('T')[0]}.csv`
     a.click()
     window.URL.revokeObjectURL(url)
   }
@@ -402,24 +452,27 @@ const AdminPage = ({ user, userProfile }) => {
     console.log('✅ Admin: Approving note:', noteId)
     try {
       // Update in Supabase
-      await noteService.updateNoteStatus(noteId, 'approved')
+      const result = await noteService.updateNoteStatus(noteId, 'approved')
+      console.log('✅ Supabase update result:', result)
       
-      // Update local state
-      const updatedNotes = notes.map(note => 
-        note.id === noteId ? { ...note, status: 'approved' } : note
-      )
-      setNotes(updatedNotes)
-      updateStats(updatedNotes)
+      // Reload notes to ensure we have the latest data
+      if (selectedProject) {
+        const notesData = await noteService.getAllNotes(selectedProject.id)
+        setNotes(notesData)
+        updateStats(notesData)
+      } else {
+        // Fallback: update local state
+        const updatedNotes = notes.map(note => 
+          note.id === noteId ? { ...note, status: 'approved' } : note
+        )
+        setNotes(updatedNotes)
+        updateStats(updatedNotes)
+      }
       
       console.log('✅ Note approved successfully')
     } catch (error) {
       console.error('❌ Error approving note:', error)
-      // Still update local state even if Supabase fails
-      const updatedNotes = notes.map(note => 
-        note.id === noteId ? { ...note, status: 'approved' } : note
-      )
-      setNotes(updatedNotes)
-      updateStats(updatedNotes)
+      alert(`Failed to approve note: ${error.message || 'Unknown error'}`)
     }
   }
 
@@ -427,24 +480,27 @@ const AdminPage = ({ user, userProfile }) => {
     console.log('❌ Admin: Rejecting note:', noteId)
     try {
       // Update in Supabase
-      await noteService.updateNoteStatus(noteId, 'rejected')
+      const result = await noteService.updateNoteStatus(noteId, 'rejected')
+      console.log('✅ Supabase update result:', result)
       
-      // Update local state
-      const updatedNotes = notes.map(note => 
-        note.id === noteId ? { ...note, status: 'rejected' } : note
-      )
-      setNotes(updatedNotes)
-      updateStats(updatedNotes)
+      // Reload notes to ensure we have the latest data
+      if (selectedProject) {
+        const notesData = await noteService.getAllNotes(selectedProject.id)
+        setNotes(notesData)
+        updateStats(notesData)
+      } else {
+        // Fallback: update local state
+        const updatedNotes = notes.map(note => 
+          note.id === noteId ? { ...note, status: 'rejected' } : note
+        )
+        setNotes(updatedNotes)
+        updateStats(updatedNotes)
+      }
       
       console.log('✅ Note rejected successfully')
     } catch (error) {
       console.error('❌ Error rejecting note:', error)
-      // Still update local state even if Supabase fails
-      const updatedNotes = notes.map(note => 
-        note.id === noteId ? { ...note, status: 'rejected' } : note
-      )
-      setNotes(updatedNotes)
-      updateStats(updatedNotes)
+      alert(`Failed to reject note: ${error.message || 'Unknown error'}`)
     }
   }
 
@@ -455,14 +511,26 @@ const AdminPage = ({ user, userProfile }) => {
     }
 
     try {
-      await noteService.removeNote(noteId)
-      const updatedNotes = notes.filter(note => note.id !== noteId)
-      setNotes(updatedNotes)
-      updateStats(updatedNotes)
+      console.log('🗑️ Admin: Removing note:', noteId)
+      const result = await noteService.removeNote(noteId)
+      console.log('✅ Supabase delete result:', result)
+      
+      // Reload notes to ensure we have the latest data
+      if (selectedProject) {
+        const notesData = await noteService.getAllNotes(selectedProject.id)
+        setNotes(notesData)
+        updateStats(notesData)
+      } else {
+        // Fallback: update local state
+        const updatedNotes = notes.filter(note => note.id !== noteId)
+        setNotes(updatedNotes)
+        updateStats(updatedNotes)
+      }
+      
       console.log('✅ Note removed successfully')
     } catch (error) {
       console.error('❌ Error removing note:', error)
-      alert('Failed to remove note. Please try again.')
+      alert(`Failed to remove note: ${error.message || 'Unknown error'}`)
     }
   }
 
