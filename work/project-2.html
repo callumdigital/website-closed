@@ -330,10 +330,10 @@
   <!-- Header -->
   <header id="site-header">
     <div class="header-inner">
-      <a href="index.html" class="logo">Callum Healey<span>.</span></a>
+      <a href="../index.html" class="logo">Callum Healey<span>.</span></a>
       <nav class="desktop">
-        <a href="/index.html#work">work</a>
-        <a href="/index.html#about">about</a>
+        <a href="../index.html#work">work</a>
+        <a href="../index.html#about">about</a>
         <button class="btn-chat" onclick="location.href='mailto:hi@callum.digital'">let's chat</button>
       </nav>
       <button class="hamburger" id="hamburger" aria-label="Toggle menu">
@@ -345,8 +345,8 @@
   <!-- Mobile Menu -->
   <div class="mobile-menu" id="mobile-menu">
     <nav>
-      <a href="/index.html#work" onclick="closeMobileMenu()">work</a>
-      <a href="/index.html#about" onclick="closeMobileMenu()">about</a>
+      <a href="../index.html#work" onclick="closeMobileMenu()">work</a>
+      <a href="../index.html#about" onclick="closeMobileMenu()">about</a>
       <button class="btn-chat" onclick="closeMobileMenu(); location.href='mailto:hi@callum.digital'">let's chat</button>
     </nav>
   </div>
@@ -579,7 +579,7 @@
     const pageHTML = `
       <div class="container">
         <p class="breadcrumb">
-          <a href="/index.html">home</a> / <a href="/index.html#work">work</a> / ${project.title}
+          <a href="../index.html">home</a> / <a href="../index.html#work">work</a> / ${project.title}
         </p>
         <section class="proj-hero">
           <span class="proj-cat" style="background:${project.categoryColor};color:${project.categoryTextColor}">${project.category}</span>
