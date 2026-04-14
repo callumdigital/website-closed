@@ -3,625 +3,170 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project — Callum Healey</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    a { text-decoration: none; color: inherit; }
-    ul { list-style: none; }
-    body { font-family: 'DM Sans', sans-serif; background: #fff; color: #111; }
-
-    :root {
-      --yellow: #FFD100;
-      --blue:   #1B2A8C;
-      --green:  #00A651;
-      --red:    #E8272A;
-      --black:  #111111;
-      --mono:   'DM Mono', monospace;
-      --sans:   'DM Sans', sans-serif;
-    }
-
-    /* ── Header ── */
-    header {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      z-index: 50;
-      background: #fff;
-      border-bottom: 3px solid var(--red);
-    }
-    header.menu-open { border-bottom: none; }
-    .header-inner {
-      max-width: 1440px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1.25rem 2rem;
-    }
-    .logo {
-      font-family: var(--sans);
-      font-weight: 600;
-      font-size: 1.5rem;
-      color: var(--black);
-    }
-    .logo span { color: var(--blue); }
-    nav.desktop { display: flex; gap: 3rem; align-items: center; }
-    nav.desktop a {
-      font-family: var(--mono);
-      font-weight: 500;
-      font-size: 1.125rem;
-      color: var(--black);
-      transition: color 0.2s;
-    }
-    nav.desktop a:hover { color: var(--blue); }
-    .btn-chat {
-      font-family: var(--mono);
-      font-weight: 500;
-      font-size: 1rem;
-      background: var(--yellow);
-      color: var(--black);
-      padding: 0.5rem 1.25rem;
-      border-radius: 999px;
-      border: none;
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s;
-    }
-    .btn-chat:hover { background: var(--black); color: #fff; }
-    .hamburger {
-      display: none;
-      flex-direction: column;
-      gap: 5px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 4px;
-    }
-    .hamburger span { display: block; width: 22px; height: 2px; background: var(--black); }
-    .hamburger-close { font-size: 1.5rem; font-weight: 800; color: var(--black); line-height: 1; }
-    .mobile-menu {
-      position: fixed;
-      top: 73px;
-      left: 0;
-      right: 0;
-      background: #fff;
-      border-bottom: 3px solid var(--red);
-      z-index: 40;
-      overflow: hidden;
-      max-height: 0;
-      opacity: 0;
-      transition: max-height 0.3s ease, opacity 0.3s ease;
-    }
-    .mobile-menu.open { max-height: 300px; opacity: 1; }
-    .mobile-menu nav { display: flex; flex-direction: column; gap: 0.5rem; padding: 1.5rem 2rem; }
-    .mobile-menu a {
-      font-family: var(--mono);
-      font-weight: 500;
-      font-size: 1.125rem;
-      color: var(--black);
-      padding: 0.75rem 0;
-      min-height: 42px;
-      display: flex;
-      align-items: center;
-    }
-    .mobile-menu .btn-chat { width: 100%; margin-top: 0.5rem; min-height: 42px; text-align: center; }
-
-    /* ── Page ── */
-    .page-wrap { padding-top: 73px; }
-    .container { max-width: 1440px; margin: 0 auto; padding-left: 2rem; padding-right: 2rem; }
-
-    /* Breadcrumb */
-    .breadcrumb {
-      font-family: var(--mono);
-      font-size: 0.875rem;
-      color: #6b7280;
-      padding: 1.5rem 0;
-    }
-    .breadcrumb a { color: #6b7280; transition: color 0.2s; }
-    .breadcrumb a:hover { color: var(--black); }
-
-    /* Hero */
-    .proj-hero { padding-bottom: 3rem; }
-    .proj-cat {
-      display: inline-block;
-      font-family: var(--mono);
-      font-weight: 500;
-      font-size: 0.875rem;
-      padding: 0.25rem 1rem;
-      border-radius: 999px;
-      margin-bottom: 1.5rem;
-    }
-    .proj-h1 {
-      font-family: var(--sans);
-      font-weight: 600;
-      font-size: clamp(2.5rem, 5vw, 4.5rem);
-      line-height: 1.05;
-      color: var(--black);
-      margin-bottom: 1.5rem;
-      max-width: 56rem;
-    }
-    .proj-intro {
-      font-family: var(--sans);
-      font-weight: 500;
-      font-size: clamp(1.125rem, 2vw, 1.5rem);
-      line-height: 1.7;
-      color: var(--black);
-      max-width: 48rem;
-      margin-bottom: 3rem;
-    }
-    .proj-hero-img {
-      width: 100%;
-      aspect-ratio: 16/9;
-      background: #d9d9d9;
-    }
-
-    /* Meta strip */
-    .meta-strip {
-      border-top: 1px solid #e5e7eb;
-      border-bottom: 1px solid #e5e7eb;
-      margin: 0;
-    }
-    .meta-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 2rem;
-      padding: 2rem 0;
-    }
-    .meta-item {}
-    .meta-label {
-      font-family: var(--mono);
-      font-size: 0.75rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #6b7280;
-      margin-bottom: 0.5rem;
-    }
-    .meta-value {
-      font-family: var(--sans);
-      font-weight: 500;
-      font-size: 1.125rem;
-      color: var(--black);
-    }
-
-    /* Body sections */
-    .body-wrap { padding: 4rem 0 6rem; }
-    .body-section { max-width: 45rem; margin-bottom: 5rem; }
-    .section-label {
-      font-family: var(--mono);
-      font-size: 0.75rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #6b7280;
-      margin-bottom: 1rem;
-    }
-    .section-h2 {
-      font-family: var(--sans);
-      font-weight: 600;
-      font-size: clamp(1.75rem, 3vw, 2.25rem);
-      color: var(--black);
-      margin-bottom: 1.5rem;
-      line-height: 1.15;
-    }
-    .section-body {
-      font-family: var(--sans);
-      font-size: 1.125rem;
-      color: var(--black);
-      line-height: 1.8;
-    }
-    .section-body p + p { margin-top: 1rem; }
-
-    /* Pullquote */
-    .pullquote {
-      border-left: 4px solid var(--yellow);
-      padding: 1rem 2rem;
-      margin-bottom: 5rem;
-      max-width: 56rem;
-    }
-    .pullquote p {
-      font-family: var(--sans);
-      font-weight: 600;
-      font-size: clamp(1.25rem, 2.5vw, 1.75rem);
-      color: var(--black);
-      line-height: 1.4;
-    }
-
-    /* Image blocks */
-    .img-block { margin-bottom: 5rem; }
-    .img-block-placeholder {
-      width: 100%;
-      aspect-ratio: 16/9;
-    }
-    .img-caption {
-      font-family: var(--mono);
-      font-size: 0.875rem;
-      color: #6b7280;
-      margin-top: 0.75rem;
-    }
-
-    /* Outcomes / highlighted block */
-    .highlight-block {
-      background: #f9f8f3;
-      margin: 0 -2rem 5rem;
-      padding: 3rem 2rem;
-    }
-    .highlight-block .max { max-width: 45rem; }
-    .highlight-list { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
-    .highlight-list li {
-      border-left: 4px solid var(--yellow);
-      padding-left: 1.5rem;
-      font-family: var(--sans);
-      font-size: 1.125rem;
-      color: var(--black);
-      line-height: 1.6;
-    }
-
-    /* Next project */
-    .next-project {
-      border-top: 2px solid var(--black);
-    }
-    .next-inner {
-      max-width: 1440px;
-      margin: 0 auto;
-      padding: 2rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-    .next-label {
-      font-family: var(--mono);
-      font-size: 0.875rem;
-      color: #6b7280;
-    }
-    .next-title {
-      font-family: var(--sans);
-      font-weight: 600;
-      font-size: clamp(1.5rem, 3vw, 2rem);
-      color: var(--black);
-    }
-    .next-link {
-      font-family: var(--mono);
-      font-weight: 500;
-      font-size: 1rem;
-      color: var(--black);
-      text-decoration: underline;
-      align-self: flex-start;
-      transition: color 0.2s;
-    }
-    .next-link:hover { color: var(--blue); }
-
-    /* Footer */
-    footer { background: var(--black); color: #fff; }
-    .footer-inner {
-      max-width: 1440px;
-      margin: 0 auto;
-      padding: 3rem 2rem;
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
-    }
-    .footer-logo { font-family: var(--sans); font-weight: 600; font-size: 1.25rem; }
-    .footer-logo span { color: var(--yellow); }
-    .footer-links { display: flex; flex-wrap: wrap; gap: 2rem; }
-    .footer-links a { font-family: var(--mono); font-weight: 500; font-size: 1rem; color: #fff; transition: color 0.2s; }
-    .footer-links a:hover { color: var(--yellow); }
-    .footer-copy { font-family: var(--mono); font-size: 0.875rem; color: #6b7280; }
-
-    /* Responsive */
-    @media (min-width: 768px) {
-      .hamburger { display: none !important; }
-      nav.desktop { display: flex !important; }
-      .meta-grid { grid-template-columns: repeat(4, 1fr); gap: 0; }
-      .meta-item { padding: 0 2rem; border-right: 1px solid #e5e7eb; }
-      .meta-item:first-child { padding-left: 0; }
-      .meta-item:last-child { border-right: none; }
-      .highlight-block { margin: 0 -8rem 5rem; padding: 3rem 8rem; }
-      .next-inner { flex-direction: row; align-items: center; justify-content: space-between; }
-      .footer-inner { flex-direction: row; align-items: center; justify-content: space-between; }
-    }
-    @media (max-width: 767px) {
-      nav.desktop { display: none; }
-      .hamburger { display: flex; }
-    }
-  </style>
+  <title>Digital Product Redesign — Callum Healey</title>
+  <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
 
-  <!-- Header -->
-  <header id="site-header">
+  <!-- ── Header ── -->
+  <header id="site-header" class="solid">
     <div class="header-inner">
-      <a href="index.html" class="logo">Callum Healey<span>.</span></a>
-      <nav class="desktop">
-        <a href="index.html#work">work</a>
-        <a href="index.html#about">about</a>
+      <a href="/" class="logo">Callum Healey<span class="dot">.</span></a>
+      <nav class="nav-desktop">
+        <a href="/#work">work</a>
+        <a href="/#about">about</a>
         <button class="btn-chat" onclick="location.href='mailto:hi@callum.digital'">let's chat</button>
       </nav>
       <button class="hamburger" id="hamburger" aria-label="Toggle menu">
-        <span></span><span></span><span></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
       </button>
     </div>
   </header>
 
-  <!-- Mobile Menu -->
+  <!-- ── Mobile Menu ── -->
   <div class="mobile-menu" id="mobile-menu">
     <nav>
-      <a href="index.html#work" onclick="closeMobileMenu()">work</a>
-      <a href="index.html#about" onclick="closeMobileMenu()">about</a>
-      <button class="btn-chat" onclick="closeMobileMenu(); location.href='mailto:hi@callum.digital'">let's chat</button>
+      <a href="/#work">work</a>
+      <a href="/#about">about</a>
+      <button class="btn-chat" onclick="location.href='mailto:hi@callum.digital'">let's chat</button>
     </nav>
   </div>
 
-  <div class="page-wrap" id="page-content">
-    <!-- Content injected by JS below -->
+  <div class="page-wrap">
+
+    <!-- ── Hero ── -->
+    <div class="container">
+      <p class="breadcrumb">
+        <a href="/">home</a> / <a href="/#work">work</a> / Digital Product Redesign
+      </p>
+      <section class="proj-hero">
+        <span class="proj-cat tag" style="background:#FFD100;color:#111">case study</span>
+        <h1 class="proj-h1">Digital Product Redesign</h1>
+        <p class="proj-intro">Working with a cross-functional team, I led the design of a reimagined product experience that balanced user needs with business constraints. The project spanned discovery, design, testing, and implementation across multiple platforms.</p>
+        <div class="proj-hero-img">
+          <img src="../assets/images/project-1-hero.jpg" alt="Digital Product Redesign">
+        </div>
+      </section>
+    </div>
+
+    <!-- ── Meta Strip ── -->
+    <div class="meta-strip">
+      <div class="container">
+        <div class="meta-grid">
+          <div class="meta-item">
+            <p class="meta-label">organisation</p>
+            <p class="meta-value">Tech Company Ltd</p>
+          </div>
+          <div class="meta-item">
+            <p class="meta-label">scope</p>
+            <p class="meta-value">UX/UI Design, User Research, Design System</p>
+          </div>
+          <div class="meta-item">
+            <p class="meta-label">timeline</p>
+            <p class="meta-value">6 months (2024)</p>
+          </div>
+          <div class="meta-item">
+            <p class="meta-label">my role</p>
+            <p class="meta-value">Lead Designer</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Body ── -->
+    <div class="container">
+      <div class="body-wrap">
+
+        <div class="body-section">
+          <p class="section-label">the problem</p>
+          <h2 class="section-h2">Understanding what needed to change</h2>
+          <div class="section-body">
+            <p>Users were struggling with the existing workflow, leading to frustration and decreased productivity. The interface was cluttered, inconsistent, and failed to align with user mental models.</p>
+            <p>Through research and analysis, we identified three core issues: information architecture, visual hierarchy, and interaction patterns.</p>
+          </div>
+        </div>
+
+        <div class="img-block">
+          <div class="img-block-placeholder" style="background:#1B2A8C">
+            <img src="../assets/images/project-1-wireframes.jpg" alt="Early wireframes">
+          </div>
+          <p class="img-caption">Early wireframes exploring different layout approaches</p>
+        </div>
+
+        <div class="body-section">
+          <p class="section-label">stakeholders</p>
+          <h2 class="section-h2">Working across teams</h2>
+          <div class="section-body">
+            <p>Product team, Engineering, Marketing, and Executive stakeholders all had a stake in the outcome. Getting alignment early — before any pixels were pushed — was the most important design decision I made.</p>
+          </div>
+        </div>
+
+        <div class="body-section">
+          <p class="section-label">approach</p>
+          <h2 class="section-h2">How we got there</h2>
+          <div class="section-body">
+            <p>We started with extensive user research, conducting interviews and contextual inquiries to understand current workflows and pain points.</p>
+            <p>Through iterative prototyping and testing, we refined the solution, validating decisions with real users at each stage before committing to build.</p>
+          </div>
+        </div>
+
+        <div class="img-block">
+          <div class="img-block-placeholder" style="background:#00A651">
+            <img src="../assets/images/project-1-testing.jpg" alt="User testing session">
+          </div>
+          <p class="img-caption">User testing session showing the prototype in action</p>
+        </div>
+
+        <div class="highlight-block">
+          <div class="inner">
+            <p class="section-label">business impact</p>
+            <ul class="highlight-list">
+              <li>40% reduction in task completion time across key workflows</li>
+              <li>User satisfaction scores improved from 6.2 to 8.7 out of 10</li>
+              <li>Support tickets related to interface confusion dropped by 65%</li>
+              <li>Successfully rolled out to 12 markets with minimal localisation issues</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="body-section">
+          <p class="section-label">reflections</p>
+          <h2 class="section-h2">What I'd do differently</h2>
+          <div class="section-body">
+            <p>The biggest lesson was how much time spent on alignment upstream saved us downstream. Every hour spent getting stakeholders on the same page at the start avoided days of rework later.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Next Project ── -->
+    <section class="next-project">
+      <div class="next-inner">
+        <div>
+          <p class="next-label">next project</p>
+          <h3 class="next-title">Exploring Tangible Interaction</h3>
+        </div>
+        <a href="project-2.html" class="next-link">Have a look →</a>
+      </div>
+    </section>
+
   </div>
 
-  <!-- Footer -->
+  <!-- ── Footer ── -->
   <footer>
     <div class="footer-inner">
-      <div class="footer-logo">Callum Healey<span>.</span></div>
+      <div class="footer-logo">Callum Healey<span class="dot">.</span></div>
       <div class="footer-links">
-        <a href="https://linkedin.com/in/callumhealey">LinkedIn</a>
+        <a href="https://linkedin.com/in/callumhealey" target="_blank" rel="noopener">LinkedIn</a>
         <a href="mailto:hi@callum.digital">hi@callum.digital</a>
       </div>
       <p class="footer-copy">Made with too many browser tabs open</p>
     </div>
   </footer>
 
-  <script>
-    // ── Project data ──
-    const projects = [
-      {
-        slug: 'project-1',
-        title: 'Digital Product Redesign',
-        category: 'case study',
-        categoryColor: '#FFD100',
-        categoryTextColor: '#111',
-        intro: 'Working with a cross-functional team, I led the design of a reimagined product experience that balanced user needs with business constraints.',
-        organisation: 'Tech Company Ltd',
-        scope: 'UX/UI Design, User Research, Design System',
-        timeline: '6 months (2024)',
-        role: 'Lead Designer',
-        stakeholders: 'Product team, Engineering, Marketing, Executive stakeholders',
-        businessImpact: [
-          '40% reduction in task completion time across key workflows',
-          'User satisfaction scores improved from 6.2 to 8.7 out of 10',
-          'Support tickets related to interface confusion dropped by 65%',
-          'Successfully rolled out to 12 markets with minimal localisation issues'
-        ],
-        nextSlug: 'project-2',
-        nextTitle: 'Exploring Tangible Interaction'
-      },
-      {
-        slug: 'project-2',
-        title: 'Exploring Tangible Interaction',
-        category: 'experiment',
-        categoryColor: '#1B2A8C',
-        categoryTextColor: '#fff',
-        intro: "I wanted to figure out whether adding a physical component to a typically digital interaction would make the experience more engaging or just add friction. Spoiler: it's complicated.",
-        question: 'Can physical objects make digital interactions more intuitive and memorable?',
-        whatWorked: "The physical component did increase engagement in testing — people spent more time with it and remembered the interaction better. The 'magic' moment when physical and digital connected worked surprisingly well.",
-        whatDidnt: "Onboarding was a nightmare. People didn't know what to do without heavy instruction. Technical limitations around gesture recognition caused frustration when it didn't work perfectly every time.",
-        learnings: "The gap between 'novel' and 'useful' is real. Physical interactions need to solve an actual problem, not just be interesting. Would try this again with a clearer use case in mind from the start.",
-        nextSlug: 'project-3',
-        nextTitle: 'Modular Desk Organizer'
-      },
-      {
-        slug: 'project-3',
-        title: 'Modular Desk Organizer',
-        category: 'made thing',
-        categoryColor: '#00A651',
-        categoryTextColor: '#fff',
-        intro: "My desk was a mess. Every organiser I bought assumed I'd be tidy. I'm not. So I made something that works with my chaos instead of against it.",
-        materials: 'PLA filament (various colours from failed prints), magnets salvaged from old hard drives, brass inserts',
-        constraints: "Limited to 200x200mm build volume. Had to design everything modular. Budget was basically zero — used leftover materials from other projects.",
-        why: "Partly practical and partly just wanted to see if I could design something that embraced messiness instead of fighting it. Also it was 2am and I couldn't sleep, so why not fire up the printer?",
-        process: "Started by mapping where stuff actually lands on my desk over a week. Designed the base grid system first, then individual modules. Printed about 15 iterations before getting the magnet mounting right.",
-        nextSlug: 'project-1',
-        nextTitle: 'Digital Product Redesign'
-      }
-    ];
-
-    // ── Get slug from URL ──
-    const params = new URLSearchParams(window.location.search);
-    const slug = params.get('slug') || 'project-1';
-    const project = projects.find(p => p.slug === slug) || projects[0];
-
-    // ── Render ──
-    function renderCaseStudy(p) {
-      return `
-        <section class="meta-strip container">
-          <div class="meta-grid">
-            <div class="meta-item"><p class="meta-label">organisation</p><p class="meta-value">${p.organisation}</p></div>
-            <div class="meta-item"><p class="meta-label">scope</p><p class="meta-value">${p.scope}</p></div>
-            <div class="meta-item"><p class="meta-label">timeline</p><p class="meta-value">${p.timeline}</p></div>
-            <div class="meta-item"><p class="meta-label">my role</p><p class="meta-value">${p.role}</p></div>
-          </div>
-        </section>
-        <div class="container">
-          <div class="body-wrap">
-            <div class="body-section">
-              <p class="section-label">the problem</p>
-              <h2 class="section-h2">Understanding what needed to change</h2>
-              <div class="section-body">
-                <p>Users were struggling with the existing workflow, leading to frustration and decreased productivity. The interface was cluttered, inconsistent, and failed to align with user mental models.</p>
-                <p>Through research and analysis, we identified three core issues: information architecture, visual hierarchy, and interaction patterns.</p>
-              </div>
-            </div>
-            <div class="img-block">
-              <div class="img-block-placeholder" style="background:#1B2A8C"></div>
-              <p class="img-caption">Early wireframes exploring different layout approaches</p>
-            </div>
-            <div class="body-section">
-              <p class="section-label">approach</p>
-              <h2 class="section-h2">How we got there</h2>
-              <div class="section-body">
-                <p>We started with extensive user research, conducting interviews and contextual inquiries to understand current workflows and pain points.</p>
-                <p>Through iterative prototyping and testing, we refined the solution, validating decisions with real users at each stage.</p>
-              </div>
-            </div>
-            <div class="img-block">
-              <div class="img-block-placeholder" style="background:#00A651"></div>
-              <p class="img-caption">User testing session showing the prototype in action</p>
-            </div>
-            <div class="highlight-block">
-              <div class="max">
-                <p class="section-label">business impact</p>
-                <ul class="highlight-list">
-                  ${p.businessImpact.map(i => `<li>${i}</li>`).join('')}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>`;
-    }
-
-    function renderExperiment(p) {
-      return `
-        <section class="meta-strip container">
-          <div style="padding:2rem 0;max-width:45rem">
-            <p class="meta-label">the question</p>
-            <p class="meta-value" style="font-size:1.25rem;line-height:1.6">${p.question}</p>
-          </div>
-        </section>
-        <div class="container">
-          <div class="body-wrap">
-            <div class="img-block">
-              <div class="img-block-placeholder" style="background:#1B2A8C"></div>
-              <p class="img-caption">Initial prototype testing the concept</p>
-            </div>
-            <div class="pullquote"><p>"The gap between 'novel' and 'useful' is real."</p></div>
-            <div class="body-section">
-              <p class="section-label">what worked</p>
-              <h2 class="section-h2">The good bits</h2>
-              <div class="section-body"><p>${p.whatWorked}</p></div>
-            </div>
-            <div class="img-block">
-              <div class="img-block-placeholder" style="background:#00A651"></div>
-              <p class="img-caption">Successful interaction moment during testing</p>
-            </div>
-            <div class="body-section">
-              <p class="section-label">what didn't work</p>
-              <h2 class="section-h2">The messy parts</h2>
-              <div class="section-body"><p>${p.whatDidnt}</p></div>
-            </div>
-            <div class="img-block">
-              <div class="img-block-placeholder" style="background:#E8272A"></div>
-              <p class="img-caption">One of many failed attempts</p>
-            </div>
-            <div class="highlight-block">
-              <div class="max">
-                <p class="section-label">learnings</p>
-                <h2 class="section-h2">What I'd do differently</h2>
-                <div class="section-body"><p>${p.learnings}</p></div>
-              </div>
-            </div>
-          </div>
-        </div>`;
-    }
-
-    function renderMadeThing(p) {
-      return `
-        <section class="meta-strip container">
-          <div class="meta-grid" style="grid-template-columns:1fr 1fr;gap:2rem;padding:2rem 0">
-            <div><p class="meta-label">materials</p><p class="meta-value">${p.materials}</p></div>
-            <div><p class="meta-label">constraints</p><p class="meta-value">${p.constraints}</p></div>
-          </div>
-        </section>
-        <div class="container">
-          <div class="body-wrap">
-            <div class="body-section">
-              <p class="section-label">why I made this</p>
-              <h2 class="section-h2">The motivation</h2>
-              <div class="section-body"><p>${p.why}</p></div>
-            </div>
-            <div class="img-block">
-              <div class="img-block-placeholder" style="background:#00A651"></div>
-              <p class="img-caption">The problem: my actual desk situation</p>
-            </div>
-            <div class="pullquote"><p>"Also it was 2am and I couldn't sleep, so why not fire up the printer?"</p></div>
-            <div class="body-section">
-              <p class="section-label">process</p>
-              <h2 class="section-h2">How it came together</h2>
-              <div class="section-body"><p>${p.process}</p></div>
-            </div>
-            <div class="img-block">
-              <div class="img-block-placeholder" style="background:#1B2A8C"></div>
-              <p class="img-caption">Early iteration — the base grid system</p>
-            </div>
-            <div class="img-block">
-              <div class="img-block-placeholder" style="background:#E8272A"></div>
-              <p class="img-caption">Testing different magnet mounting approaches (iteration 7 or 8?)</p>
-            </div>
-            <div class="img-block">
-              <div class="img-block-placeholder" style="background:#FFD100"></div>
-              <p class="img-caption">The final version in use on my desk</p>
-            </div>
-            <div class="highlight-block">
-              <div class="max">
-                <p class="section-label">reflection</p>
-                <h2 class="section-h2">What I learned</h2>
-                <div class="section-body">
-                  <p>Designing for yourself is both easier and harder. Easier because you know exactly what you need. Harder because you can't be objective about whether it's actually good or just familiar.</p>
-                  <p style="margin-top:1rem">Also learned that "done" is relative — I'm already thinking about version 4.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>`;
-    }
-
-    const bodyMap = {
-      'case study': renderCaseStudy,
-      'experiment': renderExperiment,
-      'made thing': renderMadeThing
-    };
-
-    const pageHTML = `
-      <div class="container">
-        <p class="breadcrumb">
-          <a href="index.html">home</a> / <a href="index.html#work">work</a> / ${project.title}
-        </p>
-        <section class="proj-hero">
-          <span class="proj-cat" style="background:${project.categoryColor};color:${project.categoryTextColor}">${project.category}</span>
-          <h1 class="proj-h1">${project.title}</h1>
-          <p class="proj-intro">${project.intro}</p>
-          <div class="proj-hero-img"></div>
-        </section>
-      </div>
-      ${bodyMap[project.category] ? bodyMap[project.category](project) : ''}
-      <section class="next-project">
-        <div class="next-inner">
-          <div>
-            <p class="next-label">next project</p>
-            <h3 class="next-title">${project.nextTitle}</h3>
-          </div>
-          <a href="project.html?slug=${project.nextSlug}" class="next-link">Have a look →</a>
-        </div>
-      </section>
-    `;
-
-    document.getElementById('page-content').innerHTML = pageHTML;
-    document.title = `${project.title} — Callum Healey`;
-
-    // ── Mobile menu ──
-    const hamburger = document.getElementById('hamburger');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const header = document.getElementById('site-header');
-
-    hamburger.addEventListener('click', () => {
-      mobileMenu.classList.toggle('open');
-      const isOpen = mobileMenu.classList.contains('open');
-      header.classList.toggle('menu-open', isOpen);
-      hamburger.innerHTML = isOpen
-        ? '<span class="hamburger-close">×</span>'
-        : '<span></span><span></span><span></span>';
-    });
-
-    function closeMobileMenu() {
-      mobileMenu.classList.remove('open');
-      header.classList.remove('menu-open');
-      hamburger.innerHTML = '<span></span><span></span><span></span>';
-    }
-  </script>
+  <script src="../assets/nav.js"></script>
 </body>
 </html>
