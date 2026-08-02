@@ -3,20 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Callum Healey — Designer & Maker</title>
+  <title>madebycal — I make things. Mostly on purpose.</title>
+  <meta name="description" content="Callum Healey — designer and maker. Digital products, 3D printed objects, and everything in between.">
   <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/madebycal-reskin.css">
 </head>
 <body>
 
-  <!-- ── Header (transparent, transitions on scroll) ── -->
+  <!-- ── Header ── -->
   <header id="site-header" class="transparent">
     <div class="header-inner">
-      <a href="/" class="logo">Callum Healey<span class="dot">.</span></a>
+      <a href="/" class="logo">made<span class="by">bycal</span><span class="squig"></span></a>
 
       <nav class="nav-desktop">
         <a href="#work">work</a>
         <a href="#about">about</a>
-        <button class="nav-cta" onclick="location.href='mailto:hi@callum.digital'">let's chat</button>
+        <button class="nav-cta" onclick="location.href='mailto:hi@callum.digital'">let's build something</button>
       </nav>
 
       <button class="hamburger" id="hamburger" aria-label="Toggle menu">
@@ -32,47 +34,24 @@
     <nav>
       <a href="#work">work</a>
       <a href="#about">about</a>
-      <button class="nav-cta" onclick="location.href='mailto:hi@callum.digital'">let's chat</button>
+      <button class="nav-cta" onclick="location.href='mailto:hi@callum.digital'">let's build something</button>
     </nav>
   </div>
 
   <!-- ── Hero ── -->
   <section id="hero">
-    <div class="hero-bg">
-      <!--
-        Replace these src paths with your actual hero images.
-        hero-mobile.jpg  → portrait/square crop for mobile
-        hero-desktop.jpg → landscape crop for desktop
-        The fallback background-color shows if images are missing.
-      -->
-      <img
-        class="hero-img-mobile"
-        src="assets/images/hero-mobile.jpg"
-        alt="Hero background"
-        onerror="this.style.display='none'"
-      >
-      <img
-        class="hero-img-desktop"
-        src="assets/images/hero-desktop.jpg"
-        alt="Hero background"
-        onerror="this.style.display='none'"
-      >
-      <div class="hero-fallback" style="position:absolute;inset:0;z-index:-1"></div>
-      <div class="hero-bg-overlay"></div>
-    </div>
+    <span class="dotgrid" style="right:12%;top:30%"></span>
+    <span class="stairs" style="right:4%;top:16%"></span>
 
     <div class="hero-content">
       <div class="hero-heading">
-        <h1 class="hero-name">
-          Hey, I'm <span class="yn">Callum</span>.
-        </h1>
-        <h2 class="hero-tagline">
-          I <span class="make">make</span> things. Mostly on <span class="purpose">purpose</span>.
-        </h2>
+        <h1 class="hero-name">Hey, I'm <span class="yn">Callum</span>.</h1>
+        <h2 class="hero-tagline">I <span class="make">make</span> things. Mostly on <span class="purpose">purpose</span>.</h2>
+        <p class="hero-sub">Digital products, 3D printed objects, and everything in between. This is where it all lives.</p>
       </div>
       <div class="hero-ctas">
         <a href="#work" class="cta-primary">see my work</a>
-        <a href="mailto:hi@callum.digital" class="cta-secondary">let's chat</a>
+        <a href="mailto:hi@callum.digital" class="cta-secondary">let's build something</a>
       </div>
     </div>
   </section>
@@ -84,17 +63,17 @@
       <div class="work-header">
         <h3 class="work-title">work</h3>
         <div class="filter-tags">
-          <span class="tag t-all">all</span>
-          <span class="tag t-case">case study</span>
-          <span class="tag t-exp">experiment</span>
-          <span class="tag t-made">made thing</span>
+          <button class="tag t-all is-active" data-filter="all">all</button>
+          <button class="tag t-case" data-filter="case">case study</button>
+          <button class="tag t-exp" data-filter="exp">experiment</button>
+          <button class="tag t-made" data-filter="made">made thing</button>
         </div>
       </div>
 
       <div class="divider"></div>
 
       <!-- Project 1 — Case Study -->
-      <div class="proj-row">
+      <div class="proj-row" data-cat="case">
         <div class="proj-meta">
           <span class="tag t-case proj-cat">case study</span>
           <h4 class="proj-title">Digital Product Redesign</h4>
@@ -108,8 +87,8 @@
 
       <div class="divider"></div>
 
-      <!-- Project 2 — Experiment (image first on mobile via flex-col-reverse) -->
-      <div class="proj-row flip">
+      <!-- Project 2 — Experiment -->
+      <div class="proj-row flip" data-cat="exp">
         <div class="proj-meta">
           <span class="tag t-exp proj-cat">experiment</span>
           <h4 class="proj-title">Exploring Tangible Interaction</h4>
@@ -124,15 +103,15 @@
       <div class="divider"></div>
 
       <!-- Project 3 — Made Thing -->
-      <div class="proj-row" style="padding-bottom:4rem">
+      <div class="proj-row" data-cat="made">
         <div class="proj-meta">
           <span class="tag t-made proj-cat">made thing</span>
-          <h4 class="proj-title">Modular Desk Organizer</h4>
-          <p class="proj-desc">A 3D-printed desk organization system designed around the chaotic reality of my actual workspace rather than idealized minimalism.</p>
+          <h4 class="proj-title">Modular Lamp Series</h4>
+          <p class="proj-desc">A collection of 3D printed lamps exploring bold forms, colour, and mood. Each one designed, modelled, and printed from scratch.</p>
           <a href="work/project-3.html" class="proj-link">have a look →</a>
         </div>
         <div class="proj-img">
-          <img src="assets/images/project-3.jpg" alt="Modular Desk Organizer">
+          <img src="assets/images/project-3.jpg" alt="Modular Lamp Series">
         </div>
       </div>
 
@@ -141,6 +120,8 @@
 
   <!-- ── About ── -->
   <section id="about">
+    <span class="dotgrid" style="right:6%;bottom:8%"></span>
+
     <div class="about-inner">
       <h3 class="about-title">about</h3>
       <div class="about-grid">
@@ -163,23 +144,21 @@
 
   <!-- ── Contact ── -->
   <section id="contact">
+    <span class="stairs" style="right:5%;bottom:12%"></span>
+
     <div class="contact-inner">
       <div class="contact-text">
-        <h3 class="contact-heading">
-          let's <span class="chat">chat</span><span class="dot">.</span>
-        </h3>
-        <p class="contact-desc">
-          I'm open to new roles in the CX, Service Design, or Product space, consulting, interesting opportunities.
-        </p>
+        <h3 class="contact-heading">let's build <span class="chat">something</span><span class="dot">.</span></h3>
+        <p class="contact-desc">Got an idea? A weird one counts. Let's bring it to life.</p>
       </div>
-      <a href="mailto:hi@callum.digital" class="btn-contact">let's chat</a>
+      <a href="mailto:hi@callum.digital" class="btn-contact">start a project →</a>
     </div>
   </section>
 
   <!-- ── Footer ── -->
   <footer>
     <div class="footer-inner">
-      <h2 class="footer-logo">Callum Healey<span class="dot">.</span></h2>
+      <h2 class="footer-logo">made<span class="by">bycal</span><span class="squig"></span></h2>
       <div class="footer-links">
         <a href="https://linkedin.com/in/callumhealey" target="_blank" rel="noopener">LinkedIn</a>
         <a href="mailto:hi@callum.digital">hi@callum.digital</a>
@@ -189,5 +168,18 @@
   </footer>
 
   <script src="assets/nav.js"></script>
+  <script>
+    // Work filter — tags were static spans before, now functional
+    document.querySelectorAll('.filter-tags .tag').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const filter = btn.dataset.filter;
+        document.querySelectorAll('.filter-tags .tag').forEach(t => t.classList.remove('is-active'));
+        btn.classList.add('is-active');
+        document.querySelectorAll('.proj-row').forEach(row => {
+          row.hidden = !(filter === 'all' || row.dataset.cat === filter);
+        });
+      });
+    });
+  </script>
 </body>
 </html>
