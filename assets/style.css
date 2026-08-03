@@ -164,97 +164,109 @@ section { position: relative; }
 }
 
 /* ============================================
-   Work
+   Panel grid — Figma's diagonal-cut block system
    ============================================ */
 
-#work { background: var(--cream); border-top: var(--rule); }
-
-.work-header {
-  display: flex; align-items: baseline; justify-content: space-between;
-  gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;
+.panel-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  position: relative;
 }
-.work-title, .about-title { font-size: 2rem; }
 
-.filter-tags { display: flex; gap: .5rem; flex-wrap: wrap; }
+.panel {
+  position: relative;
+  min-height: 460px;
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+  border-top: var(--rule);
+}
 
-.tag {
+.panel:nth-child(odd)  { clip-path: polygon(0 3.5%, 100% 0, 100% 100%, 0 96.5%); margin-top: -18px; }
+.panel:nth-child(even) { clip-path: polygon(0 0, 100% 3.5%, 100% 96.5%, 0 100%); margin-top: 18px; }
+
+.panel-work    { background: #D9D9D9; }
+.panel-about   { background: var(--cream); }
+.panel-play    { background: #D9D9D9; }
+.panel-contact { background: var(--mint); }
+
+.panel img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+
+.panel .accent-circle {
+  position: absolute;
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  background: var(--cobalt);
+  z-index: 0;
+}
+
+.panel-content { position: relative; z-index: 2; max-width: 26rem; }
+
+.panel-label {
   font-family: var(--font-mono);
   font-size: .72rem;
-  font-weight: 500;
-  letter-spacing: .06em;
+  letter-spacing: .1em;
   padding: .3rem .85rem;
   border-radius: 200px;
   border: 1.5px solid var(--ink);
   display: inline-block;
+  margin-bottom: .9rem;
+  background: var(--cream);
+}
+
+.panel-title { font-size: clamp(1.5rem, 2.6vw, 2.1rem); margin-bottom: .5rem; }
+.panel-desc { color: var(--muted); font-size: .92rem; max-width: 26rem; }
+.panel-link {
+  display: inline-flex; align-items: center; gap: .4rem;
+  margin-top: 1rem; font-weight: 500;
+  border-bottom: 2px solid var(--cobalt); color: var(--cobalt);
+}
+.panel-link:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+.panel-photo { justify-content: flex-start; align-items: flex-start; }
+.panel-photo .panel-content {
+  background: var(--cream);
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius);
+  border: var(--rule);
+}
+
+.work-header {
+  max-width: var(--wrap); margin: 0 auto;
+  padding: 3rem var(--gut) 1.5rem;
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 1.5rem; flex-wrap: wrap;
+}
+.work-title { font-size: 2rem; }
+
+.filter-tags { display: flex; gap: .5rem; flex-wrap: wrap; }
+.tag {
+  font-family: var(--font-mono);
+  font-size: .72rem; font-weight: 500; letter-spacing: .06em;
+  padding: .3rem .85rem; border-radius: 200px;
+  border: 1.5px solid var(--ink); display: inline-block;
 }
 .t-all  { background: var(--cream); }
 .t-case { background: var(--cobalt); color: #fff; border-color: var(--cobalt); }
 .t-exp  { background: var(--lilac); }
 .t-made { background: var(--mustard); }
-
-.filter-tags .tag { opacity: .55; transition: opacity .15s ease, transform .15s ease; }
+.filter-tags .tag { opacity: .55; transition: opacity .15s ease; cursor: pointer; }
 .filter-tags .tag:hover { opacity: 1; }
 .filter-tags .tag.is-active { opacity: 1; box-shadow: 2px 2px 0 var(--ink); }
 
-.divider { border-top: var(--rule); }
-
-.proj-row {
-  display: grid;
-  grid-template-columns: 1fr 1.15fr;
-  gap: 3rem;
-  align-items: center;
-  padding: 3rem 0;
-}
-.proj-row.flip .proj-meta { order: 2; }
-.proj-row.flip .proj-img  { order: 1; }
-
-.proj-cat { margin-bottom: 1rem; }
-.proj-title { font-size: 1.6rem; margin-bottom: .6rem; }
-.proj-desc { color: var(--muted); margin-bottom: 1.2rem; max-width: 34rem; }
-.proj-link { font-weight: 500; border-bottom: 2px solid var(--cobalt); color: var(--cobalt); }
-.proj-link:hover { color: var(--ink); border-bottom-color: var(--ink); }
-
-.proj-img img {
-  width: 100%;
-  border: var(--rule);
-  border-radius: var(--radius);
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
-}
-
-/* ============================================
-   About
-   ============================================ */
-
-#about { background: var(--lilac); border-top: var(--rule); overflow: hidden; }
-
-.about-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3rem;
-  margin-top: 1.5rem;
-}
-.about-line { font-size: clamp(1.4rem, 3vw, 2.1rem); }
+.about-line { font-size: clamp(1.3rem, 2.6vw, 1.9rem); }
 .about-line.chaos { color: var(--cobalt); }
-.about-loc {
-  display: inline-block; margin-top: 1.25rem;
-  font-size: .78rem; letter-spacing: .12em;
-}
-.about-body p { margin-bottom: 1rem; max-width: 34rem; }
+.about-loc { display: block; margin-top: .9rem; font-family: var(--font-mono); font-size: .75rem; letter-spacing: .1em; color: var(--muted); }
 
-/* ============================================
-   Contact
-   ============================================ */
-
-#contact { background: var(--mint); border-top: var(--rule); overflow: hidden; }
-
-.contact-inner {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 2rem; flex-wrap: wrap;
-}
-.contact-heading { font-size: clamp(1.8rem, 4vw, 2.75rem); }
+.contact-heading { font-size: clamp(1.6rem, 3vw, 2.3rem); }
 .contact-heading .chat { color: var(--cobalt); }
-.contact-desc { margin-top: .6rem; }
+.contact-desc { margin: .5rem 0 1rem; }
 
 /* ============================================
    Footer
@@ -304,12 +316,8 @@ footer { background: var(--cream); border-top: var(--rule); }
   #hero::before { width: 22px; }
   .hero-content { padding-left: calc(var(--gut) + 22px); }
 
-  .proj-row { grid-template-columns: 1fr; gap: 1.5rem; padding: 2.5rem 0; }
-  .proj-row.flip .proj-meta,
-  .proj-row.flip .proj-img { order: 0; }
-
-  .about-grid { grid-template-columns: 1fr; gap: 2rem; }
-  .contact-inner { flex-direction: column; align-items: flex-start; }
+  .panel-grid { grid-template-columns: 1fr; }
+  .panel { clip-path: none !important; margin-top: 0 !important; min-height: 340px; }
   .dotgrid, .stairs { display: none; }
 }
 
