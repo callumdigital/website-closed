@@ -1,241 +1,331 @@
 /* ============================================
-   madebycal — reskin layer
-   Paste AFTER your existing style.css link, or
-   replace the :root block in style.css directly.
+   madebycal — complete stylesheet
+   Replaces style.css entirely. Delete the
+   madebycal-reskin.css link; this is both.
    ============================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=DM+Mono:wght@400;500&display=swap');
 
 :root {
-  /* ---- Core ---- */
-  --color-bg: #FDFBF3;          /* cream, was #FFFFFF */
-  --color-text: #111111;
-  --color-text-muted: #6B6B63;  /* warmed, was #666666 */
-  --color-accent: #1B2FD4;      /* cobalt, was #0066FF */
-  --color-accent-hover: #142399;
+  --cream:   #FDFBF3;
+  --ink:     #111111;
+  --muted:   #6B6B63;
+  --cobalt:  #1B2FD4;
+  --mustard: #F5C518;
+  --mint:    #8FD9C0;
+  --lilac:   #B9A9F5;
 
-  /* ---- Brand ---- */
-  --color-cobalt: #1B2FD4;
-  --color-mustard: #F5C518;
-  --color-mint: #8FD9C0;
-  --color-lilac: #B9A9F5;
-  --color-coral: #F5836B;
-  --color-cream: #FDFBF3;
-
-  /* Legacy pastel vars remapped so old rules don't fight the new palette */
-  --color-yellow: var(--color-mustard);
-  --color-blue:   #E8EAFD;
-  --color-teal:   #E4F6EF;
-  --color-pink:   #FDEBE7;
-  --color-green:  #E4F6EF;
-  --color-purple: #EFEBFD;
-  --color-orange: #FDF1D4;
-
-  /* ---- Type ----
-     SWAP THIS ONE LINE when you land the display font.
-     Everything headline-shaped inherits it. */
+  /* Swap this one line when you land the display font */
   --font-display: 'Comfortaa', system-ui, sans-serif;
-  --font-sans: 'DM Mono', ui-monospace, 'SF Mono', monospace;
   --font-mono: 'DM Mono', ui-monospace, monospace;
 
-  /* ---- Shape ---- */
-  --radius-md: 15px;
-  --radius-full: 200px;
-  --shadow-hover: 3px 3px 0 var(--color-text);
+  --wrap: 1200px;
+  --gut: 2rem;
+  --rule: 2px solid var(--ink);
+  --radius: 15px;
 }
 
-/* ============================================
-   Typography roles
-   ============================================ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 
-body { font-family: var(--font-sans); letter-spacing: -0.01em; }
-
-h1, h2, h3, h4, h5, h6,
-.logo, .footer-logo,
-.hero-name, .hero-tagline, .hero-title,
-.proj-title, .proj-h1, .section-h2,
-.about-line, .contact-heading, .contact-title,
-.work-title, .about-title {
-  font-family: var(--font-display);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
-}
-
-/* Labels, tags, meta stay mono — this is the madebycal texture */
-.tag, .section-label, .meta-label, .sidebar-label,
-.proj-cat, .breadcrumb, .next-label, .about-loc,
-.footer-copy, .img-caption {
+body {
   font-family: var(--font-mono);
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: lowercase;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ink);
+  background: var(--cream);
+  -webkit-font-smoothing: antialiased;
+}
+
+img { max-width: 100%; height: auto; display: block; }
+a { text-decoration: none; color: inherit; }
+button { font: inherit; cursor: pointer; border: none; background: none; }
+
+h1, h2, h3, h4,
+.logo, .footer-logo, .about-line, .contact-heading {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
 }
 
 /* ============================================
-   Wordmark
+   Header
    ============================================ */
 
-.logo, .footer-logo {
-  font-family: var(--font-display);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  background: none;
-  border: none;
-  padding: 0;
-  box-shadow: none;
+#site-header {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--cream);
+  border-bottom: var(--rule);
 }
-.logo:hover { transform: none; box-shadow: none; }
 
-/* cobalt second half — wrap "bycal" in <span class="by"> */
-.logo .by, .footer-logo .by { color: var(--color-cobalt); }
-.logo .dot, .footer-logo .dot { color: var(--color-mustard); }
+.header-inner {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 1rem var(--gut);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
 
-/* squiggle after wordmark — add <span class="squig"></span> inside .logo */
+.logo { font-size: 1.4rem; display: inline-flex; align-items: center; }
+.logo .by { color: var(--cobalt); }
+
 .squig {
   display: inline-block;
   width: 26px; height: 10px;
   margin-left: 6px;
-  vertical-align: middle;
-  background: var(--color-mustard);
+  background: var(--mustard);
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 10'%3E%3Cpath d='M1 5c2-5 5-5 7 0s5 5 7 0 5-5 7 0' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center/contain;
           mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 10'%3E%3Cpath d='M1 5c2-5 5-5 7 0s5 5 7 0 5-5 7 0' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center/contain;
 }
 
-/* ============================================
-   Buttons — flat + hard shadow, no gradients
-   ============================================ */
+.nav-desktop { display: flex; align-items: center; gap: 1.5rem; }
+.nav-desktop a { border-bottom: 2px solid transparent; padding-bottom: 2px; }
+.nav-desktop a:hover { border-bottom-color: var(--cobalt); color: var(--cobalt); }
 
-.btn, .cta-primary, .cta-secondary, .nav-cta,
-.btn-chat, .btn-contact, .proj-link, .next-link {
-  font-family: var(--font-mono);
-  font-weight: 500;
-  font-size: 0.95rem;
-  letter-spacing: -0.01em;
-  text-transform: none;
-  border-radius: var(--radius-md);
+.nav-cta {
+  background: var(--cobalt); color: #fff;
+  border: 2px solid var(--cobalt);
+  border-radius: var(--radius);
+  padding: .5rem 1.1rem;
+  font-size: .9rem;
   transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
 }
-
-.cta-primary, .btn-primary, .btn-contact, .nav-cta {
-  background: var(--color-cobalt);
-  color: #fff;
-  border: 2px solid var(--color-cobalt);
-}
-.cta-primary:hover, .btn-primary:hover, .btn-contact:hover, .nav-cta:hover {
-  background: var(--color-text);
-  border-color: var(--color-text);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-hover);
+.nav-cta:hover {
+  background: var(--ink); border-color: var(--ink);
+  transform: translateY(-2px); box-shadow: 3px 3px 0 var(--ink);
 }
 
-.cta-secondary, .btn-secondary {
-  background: transparent;
-  color: var(--color-text);
-  border: 2px solid var(--color-text);
+/* Hamburger — hidden on desktop */
+.hamburger { display: none; flex-direction: column; gap: 5px; padding: .5rem; }
+.hamburger .bar { width: 24px; height: 3px; background: var(--ink); border-radius: 2px; }
+
+#mobile-menu { display: none; }
+#mobile-menu.open {
+  display: block;
+  border-bottom: var(--rule);
+  background: var(--cream);
+  padding: 1rem var(--gut);
 }
-.cta-secondary:hover, .btn-secondary:hover {
-  background: var(--color-mustard);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-hover);
+#mobile-menu nav { display: flex; flex-direction: column; gap: .9rem; align-items: flex-start; }
+
+/* ============================================
+   Section shell
+   ============================================ */
+
+section { position: relative; }
+
+.hero-content, .work-inner, .about-inner, .contact-inner, .footer-inner {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 4.5rem var(--gut);
 }
 
 /* ============================================
-   Filter tags — one colour per category
+   Hero
    ============================================ */
 
+#hero { background: var(--cream); overflow: hidden; }
+
+#hero::before {
+  content: "";
+  position: absolute; left: 0; top: 0;
+  width: 40px; height: 100%;
+  background: var(--mustard);
+  -webkit-mask: radial-gradient(circle at 100% 18px, transparent 18px, #000 18.5px) 0 0/100% 36px;
+          mask: radial-gradient(circle at 100% 18px, transparent 18px, #000 18.5px) 0 0/100% 36px;
+  z-index: 1;
+}
+
+.hero-content { position: relative; z-index: 2; padding-left: calc(var(--gut) + 40px); }
+.hero-name { font-size: clamp(2.2rem, 5.5vw, 3.75rem); }
+.hero-tagline { font-size: clamp(2.2rem, 5.5vw, 3.75rem); margin-bottom: 1.5rem; }
+.hero-sub { font-size: 1.05rem; max-width: 34rem; color: var(--muted); }
+.hero-ctas { display: flex; gap: .75rem; margin-top: 2rem; flex-wrap: wrap; }
+
+.cta-primary, .cta-secondary, .btn-contact {
+  border-radius: var(--radius);
+  padding: .7rem 1.4rem;
+  font-size: .95rem;
+  border: 2px solid var(--ink);
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.cta-primary, .btn-contact { background: var(--cobalt); color: #fff; border-color: var(--cobalt); }
+.cta-primary:hover, .btn-contact:hover {
+  background: var(--ink); border-color: var(--ink);
+  transform: translateY(-2px); box-shadow: 3px 3px 0 var(--ink);
+}
+.cta-secondary { background: transparent; }
+.cta-secondary:hover {
+  background: var(--mustard);
+  transform: translateY(-2px); box-shadow: 3px 3px 0 var(--ink);
+}
+
+/* ============================================
+   Panel grid — Figma's diagonal-cut block system
+   ============================================ */
+
+.panel-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  position: relative;
+}
+
+.panel {
+  position: relative;
+  min-height: 460px;
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+  border-top: var(--rule);
+}
+
+.panel:nth-child(odd)  { clip-path: polygon(0 3.5%, 100% 0, 100% 100%, 0 96.5%); margin-top: -18px; }
+.panel:nth-child(even) { clip-path: polygon(0 0, 100% 3.5%, 100% 96.5%, 0 100%); margin-top: 18px; }
+
+.panel-work    { background: #D9D9D9; }
+.panel-about   { background: var(--cream); }
+.panel-play    { background: #D9D9D9; }
+.panel-contact { background: var(--mint); }
+
+.panel img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+
+.panel .accent-circle {
+  position: absolute;
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  background: var(--cobalt);
+  z-index: 0;
+}
+
+.panel-content { position: relative; z-index: 2; max-width: 26rem; }
+
+.panel-label {
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  letter-spacing: .1em;
+  padding: .3rem .85rem;
+  border-radius: 200px;
+  border: 1.5px solid var(--ink);
+  display: inline-block;
+  margin-bottom: .9rem;
+  background: var(--cream);
+}
+
+.panel-title { font-size: clamp(1.5rem, 2.6vw, 2.1rem); margin-bottom: .5rem; }
+.panel-desc { color: var(--muted); font-size: .92rem; max-width: 26rem; }
+.panel-link {
+  display: inline-flex; align-items: center; gap: .4rem;
+  margin-top: 1rem; font-weight: 500;
+  border-bottom: 2px solid var(--cobalt); color: var(--cobalt);
+}
+.panel-link:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+.panel-photo { justify-content: flex-start; align-items: flex-start; }
+.panel-photo .panel-content {
+  background: var(--cream);
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius);
+  border: var(--rule);
+}
+
+.work-header {
+  max-width: var(--wrap); margin: 0 auto;
+  padding: 3rem var(--gut) 1.5rem;
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 1.5rem; flex-wrap: wrap;
+}
+.work-title { font-size: 2rem; }
+
+.filter-tags { display: flex; gap: .5rem; flex-wrap: wrap; }
 .tag {
-  border-radius: var(--radius-full);
-  padding: 0.3rem 0.8rem;
-  font-size: 0.7rem;
-  border: 1.5px solid var(--color-text);
+  font-family: var(--font-mono);
+  font-size: .72rem; font-weight: 500; letter-spacing: .06em;
+  padding: .3rem .85rem; border-radius: 200px;
+  border: 1.5px solid var(--ink); display: inline-block;
 }
-.t-all  { background: var(--color-cream);   color: var(--color-text); }
-.t-case { background: var(--color-cobalt);  color: #fff; border-color: var(--color-cobalt); }
-.t-exp  { background: var(--color-lilac);   color: var(--color-text); }
-.t-made { background: var(--color-mustard); color: var(--color-text); }
+.t-all  { background: var(--cream); }
+.t-case { background: var(--cobalt); color: #fff; border-color: var(--cobalt); }
+.t-exp  { background: var(--lilac); }
+.t-made { background: var(--mustard); }
+.filter-tags .tag { opacity: .55; transition: opacity .15s ease; cursor: pointer; }
+.filter-tags .tag:hover { opacity: 1; }
+.filter-tags .tag.is-active { opacity: 1; box-shadow: 2px 2px 0 var(--ink); }
+
+.about-line { font-size: clamp(1.3rem, 2.6vw, 1.9rem); }
+.about-line.chaos { color: var(--cobalt); }
+.about-loc { display: block; margin-top: .9rem; font-family: var(--font-mono); font-size: .75rem; letter-spacing: .1em; color: var(--muted); }
+
+.contact-heading { font-size: clamp(1.6rem, 3vw, 2.3rem); }
+.contact-heading .chat { color: var(--cobalt); }
+.contact-desc { margin: .5rem 0 1rem; }
 
 /* ============================================
-   Section backgrounds — alternating brand blocks
+   Footer
    ============================================ */
 
-#hero    { background: var(--color-cream); }
-#work    { background: var(--color-cream); }
-#about   { background: var(--color-lilac); }
-#contact { background: var(--color-mint); }
-footer   { background: var(--color-cream); border-top: 2px solid var(--color-text); }
-
-.divider { border-top: 2px solid var(--color-text); opacity: 1; }
-
-/* about — "I build with chaos" gets the accent */
-.about-line { font-size: clamp(1.5rem, 3vw, 2.25rem); }
-.about-line.chaos { color: var(--color-cobalt); }
+footer { background: var(--cream); border-top: var(--rule); }
+.footer-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1.5rem; flex-wrap: wrap; padding-top: 2rem; padding-bottom: 2rem;
+}
+.footer-logo { font-size: 1.3rem; }
+.footer-logo .by { color: var(--cobalt); }
+.footer-links { display: flex; gap: 1.25rem; font-size: .9rem; }
+.footer-links a:hover { color: var(--cobalt); }
+.footer-copy { font-size: .8rem; color: var(--muted); width: 100%; }
 
 /* ============================================
    Memphis decoration
    ============================================ */
 
-/* scalloped left edge on hero */
-#hero { position: relative; }
-#hero::before {
-  content: "";
-  position: absolute; left: 0; top: 0;
-  width: 56px; height: 100%;
-  background: var(--color-mustard);
-  -webkit-mask: radial-gradient(circle at 100% 18px, transparent 18px, #000 18.5px) 0 0/100% 36px;
-          mask: radial-gradient(circle at 100% 18px, transparent 18px, #000 18.5px) 0 0/100% 36px;
-  z-index: 1;
-  pointer-events: none;
-}
-#hero > * { position: relative; z-index: 2; }
+.dotgrid, .stairs { position: absolute; pointer-events: none; z-index: 0; }
 
-/* cobalt dot grid — add <span class="dotgrid"></span> anywhere */
 .dotgrid {
-  position: absolute;
   width: 150px; height: 150px;
-  background-image: radial-gradient(var(--color-cobalt) 3px, transparent 3.5px);
+  background-image: radial-gradient(var(--cobalt) 3px, transparent 3.5px);
   background-size: 34px 34px;
-  pointer-events: none;
-  opacity: .9;
 }
-
-/* staircase block — <span class="stairs"></span> */
 .stairs {
-  position: absolute;
   width: 90px; height: 60px;
   background:
-    linear-gradient(var(--color-cobalt) 0 0) 0 40px/30px 20px no-repeat,
-    linear-gradient(var(--color-cobalt) 0 0) 30px 20px/30px 40px no-repeat,
-    linear-gradient(var(--color-cobalt) 0 0) 60px 0/30px 60px no-repeat;
-  pointer-events: none;
-}
-
-/* pullquote on case study pages */
-.pullquote p {
-  font-family: var(--font-display);
-  font-size: clamp(1.4rem, 3vw, 2rem);
-  color: var(--color-cobalt);
-  border-left: 4px solid var(--color-mustard);
-  padding-left: 1.25rem;
+    linear-gradient(var(--cobalt) 0 0) 0 40px/30px 20px no-repeat,
+    linear-gradient(var(--cobalt) 0 0) 30px 20px/30px 40px no-repeat,
+    linear-gradient(var(--cobalt) 0 0) 60px 0/30px 60px no-repeat;
 }
 
 /* ============================================
-   Kill the leftover gradient hero glow
+   Responsive
    ============================================ */
 
-.hero {
-  background: var(--color-cream);
+@media (max-width: 860px) {
+  :root { --gut: 1.25rem; }
+
+  .nav-desktop { display: none; }
+  .hamburger { display: flex; }
+
+  .hero-content, .work-inner, .about-inner, .contact-inner { padding: 3rem var(--gut); }
+  #hero::before { width: 22px; }
+  .hero-content { padding-left: calc(var(--gut) + 22px); }
+
+  .panel-grid { grid-template-columns: 1fr; }
+  .panel { clip-path: none !important; margin-top: 0 !important; min-height: 340px; }
+  .dotgrid, .stairs { display: none; }
 }
-.highlight::after { background: var(--color-mustard); }
-
-/* ============================================
-   Accessibility floor
-   ============================================ */
 
 a:focus-visible, button:focus-visible {
-  outline: 3px solid var(--color-cobalt);
+  outline: 3px solid var(--cobalt);
   outline-offset: 3px;
 }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
+  html { scroll-behavior: auto; }
 }
