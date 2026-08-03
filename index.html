@@ -55,91 +55,63 @@
     </div>
   </section>
 
-  <!-- ── Work ── -->
-  <section id="work">
-    <div class="work-inner">
-
-      <div class="work-header">
-        <h3 class="work-title">work</h3>
-        <div class="filter-tags">
-          <button class="tag t-all is-active" data-filter="all">all</button>
-          <button class="tag t-case" data-filter="case">case study</button>
-          <button class="tag t-exp" data-filter="exp">experiment</button>
-          <button class="tag t-made" data-filter="made">made thing</button>
-        </div>
-      </div>
-
-      <div class="divider"></div>
-
-      <!-- Project 1 — Case Study -->
-      <div class="proj-row" data-cat="case">
-        <div class="proj-meta">
-          <span class="tag t-case proj-cat">case study</span>
-          <h4 class="proj-title">Digital Product Redesign</h4>
-          <p class="proj-desc">A comprehensive redesign of a core digital product, improving user experience and driving measurable business outcomes across key metrics.</p>
-          <a href="work/project-1.html" class="proj-link">have a look →</a>
-        </div>
-        <div class="proj-img">
-          <img src="assets/images/project-1.jpg" alt="Digital Product Redesign">
-        </div>
-      </div>
-
-      <div class="divider"></div>
-
-      <!-- Project 2 — Experiment -->
-      <div class="proj-row flip" data-cat="exp">
-        <div class="proj-meta">
-          <span class="tag t-exp proj-cat">experiment</span>
-          <h4 class="proj-title">Exploring Tangible Interaction</h4>
-          <p class="proj-desc">An experimental project exploring how physical objects could enhance digital interaction, testing assumptions about gesture recognition and user engagement.</p>
-          <a href="work/project-2.html" class="proj-link">have a look →</a>
-        </div>
-        <div class="proj-img">
-          <img src="assets/images/project-2.jpg" alt="Exploring Tangible Interaction">
-        </div>
-      </div>
-
-      <div class="divider"></div>
-
-      <!-- Project 3 — Made Thing -->
-      <div class="proj-row" data-cat="made">
-        <div class="proj-meta">
-          <span class="tag t-made proj-cat">made thing</span>
-          <h4 class="proj-title">Modular Lamp Series</h4>
-          <p class="proj-desc">A collection of 3D printed lamps exploring bold forms, colour, and mood. Each one designed, modelled, and printed from scratch.</p>
-          <a href="work/project-3.html" class="proj-link">have a look →</a>
-        </div>
-        <div class="proj-img">
-          <img src="assets/images/project-3.jpg" alt="Modular Lamp Series">
-        </div>
-      </div>
-
+  <!-- ── Work filter row ── -->
+  <div class="work-header">
+    <h3 class="work-title">work</h3>
+    <div class="filter-tags">
+      <button class="tag t-all is-active" data-filter="all">all</button>
+      <button class="tag t-case" data-filter="case">case study</button>
+      <button class="tag t-exp" data-filter="exp">experiment</button>
+      <button class="tag t-made" data-filter="made">made thing</button>
     </div>
-  </section>
+  </div>
 
-  <!-- ── About ── -->
-  <section id="about">
-    <span class="dotgrid" style="right:6%;bottom:8%"></span>
+  <!-- ── Panel grid: work / about / play / contact ──
+       Diagonal-cut tiles, matches Figma's tilted block
+       treatment rather than a straight-line grid. ── -->
+  <div class="panel-grid">
 
-    <div class="about-inner">
-      <h3 class="about-title">about</h3>
-      <div class="about-grid">
-        <div class="about-left">
-          <div class="about-heading-block">
-            <p class="about-line">I'm Callum.</p>
-            <p class="about-line">I design with empathy.</p>
-            <p class="about-line chaos">I build with chaos.</p>
-          </div>
-          <span class="about-loc">Wellington, NZ</span>
-        </div>
-        <div class="about-body">
-          <p>I got into design because I like things that look nice and feel great to use. That part hasn't changed. What has is realising the best outcomes rarely come from the tidiest process.</p>
-          <p>I follow threads, make leaps, and occasionally 3D print something at midnight. The work spans digital products, service design, and physical making — sometimes all at once.</p>
-          <p>I care about the people using what I make. The chaos is just how I get there.</p>
-        </div>
+    <section class="panel panel-work" id="work" data-cat="case">
+      <span class="dotgrid" style="right:8%;top:10%"></span>
+      <div class="panel-content">
+        <span class="panel-label">case study</span>
+        <h4 class="panel-title">Digital Product Redesign</h4>
+        <p class="panel-desc">A comprehensive redesign of a core digital product, improving UX and driving measurable outcomes.</p>
+        <a href="work/project-1.html" class="panel-link">have a look →</a>
       </div>
-    </div>
-  </section>
+    </section>
+
+    <section class="panel panel-photo" data-cat="exp">
+      <img src="assets/images/project-2.jpg" alt="Exploring Tangible Interaction">
+      <div class="accent-circle" style="right:10%;top:8%"></div>
+      <div class="panel-content" style="align-self:flex-start; margin-top:auto">
+        <span class="panel-label">experiment</span>
+        <h4 class="panel-title">Exploring Tangible Interaction</h4>
+        <a href="work/project-2.html" class="panel-link">have a look →</a>
+      </div>
+    </section>
+
+    <section class="panel panel-play" data-cat="made">
+      <span class="stairs" style="left:6%;bottom:10%"></span>
+      <div class="panel-content">
+        <span class="panel-label">made thing</span>
+        <h4 class="panel-title">Modular Lamp Series</h4>
+        <p class="panel-desc">3D printed lamps exploring bold forms, colour, and mood — designed, modelled, and printed from scratch.</p>
+        <a href="work/project-3.html" class="panel-link">have a look →</a>
+      </div>
+    </section>
+
+    <section class="panel panel-about" id="about">
+      <div class="panel-content">
+        <h3 class="panel-label" style="display:block; width:fit-content">about</h3>
+        <p class="about-line">I'm Callum.</p>
+        <p class="about-line">I design with empathy.</p>
+        <p class="about-line chaos">I build with chaos.</p>
+        <span class="about-loc">Wellington, NZ</span>
+      </div>
+    </section>
+
+  </div>
 
   <!-- ── Contact ── -->
   <section id="contact">
@@ -174,8 +146,8 @@
         const filter = btn.dataset.filter;
         document.querySelectorAll('.filter-tags .tag').forEach(t => t.classList.remove('is-active'));
         btn.classList.add('is-active');
-        document.querySelectorAll('.proj-row').forEach(row => {
-          row.hidden = !(filter === 'all' || row.dataset.cat === filter);
+        document.querySelectorAll('.panel[data-cat]').forEach(panel => {
+          panel.hidden = !(filter === 'all' || panel.dataset.cat === filter);
         });
       });
     });
