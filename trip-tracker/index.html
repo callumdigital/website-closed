@@ -10,41 +10,55 @@
 <link href="src/style.css" rel="stylesheet">
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <div>
-      <div class="eyebrow" id="tripTitle"></div>
-      <h1>Where in the world are<br><em id="who"></em> today?</h1>
-    </div>
-    <div class="stats" id="stats"></div>
-  </header>
-
-  <div class="main">
-    <div class="card map" id="map">
-      <svg id="svg" aria-label="Map of the trip route"></svg>
-      <div class="viewtoggle" id="viewToggle"><button data-v="world">Whole trip</button><button data-v="europe">Europe</button></div>
-      <div class="legend"><span><i></i>Been there</span><span><i class="f"></i>Still to come</span><span><i class="c"></i>Countries visited</span></div>
-    </div>
-    <aside class="card today" id="today"></aside>
-  </div>
-
-  <section class="card scrub">
-    <div class="scrub-top">
-      <div class="scrub-title" id="scrubTitle">Pick a day</div>
-      <div class="ctrls">
-        <button class="btn icon" id="prev" aria-label="Previous day">←</button>
-        <button class="btn icon" id="next" aria-label="Next day">→</button>
-        <button class="btn primary" id="goToday">Jump to today</button>
+<!-- Full-bleed map with floating panels; on narrow screens the panels stack under the map. -->
+<main class="hero">
+  <div class="map-canvas" id="map">
+    <svg id="svg" aria-label="Map of the trip route"></svg>
+    <!-- Shown over the map until take-off -->
+    <div class="countdown" id="countdown" hidden>
+      <div class="cd-inner">
+        <div class="eyebrow" id="cdFrom">Take-off in</div>
+        <div class="cd-clock" role="timer" aria-live="off">
+          <div><b id="cdD">0</b><span>days</span></div>
+          <div><b id="cdH">00</b><span>hrs</span></div>
+          <div><b id="cdM">00</b><span>mins</span></div>
+          <div><b id="cdS">00</b><span>secs</span></div>
+        </div>
+        <p class="cd-sub" id="cdSub"></p>
+        <button class="btn" id="cdPeek">Peek at the route →</button>
       </div>
     </div>
+  </div>
+
+  <div class="topleft" id="topleft">
+    <h1>Where in the world are<br><em id="who"></em>?</h1>
+    <div class="viewtoggle" id="viewToggle" role="group" aria-label="Map view">
+      <button data-v="world" title="Whole trip" aria-label="Whole trip"><span aria-hidden="true">🌏</span></button>
+      <button data-v="europe" title="Europe" aria-label="Europe"><span aria-hidden="true">🇪🇺</span></button>
+    </div>
+  </div>
+
+  <div class="stats card" id="stats"></div>
+
+  <div class="side" id="side">
+    <aside class="card today">
+      <div id="todayBody" class="today-body"></div>
+      <div class="daynav">
+        <button class="btn icon" id="prev" aria-label="Previous day">←</button>
+        <button class="btn primary" id="goToday">Jump to today</button>
+        <button class="btn icon" id="next" aria-label="Next day">→</button>
+      </div>
+    </aside>
+    <section class="card stopsbox">
+      <h2>Stops along the way</h2>
+      <div class="cards" id="cards"></div>
+    </section>
+  </div>
+
+  <section class="card scrub" aria-label="Pick a day">
     <div class="strip-scroll"><div class="strip" id="strip"></div></div>
   </section>
-
-  <section class="stops">
-    <div class="sec-h"><h2>Stops along the way</h2><p>Click a city to jump there.</p></div>
-    <div class="cards" id="cards"></div>
-  </section>
-</div>
+</main>
 <script type="module" src="src/main.js"></script>
 </body>
 </html>

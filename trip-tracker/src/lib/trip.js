@@ -12,55 +12,98 @@ export function hav(a, b) {
   return 2 * R * Math.asin(Math.sqrt(h));
 }
 
-// Accepts 2026-10-03, 03/10/2026 (day first), 3.10.26, or anything Date can parse. Returns a UTC midnight timestamp.
-export function parseDate(s) {
+const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+const WEEKDAYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+
+// Accepts 2026-10-03, 03/10/2026 (day first), 3.10.26, or "Sat 03 Oct" with no year.
+// With no year, the weekday picks the year (nearest to `near`); without a weekday, the year of `near`.
+// Returns a UTC midnight timestamp, or null.
+export function parseDate(s, near = Date.now()) {
   s = s.trim(); let m;
   if ((m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/))) return Date.UTC(+m[1], m[2] - 1, +m[3]);
   if ((m = s.match(/^(\d{1,2})[/.](\d{1,2})[/.](\d{2,4})$/))) return Date.UTC(m[3].length == 2 ? 2000 + +m[3] : +m[3], m[2] - 1, +m[1]);
+  if ((m = s.match(/^(?:([a-z]{3})[a-z]*,?\s+)?(\d{1,2})(?:st|nd|rd|th)?\s+([a-z]{3})[a-z]*\.?(?:\s+(\d{4}))?$/i))) {
+    const [, wd, day, mon, yr] = m, mo = MONTHS.indexOf(mon.toLowerCase());
+    if (mo < 0) return null;
+    if (yr) return Date.UTC(+yr, mo, +day);
+    const y0 = new Date(near).getUTCFullYear();
+    const years = [y0, y0 + 1, y0 - 1, y0 + 2, y0 - 2];
+    const want = wd ? WEEKDAYS.indexOf(wd.toLowerCase()) : -1;
+    const y = want < 0 ? y0 : years.find(y => new Date(Date.UTC(y, mo, +day)).getUTCDay() === want);
+    return y == null ? null : Date.UTC(y, mo, +day);
+  }
   const d = new Date(s); return isNaN(d) ? null : Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
 }
 
-// CSV or tab-separated (pasted from a spreadsheet); an optional header row is skipped.
-export function parseCSV(text) {
+// Cities that mean "not anywhere yet" or "we don't know".
+const IN_AIR = new Set(['the sky', 'sky', 'in the air', 'flying', 'plane', 'flight', 'in transit']);
+const UNKNOWN = /^(\?+|tbc|tbd|unknown)$/i;
+const lastLeg = v => v.split('>').map(x => x.trim()).filter(Boolean);
+
+/**
+ * Spreadsheet (CSV or tab-separated) with one row per day. Columns are found by their header names
+ * (date / city / country, any order); with no header they're read as date, city, country.
+ * Travel days can list a route like "London > Edinburgh": the last place is where they end up that day.
+ */
+export function parseCSV(text, near) {
   const rows = [], bad = [];
-  text.trim().split(/\r?\n/).forEach((line, i) => {
-    if (!line.trim()) return;
-    const cols = line.split(line.includes('\t') ? '\t' : ',').map(s => s.replace(/^"|"$/g, '').trim());
-    if (i === 0 && /date/i.test(cols[0])) return;
-    const d = parseDate(cols[0] || ''); if (d == null || !cols[1]) { bad.push(i + 1); return; }
-    rows.push({ t: d, city: cols[1], country: canonCountry(cols[2] || '') });
+  const lines = text.trim().split(/\r?\n/);
+  const split = line => line.split(line.includes('\t') ? '\t' : ',').map(s => s.replace(/^"|"$/g, '').trim());
+  let col = { date: 0, city: 1, country: 2 }, first = 0;
+  const head = split(lines[0] || '').map(h => h.toLowerCase());
+  if (head.some(h => h.includes('date'))) {
+    col = { date: head.findIndex(h => h.includes('date')), city: head.findIndex(h => h.includes('city')), country: head.findIndex(h => h.includes('country')) };
+    first = 1;
+  }
+  lines.forEach((line, i) => {
+    if (i < first || !line.trim()) return;
+    const cols = split(line);
+    const d = parseDate(cols[col.date] || '', near);
+    const route = lastLeg(cols[col.city] || '');
+    if (d == null || !route.length) { bad.push(i + 1); return; }
+    const countries = lastLeg(cols[col.country] || '');
+    const city = route[route.length - 1], country = countries[countries.length - 1] || '';
+    rows.push({ t: d, city, country, mapCountry: canonCountry(country), route: route.length > 1 ? route : null });
   });
   rows.sort((a, b) => a.t - b.t);
   return { rows, bad };
 }
 
-// Collapses consecutive days in the same city into stops. Days with no row become gaps ("in transit").
-export function buildTrip(rows, geoCache = {}) {
-  const stops = [], byDay = new Map();
+/**
+ * Collapses consecutive days in the same city into stops. "In the air" days, days with no row,
+ * and days back in the home city aren't stops. "???" becomes a mystery stop with no map position.
+ */
+export function buildTrip(rows, geoCache = {}, home = null) {
+  const stops = [], byDay = new Map(), routeByDay = new Map(), homeDays = new Set();
   rows.forEach(r => {
+    if (r.route) routeByDay.set(r.t, r.route);
+    const k = key(r.city);
+    if (IN_AIR.has(k)) return;
+    if (home && k === key(home.city)) { homeDays.add(r.t); return; }
+    const mystery = UNKNOWN.test(r.city);
     const last = stops[stops.length - 1];
-    if (last && key(last.city) === key(r.city) && r.t - last.end <= DAY) last.end = r.t;
-    else stops.push({ city: r.city, country: r.country, start: r.t, end: r.t });
+    if (last && key(last.city) === k && r.t - last.end <= DAY) last.end = r.t;
+    else stops.push({ city: mystery ? '???' : r.city, country: r.country, mapCountry: r.mapCountry || r.country, mystery, start: r.t, end: r.t });
   });
   stops.forEach((s, i) => {
     s.i = i;
     s.nights = Math.round((s.end - s.start) / DAY) + 1;
-    s.ll = COORDS[key(s.city)] || geoCache[key(s.city) + '|' + key(s.country)] || null;
+    s.ll = s.mystery ? null : COORDS[key(s.city)] || geoCache[key(s.city) + '|' + key(s.mapCountry)] || null;
     for (let t = s.start; t <= s.end; t += DAY) byDay.set(t, s);
   });
-  const start = stops[0]?.start, end = stops[stops.length - 1]?.end;
-  const days = []; if (stops.length) for (let t = start; t <= end; t += DAY) days.push(t);
-  return { stops, byDay, start, end, days };
+  const start = rows[0]?.t, end = rows[rows.length - 1]?.t;
+  const days = []; if (rows.length) for (let t = start; t <= end; t += DAY) days.push(t);
+  return { stops, byDay, routeByDay, homeDays, start, end, days };
 }
 
 // Looks up cities missing from COORDS via OpenStreetMap (1 req/sec per their usage policy).
 export async function geocodeMissing(trip, geoCache) {
   const failed = [];
-  for (const s of trip.stops.filter(s => !s.ll)) {
+  for (const s of trip.stops.filter(s => !s.ll && !s.mystery)) {
     try {
-      const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(s.city + ', ' + s.country)}`);
+      const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(s.city + ', ' + s.mapCountry)}`);
       const j = await r.json();
-      if (j[0]) { s.ll = [+j[0].lon, +j[0].lat]; geoCache[key(s.city) + '|' + key(s.country)] = s.ll; } else failed.push(s.city);
+      if (j[0]) { s.ll = [+j[0].lon, +j[0].lat]; geoCache[key(s.city) + '|' + key(s.mapCountry)] = s.ll; } else failed.push(s.city);
     } catch { failed.push(s.city); }
     await new Promise(r => setTimeout(r, 1100));
   }

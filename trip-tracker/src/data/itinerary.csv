@@ -1,46 +1,49 @@
-date,city,country
-2026-09-13,Singapore,Singapore
-2026-09-14,Singapore,Singapore
-2026-09-15,London,United Kingdom
-2026-09-16,London,United Kingdom
-2026-09-17,London,United Kingdom
-2026-09-18,Paris,France
-2026-09-19,Paris,France
-2026-09-20,Paris,France
-2026-09-21,Paris,France
-2026-09-22,Amsterdam,Netherlands
-2026-09-23,Amsterdam,Netherlands
-2026-09-24,Amsterdam,Netherlands
-2026-09-25,Berlin,Germany
-2026-09-26,Berlin,Germany
-2026-09-27,Berlin,Germany
-2026-09-28,Berlin,Germany
-2026-09-29,Prague,Czechia
-2026-09-30,Prague,Czechia
-2026-10-01,Prague,Czechia
-2026-10-02,Vienna,Austria
-2026-10-03,Vienna,Austria
-2026-10-04,Vienna,Austria
-2026-10-05,Budapest,Hungary
-2026-10-06,Budapest,Hungary
-2026-10-07,Budapest,Hungary
-2026-10-08,Split,Croatia
-2026-10-09,Split,Croatia
-2026-10-10,Split,Croatia
-2026-10-11,Split,Croatia
-2026-10-12,Rome,Italy
-2026-10-13,Rome,Italy
-2026-10-14,Rome,Italy
-2026-10-15,Rome,Italy
-2026-10-16,Florence,Italy
-2026-10-17,Florence,Italy
-2026-10-18,Barcelona,Spain
-2026-10-19,Barcelona,Spain
-2026-10-20,Barcelona,Spain
-2026-10-21,Barcelona,Spain
-2026-10-22,Lisbon,Portugal
-2026-10-23,Lisbon,Portugal
-2026-10-24,Lisbon,Portugal
-2026-10-25,Lisbon,Portugal
-2026-10-26,Shanghai,China
-2026-10-27,Shanghai,China
+﻿Date,Country,City
+Sat 03 Oct,NZ > Singapore,Wellington > Auckland > Changi
+Sun 04 Oct,Singapore > England,Changi > London
+Mon 05 Oct,England,London
+Tue 06 Oct,England,London
+Wed 07 Oct,England,London
+Thu 08 Oct,England,London
+Fri 09 Oct,England > Scotland,London > Edinburgh
+Sat 10 Oct,Scotland,Edinburgh
+Sun 11 Oct,Scotland,Edinburgh
+Mon 12 Oct,Scotland,Edinburgh > Inverness
+Tue 13 Oct,Scotland,Inverness
+Wed 14 Oct,Scotland,Inverness
+Thu 15 Oct,Scotland,Inverness
+Fri 16 Oct,Scotland > England,Inverness > ???
+Sat 17 Oct,England,???
+Sun 18 Oct,England,London
+Mon 19 Oct,England > France,London > Paris
+Tue 20 Oct,France,Paris
+Wed 21 Oct,France,Paris
+Thu 22 Oct,France,Paris
+Fri 23 Oct,France > Germany,Paris > Karlsruhe > Baden-Baden
+Sat 24 Oct,Germany,Baden-Baden > Freiburg
+Sun 25 Oct,Germany,Freiburg
+Mon 26 Oct,Germany,Freiburg
+Tue 27 Oct,Germany > Switzerland,Freiburg > Lucerne > Interlaken
+Wed 28 Oct,Switzerland,Interlaken
+Thu 29 Oct,Switzerland,Interlaken
+Fri 30 Oct,Switzerland,Interlaken
+Sat 31 Oct,Switzerland > Italy,Interlaken > Milan > Florence
+Sun 01 Nov,Italy,Florence
+Mon 02 Nov,Italy,Florence
+Tue 03 Nov,Italy,Florence
+Wed 04 Nov,Italy,Florence > Rome
+Thu 05 Nov,Italy,Rome
+Fri 06 Nov,Italy,Rome
+Sat 07 Nov,Italy,Rome
+Sun 08 Nov,Italy,Rome
+Mon 09 Nov,Italy,Rome
+Tue 10 Nov,Italy > Greece,Rome > Athens
+Wed 11 Nov,Greece,Athens
+Thu 12 Nov,Greece,Athens
+Fri 13 Nov,Greece,Athens
+Sat 14 Nov,Greece,Athens
+Sun 15 Nov,Greece,Athens
+Mon 16 Nov,Greece > England,Athens > London
+Tue 17 Nov,England > China,London > Beijing
+Wed 18 Nov,China > The sky,Beijing > The sky
+Thu 19 Nov,The sky > NZ,The sky > Auckland > Wellington

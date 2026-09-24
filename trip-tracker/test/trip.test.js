@@ -13,7 +13,7 @@ test('parseDate handles ISO and day-first formats', () => {
 test('parseCSV skips header, reports bad lines, accepts tabs, normalises countries', () => {
   const { rows, bad } = parseCSV('date\tcity\tcountry\n2026-09-16\tPrague\tCzech Republic\nrubbish\n2026-09-15\tLondon\tUK');
   assert.deepEqual(rows.map(r => r.city), ['London', 'Prague']);
-  assert.equal(rows[1].country, 'Czechia');
+  assert.equal(rows[1].mapCountry, 'Czechia');
   assert.deepEqual(bad, [3]);
 });
 
@@ -26,6 +26,36 @@ test('buildTrip merges consecutive days and leaves gaps as transit', () => {
   assert.equal(trip.byDay.get(Date.UTC(2026, 8, 3)), undefined);
   assert.equal(currentStopIndex(trip, Date.UTC(2026, 8, 3)), 0);
   assert.deepEqual(trip.stops[1].ll, [12.4964, 41.9028]);
+});
+
+test('parseDate infers the year from the weekday', () => {
+  const near = Date.UTC(2026, 8, 24);
+  assert.equal(parseDate('Sat 03 Oct', near), Date.UTC(2026, 9, 3));
+  assert.equal(parseDate('Fri 03 Oct', near), Date.UTC(2025, 9, 3));
+  assert.equal(parseDate('3 Oct', near), Date.UTC(2026, 9, 3));
+  assert.equal(parseDate('Sat 03 Oct 2026'), Date.UTC(2026, 9, 3));
+});
+
+test('travellers format: routes, in-the-air, mystery and home days', () => {
+  const near = Date.UTC(2026, 8, 24);
+  const { rows, bad } = parseCSV(`Date,Country,City
+Sat 03 Oct,NZ > Singapore,Wellington > Auckland > Changi
+Sun 04 Oct,Singapore > England,Changi > London
+Mon 05 Oct,Scotland > England,London > ???
+Tue 06 Oct,England > China,??? > Beijing
+Wed 07 Oct,China > The sky,Beijing > The sky
+Thu 08 Oct,The sky > NZ,The sky > Auckland > Wellington`, near);
+  assert.deepEqual(bad, []);
+  assert.equal(rows[0].city, 'Changi');
+  assert.deepEqual(rows[1].route, ['Changi', 'London']);
+  assert.equal(rows[2].country, 'England');
+  assert.equal(rows[2].mapCountry, 'United Kingdom');
+  const trip = buildTrip(rows, {}, { city: 'Wellington', country: 'New Zealand' });
+  assert.deepEqual(trip.stops.map(s => s.city), ['Changi', 'London', '???', 'Beijing']);
+  assert.ok(trip.stops[2].mystery && !trip.stops[2].ll);
+  assert.equal(trip.byDay.get(Date.UTC(2026, 9, 7)), undefined); // in the air
+  assert.ok(trip.homeDays.has(Date.UTC(2026, 9, 8)));
+  assert.equal(trip.days.length, 6);
 });
 
 test('the committed itinerary parses cleanly', () => {
