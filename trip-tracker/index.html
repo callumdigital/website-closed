@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Where in Europe?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow" id="tripTitle"></div>
+      <h1>Where in the world are<br><em id="who"></em> today?</h1>
+    </div>
+    <div class="stats" id="stats"></div>
+  </header>
+
+  <div class="main">
+    <div class="card map" id="map">
+      <svg id="svg" aria-label="Map of the trip route"></svg>
+      <div class="viewtoggle" id="viewToggle"><button data-v="world">Whole trip</button><button data-v="europe">Europe</button></div>
+      <div class="legend"><span><i></i>Been there</span><span><i class="f"></i>Still to come</span><span><i class="c"></i>Countries visited</span></div>
+    </div>
+    <aside class="card today" id="today"></aside>
+  </div>
+
+  <section class="card scrub">
+    <div class="scrub-top">
+      <div class="scrub-title" id="scrubTitle">Pick a day</div>
+      <div class="ctrls">
+        <button class="btn icon" id="prev" aria-label="Previous day">←</button>
+        <button class="btn icon" id="next" aria-label="Next day">→</button>
+        <button class="btn primary" id="goToday">Jump to today</button>
+      </div>
+    </div>
+    <div class="strip-scroll"><div class="strip" id="strip"></div></div>
+  </section>
+
+  <section class="stops">
+    <div class="sec-h"><h2>Stops along the way</h2><p>Click a city to jump there.</p></div>
+    <div class="cards" id="cards"></div>
+  </section>
+</div>
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
