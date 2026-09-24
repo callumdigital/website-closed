@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Trip photos">
+<title>Add a trip photo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="src/style.css" rel="stylesheet">
+</head>
+<body class="up">
+<!-- Private page for the travellers: sign in by email link, then post a photo for the day. -->
+<main class="up-wrap">
+  <header class="up-head">
+    <div class="eyebrow">Trip photos</div>
+    <h1>Postcard of the day</h1>
+    <a class="up-back" href="./">← Back to the map</a>
+  </header>
+
+  <p class="card up-card" id="notSetUp" hidden>Photo uploads aren't switched on yet. See <b>SETUP-PHOTOS.md</b> in the project.</p>
+
+  <form class="card up-card" id="signin" hidden>
+    <h2>Sign in</h2>
+    <p class="up-note">We'll email you a link. Open it on this phone and you'll stay signed in for the trip.</p>
+    <label>Email <input type="email" id="email" autocomplete="email" required></label>
+    <button class="btn primary" type="submit">Email me a sign-in link</button>
+    <p class="up-status" id="signinStatus" role="status"></p>
+  </form>
+
+  <div class="card up-card" id="notAllowed" hidden>
+    <h2>Not on the list</h2>
+    <p class="up-note"><b id="whoami"></b> isn't allowed to post photos. Ask the site owner to add you.</p>
+    <button class="btn" type="button" data-signout>Sign out</button>
+  </div>
+
+  <form class="card up-card" id="post" hidden>
+    <h2>Add photos</h2>
+    <label>Day <span class="up-row"><input type="date" id="day" required><span class="up-where" id="where"></span></span></label>
+    <label class="up-pick">
+      <input type="file" id="file" accept="image/*" multiple required>
+      <span class="up-previews" id="previews" hidden></span>
+      <span id="pickText">📷 Choose photos</span>
+    </label>
+    <label>Caption <span class="up-optional" id="capHint">(optional)</span><input type="text" id="caption" maxlength="280" placeholder="Gelato #3 today…"></label>
+    <button class="btn primary" type="submit" id="postBtn">Post</button>
+    <p class="up-status" id="postStatus" role="status"></p>
+  </form>
+
+  <section class="card up-card" id="recent" hidden>
+    <h2>Recent photos</h2>
+    <ul class="up-list" id="recentList"></ul>
+    <button class="btn up-signout" type="button" data-signout>Sign out</button>
+  </section>
+</main>
+<script type="module" src="src/upload.js"></script>
+</body>
+</html>

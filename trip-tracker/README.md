@@ -20,6 +20,10 @@ Leave a date out and it shows as "in the air". If a city isn't in `src/lib/place
 
 Trip title, travellers and home city are set in `src/data/trip.js`.
 
+## Daily photos
+
+The travellers post a photo a day from `upload.html` (sign-in by email link). Photos are stored in Supabase; see **SETUP-PHOTOS.md** to switch it on.
+
 ## Develop
 
 ```sh

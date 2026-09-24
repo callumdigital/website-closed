@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "vendor": "vite build -c scripts/vendor.config.js && cp node_modules/world-atlas/countries-50m.json vendor/",
+    "vendor": "vite build -c scripts/vendor.config.js && vite build -c scripts/supabase.config.js && cp node_modules/world-atlas/countries-50m.json vendor/",
     "test": "node --test"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.117.1",
     "d3-geo": "^3.1.1",
     "d3-selection": "^3.0.0",
     "topojson-client": "^3.1.0",

@@ -3,6 +3,7 @@ import { TZ } from './lib/places.js';
 import { DAY, key, canonCountry, plural, hav, parseCSV, buildTrip, geocodeMissing, clampToTrip, currentStopIndex } from './lib/trip.js';
 import { renderMap, inEU } from './map.js';
 import { feature } from '../vendor/geo.js';
+import { photosEnabled, loadPhotos } from './lib/photos.js';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -23,6 +24,8 @@ const geoCache = (() => { try { return JSON.parse(store.get('trip-geocache') || 
 
 let trip, sel, world, clockTimer, mapView = 'world';
 const stopAt = t => trip.byDay.get(t) || null;
+let photosByDay = new Map(); // 'YYYY-MM-DD' → the travellers' uploads for that day
+const isoDay = t => new Date(t).toISOString().slice(0, 10);
 
 // Wall-clock time (minutes after midnight on day t) in time zone tz → a real instant.
 const tzOffset = (t, tz) => {
@@ -126,10 +129,12 @@ function renderToday() {
       <div class="city">${esc(city)}</div>
       <div class="country"><span class="dot"></span>${esc(country)}</div>
     </div>
+    ${dayPhotoHtml(sel)}
     <div class="rows">${rows}</div>
     ${wxPlace ? `<div class="weather" id="weather"><span class="wx-what">Checking the weather in ${esc(wxPlace.name)}…</span></div>` : ''}
     <div class="next"><span class="eyebrow">Up next</span>${nextHtml}</div>`;
 
+  renderPolaroid();
   if (wxPlace) showWeather(wxPlace, sel);
   clearInterval(clockTimer);
   if (s || trip.homeDays.has(sel)) {
@@ -179,6 +184,39 @@ function showWeather(place, t) {
   }).catch(() => set(`<span class="wx-what">Couldn't load the weather for ${esc(place.name)} right now</span>`));
 }
 
+// The day's photo from the travellers (the latest one; tap to see them all full size).
+function dayPhotoHtml(t) {
+  const pics = photosByDay.get(isoDay(t)) || [];
+  if (!pics.length) return '';
+  const p = pics[pics.length - 1];
+  return `<figure class="daypic" id="daypic" role="button" tabindex="0" aria-label="Open photo">
+    <img src="${esc(p.url)}" alt="${esc(p.caption || 'Photo from the day')}" loading="lazy">
+    ${pics.length > 1 ? `<span class="count">📷 ${pics.length}</span>` : ''}
+    ${p.caption ? `<figcaption>${esc(p.caption)}</figcaption>` : ''}</figure>`;
+}
+let lb = { pics: [], i: 0 };
+function showLightbox() {
+  const p = lb.pics[lb.i];
+  $('lbImg').src = p.url; $('lbImg').alt = p.caption || 'Photo from the day';
+  $('lbCap').textContent = p.caption || '';
+  $('lbPrev').hidden = $('lbNext').hidden = lb.pics.length < 2;
+}
+// Laptop view: the newest photo of the day as a polaroid on the map.
+function renderPolaroid() {
+  const pics = photosByDay.get(isoDay(sel)) || [], p = pics[pics.length - 1];
+  $('polaroid').hidden = !p;
+  if (!p) return;
+  if ($('polImg').getAttribute('src') !== p.url) $('polImg').src = p.url;
+  $('polImg').alt = p.caption || 'Photo from the day';
+  $('polCap').textContent = p.caption || '';
+  $('polCount').hidden = pics.length < 2; $('polCount').textContent = `📷 ${pics.length}`;
+}
+function openLightbox() {
+  const pics = photosByDay.get(isoDay(sel)) || [];
+  if (!pics.length) return;
+  lb = { pics, i: pics.length - 1 }; showLightbox(); $('lightbox').showModal();
+}
+
 function renderStrip() {
   const n = trip.days.length, el = $('strip'), hasToday = trip.days.includes(realToday);
   el.style.gridTemplateColumns = `repeat(${n},minmax(0,1fr))`;
@@ -189,7 +227,7 @@ function renderStrip() {
   });
   trip.days.forEach((t, i) => {
     const s = stopAt(t);
-    const cls = ['day', s ? (s.i % 2 ? 'alt' : '') : 'gap', t < sel ? 'past' : '', t === sel ? 'sel' : ''].join(' ');
+    const cls = ['day', s ? (s.i % 2 ? 'alt' : '') : 'gap', t < sel ? 'past' : '', t === sel ? 'sel' : '', photosByDay.has(isoDay(t)) ? 'has-photo' : ''].join(' ');
     h += `<button class="${cls}" style="grid-row:2;grid-column:${i + 1};margin-top:${hasToday ? 18 : 0}px" data-t="${t}" title="${fmt(t, { weekday: 'short', day: 'numeric', month: 'short' })}${s ? ' · ' + esc(s.city) : ''}">${new Date(t).getUTCDate()}${t === realToday ? '<span class="t">Today</span>' : ''}</button>`;
   });
   trip.stops.forEach(s => {
@@ -219,7 +257,8 @@ function visibleArea(W, H) {
   if (getComputedStyle(side).position !== 'absolute') return null;
   const m = $('map').getBoundingClientRect(), r = el => el.getBoundingClientRect();
   const toggle = r($('viewToggle')), title = r($('topleft').querySelector('h1')), sideR = r(side);
-  const x0 = toggle.right - m.left + 40, y0 = title.bottom - m.top + 40;
+  const pol = $('polaroid').offsetParent ? r($('polaroid')) : null; // keep the route clear of the photo too
+  const x0 = Math.max(toggle.right, pol ? pol.right : 0) - m.left + 40, y0 = title.bottom - m.top + 40;
   const x1 = sideR.left - m.left - 50, y1 = r($('strip').closest('.scrub')).top - m.top - 30;
   return x1 - x0 > 200 && y1 - y0 > 200 ? [[x0, y0], [x1, y1]] : null;
 }
@@ -255,13 +294,21 @@ function renderAll() { renderStats(); renderToday(); renderStrip(); renderCards(
 function go(t) { sel = clampToTrip(trip, t); mapView = autoView(sel); renderAll(); } // the toggle overrides until the day changes
 
 // Events
+$('todayBody').addEventListener('click', e => { if (e.target.closest('#daypic')) openLightbox(); });
+$('polaroid').addEventListener('click', openLightbox);
+$('polaroid').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(); } });
+$('todayBody').addEventListener('keydown', e => { if (e.target.closest('#daypic') && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openLightbox(); } });
+$('lbPrev').onclick = () => { lb.i = (lb.i - 1 + lb.pics.length) % lb.pics.length; showLightbox(); };
+$('lbNext').onclick = () => { lb.i = (lb.i + 1) % lb.pics.length; showLightbox(); };
+$('lbClose').onclick = () => $('lightbox').close();
+$('lightbox').addEventListener('click', e => { if (e.target === $('lightbox')) $('lightbox').close(); }); // tap outside the photo
 $('strip').addEventListener('click', e => { const b = e.target.closest('.day'); if (b) go(+b.dataset.t); });
 $('cards').addEventListener('click', e => { const c = e.target.closest('.pc'); if (c) { go(+c.dataset.t); $('map').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } });
 $('viewToggle').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; mapView = b.dataset.v; drawMap(); });
 $('prev').onclick = () => go(sel - DAY);
 $('next').onclick = () => go(sel + DAY);
 $('goToday').onclick = () => go(realToday);
-document.addEventListener('keydown', e => { if (e.key === 'ArrowLeft') go(sel - DAY); if (e.key === 'ArrowRight') go(sel + DAY); });
+document.addEventListener('keydown', e => { if ($('lightbox').open) return; if (e.key === 'ArrowLeft') go(sel - DAY); if (e.key === 'ArrowRight') go(sel + DAY); });
 new ResizeObserver(() => trip && drawMap()).observe($('map'));
 
 // Countdown over the map until take-off (day 1 at TRIP.takeoffTime, NZ time).
@@ -313,6 +360,11 @@ if (!rows.length) {
   mapView = autoView(sel);
   renderAll();
   startCountdown();
+  // The travellers' photos: load now, then check for new ones every few minutes.
+  if (photosEnabled) {
+    const refresh = () => loadPhotos().then(m => { photosByDay = m; renderToday(); renderStrip(); drawMap(); }).catch(e => console.warn('Photos:', e.message));
+    refresh(); setInterval(refresh, 5 * 60e3);
+  }
   const fl = flight(realToday); // re-render the moment they land today
   if (fl && Date.now() < fl.lands && fl.lands - Date.now() < 2 ** 31 - 1) setTimeout(() => { if (sel === realToday) go(sel); }, fl.lands - Date.now() + 1000);
   if (trip.stops.some(s => !s.ll)) {

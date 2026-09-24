@@ -36,6 +36,12 @@
       <button data-v="world" title="Whole trip" aria-label="Whole trip"><span aria-hidden="true">🌏</span></button>
       <button data-v="europe" title="Europe" aria-label="Europe"><span aria-hidden="true">🇪🇺</span></button>
     </div>
+    <!-- The day's photo, pinned to the map like a polaroid (laptops; phones show it in the today card) -->
+    <figure class="polaroid" id="polaroid" role="button" tabindex="0" aria-label="Open the day's photos" hidden>
+      <img id="polImg" alt="">
+      <span class="count" id="polCount" hidden></span>
+      <figcaption id="polCap"></figcaption>
+    </figure>
   </div>
 
   <div class="stats card" id="stats"></div>
@@ -59,6 +65,15 @@
     <div class="strip-scroll"><div class="strip" id="strip"></div></div>
   </section>
 </main>
+
+<!-- Full-size view of a day's photos -->
+<dialog class="lightbox" id="lightbox" aria-label="Photo">
+  <img id="lbImg" alt="">
+  <p id="lbCap"></p>
+  <button class="lb-nav lb-prev" id="lbPrev" aria-label="Previous photo">←</button>
+  <button class="lb-nav lb-next" id="lbNext" aria-label="Next photo">→</button>
+  <button class="lb-close" id="lbClose" aria-label="Close">✕</button>
+</dialog>
 <script type="module" src="src/main.js"></script>
 </body>
 </html>

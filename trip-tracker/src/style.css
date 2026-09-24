@@ -7,6 +7,7 @@
   --side-w:440px; --gutter:20px;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important} /* beats component display rules */
 html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
 button{font-family:inherit;cursor:pointer;color:inherit}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px}
@@ -51,7 +52,7 @@ h1 em{font-style:normal;color:var(--accent)}
 .side{position:absolute;top:128px;right:var(--gutter);bottom:var(--gutter);width:var(--side-w);display:flex;flex-direction:column;gap:16px}
 .side .card{box-shadow:0 2px 10px rgba(42,37,32,.06)}
 
-.today{padding:24px 26px;display:flex;flex-direction:column;gap:16px;flex:none}
+.today{padding:24px 26px;display:flex;flex-direction:column;gap:16px;flex:0 1 auto;min-height:0;overflow-y:auto} /* scrolls inside rather than pushing the stops off-screen */
 .today-body{display:flex;flex-direction:column;gap:18px;position:relative}
 .stampbadge{width:84px;height:84px;border-radius:50%;border:2px solid var(--stamp);outline:1px solid var(--stamp);outline-offset:3px;color:var(--stamp);display:flex;flex-direction:column;align-items:center;justify-content:center;transform:rotate(-9deg);position:absolute;top:-2px;right:0;text-transform:uppercase;letter-spacing:.1em;font-size:10.5px;font-weight:700;line-height:1.1;text-align:center}
 .stampbadge b{font-family:var(--serif);font-weight:400;font-size:28px;letter-spacing:0;line-height:1}
@@ -79,7 +80,7 @@ h1 em{font-style:normal;color:var(--accent)}
 .daynav .primary{flex:1}
 
 /* Stop tiles: little passport-page grid */
-.stopsbox{padding:18px 20px 20px;display:flex;flex-direction:column;gap:14px;flex:1;min-height:0}
+.stopsbox{padding:18px 20px 20px;display:flex;flex-direction:column;gap:14px;flex:1 0 170px;min-height:170px}
 .stopsbox h2{font-family:var(--serif);font-weight:400;font-size:22px;margin:0}
 .cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;overflow-y:auto;min-height:0;padding:10px 2px 2px;margin-top:-10px}
 .pc{position:relative;height:72px;border:1px solid var(--line);border-radius:6px;background:#fff;display:flex;align-items:center;justify-content:center;padding:14px 6px 6px;font:15px/1.15 var(--serif);text-align:center;overflow-wrap:anywhere;transition:transform .15s,border-color .15s}
@@ -127,6 +128,7 @@ h1 em{font-style:normal;color:var(--accent)}
 @media (max-width:1100px){
   .hero{height:auto;min-height:0;overflow:visible;background:var(--paper);display:flex;flex-direction:column;gap:16px;padding:24px 16px 48px}
   .topleft,.stats,.side,.scrub{position:static;max-width:none;width:auto}
+  .daypic img{height:220px}
   .topleft{flex-direction:row;align-items:flex-end;justify-content:space-between;gap:16px;pointer-events:auto}
   h1{font-size:clamp(32px,7vw,52px);text-shadow:none}
   .viewtoggle{flex-direction:row;flex:none}
@@ -151,3 +153,61 @@ h1 em{font-style:normal;color:var(--accent)}
   .cards{grid-template-columns:repeat(3,minmax(0,1fr))}
   .scrub{padding:12px 14px}
 }
+
+/* ── Daily photos on the main page ───────────────────────────────────── */
+.daypic{margin:0;position:relative;cursor:zoom-in}
+.daypic img{display:block;width:100%;height:clamp(96px,calc(100vh - 780px),170px);object-fit:cover;border-radius:10px;border:1px solid var(--line);background:var(--paper)}
+.daypic figcaption{font-size:13.5px;color:var(--muted);margin-top:6px;font-style:italic}
+.daypic .count{position:absolute;top:8px;right:8px;background:rgba(42,37,32,.72);color:#fff;font-size:12px;font-weight:600;padding:3px 8px;border-radius:999px}
+.day.has-photo::after{content:"";position:absolute;top:5px;left:50%;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:var(--stamp)}
+.day.sel.has-photo::after{background:var(--card)}
+.lightbox{border:none;padding:0;background:transparent;max-width:min(92vw,1100px);max-height:92vh}
+.lightbox::backdrop{background:rgba(42,37,32,.82)}
+.lightbox img{display:block;max-width:100%;max-height:82vh;border-radius:12px;margin:0 auto}
+.lightbox p{color:#fff;text-align:center;margin:10px 0 0;font-size:15px}
+.lightbox .lb-nav{position:fixed;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;border:none;background:rgba(251,248,242,.9);font-size:20px}
+.lightbox .lb-prev{left:16px} .lightbox .lb-next{right:16px}
+.lightbox .lb-close{position:fixed;top:16px;right:16px;width:44px;height:44px;border-radius:50%;border:none;background:rgba(251,248,242,.9);font-size:20px}
+
+/* ── Upload page (upload.html) ───────────────────────────────────────── */
+body.up{min-height:100vh}
+.up-wrap{max-width:520px;margin:0 auto;padding:28px 16px 64px;display:flex;flex-direction:column;gap:16px}
+.up-head h1{font-size:36px;text-shadow:none}
+.up-back{display:inline-block;margin-top:8px;font-size:14px;color:var(--accent-ink)}
+.up-card{padding:20px;display:flex;flex-direction:column;gap:14px;margin:0}
+.up-card h2{font-family:var(--serif);font-weight:400;font-size:22px;margin:0}
+.up-card label{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600}
+.up-card input[type=email],.up-card input[type=text],.up-card input[type=date]{font:16px var(--sans);padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);width:100%}
+.up-row{display:flex;align-items:center;gap:12px}
+.up-row input{flex:1}
+.up-where{font-family:var(--serif);font-weight:400;font-size:18px;color:var(--accent-ink);white-space:nowrap}
+.up-pick{position:relative;border:1.5px dashed var(--line);border-radius:12px;min-height:160px;align-items:center;justify-content:center;background:var(--paper);cursor:pointer;overflow:hidden;font-size:16px;color:var(--muted)}
+.up-pick input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.up-previews{display:grid;grid-template-columns:repeat(var(--cols,2),1fr);gap:3px;width:100%}
+.up-previews[data-n="1"]{--cols:1} .up-previews[data-n="3"]{--cols:3}
+.up-previews img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.up-previews[data-n="1"] img{aspect-ratio:auto;max-height:340px}
+.up-previews:not([hidden])+span{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(42,37,32,.72);color:#fff;font-size:13px;padding:4px 10px;border-radius:999px;white-space:nowrap}
+.up-optional{font-weight:400;color:var(--muted)}
+.up-card .btn.primary{height:48px;font-size:16px}
+.up-note{margin:0;font-size:14px;color:var(--muted);line-height:1.45}
+.up-status{margin:0;font-size:14px;color:var(--stamp);min-height:1.2em}
+.up-status.ok{color:var(--accent-ink)}
+.up-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.up-list li{display:flex;align-items:center;gap:12px;font-size:13.5px;color:var(--muted)}
+.up-list li b{color:var(--ink)}
+.up-list img{width:64px;height:64px;object-fit:cover;border-radius:8px;flex:none}
+.up-list span{flex:1;min-width:0}
+.up-signout{align-self:flex-start}
+
+/* The day's photo as a polaroid on the map (laptops). Phones and short windows keep it in the today card. */
+.polaroid{pointer-events:auto;margin:0;width:250px;background:#fff;padding:10px 10px 12px;border-radius:3px;box-shadow:0 8px 22px rgba(42,37,32,.2);transform:rotate(-3deg);cursor:zoom-in;position:relative;transition:transform .2s}
+.polaroid:hover{transform:rotate(-1deg) scale(1.02)}
+.polaroid::before{content:"";position:absolute;top:-11px;left:50%;width:84px;height:22px;margin-left:-42px;background:rgba(233,220,190,.85);transform:rotate(2deg);box-shadow:0 1px 2px rgba(42,37,32,.08)}
+.polaroid img{display:block;width:100%;height:170px;object-fit:cover;background:var(--paper)}
+.polaroid figcaption{font:italic 15px/1.3 var(--serif);text-align:center;margin-top:9px;color:var(--ink);overflow-wrap:anywhere}
+.polaroid figcaption:empty{display:none}
+.polaroid .count{position:absolute;top:18px;right:18px;background:rgba(42,37,32,.72);color:#fff;font-size:12px;font-weight:600;padding:3px 8px;border-radius:999px}
+@media (min-width:1101px) and (min-height:761px){.daypic{display:none}}
+@media (max-width:1100px),(max-height:760px){.polaroid{display:none!important}}
+@media (max-height:960px) and (min-width:1101px){.topleft{gap:28px}.viewtoggle button{width:88px;height:88px;font-size:46px}.polaroid{width:220px}.polaroid img{height:135px}}
