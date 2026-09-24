@@ -2,8 +2,9 @@
 export default {
   title: 'The Big Europe Trip',
   travellers: 'Annalisa & Mitchell',
-  // Photo of the travellers' faces, shown as the "you are here" marker on the map.
-  // Drop a square photo into img/ and set the path, e.g. 'img/travellers.jpg'. Until then their initials show.
+  // Cut-out of the travellers' heads, shown as the "you are here" marker on the map.
+  // Save it as a PNG with a transparent background in img/ and set the path, e.g. 'img/travellers.png'.
+  // Until then their initials show in a bubble.
   avatar: '',
   // Which time zone decides what "today" is on the site.
   todayTimeZone: 'Pacific/Auckland',

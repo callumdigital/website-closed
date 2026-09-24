@@ -33,5 +33,5 @@ npm run vendor  # only when upgrading d3/topojson/world-atlas: rebuilds vendor/
 
 The "you are here" marker shows the travellers' initials until you add a photo:
 
-1. Add a square photo to `img/`, e.g. `img/travellers.jpg`. Crop it tight on the faces; about 300×300px is plenty.
-2. In `src/data/trip.js`, set `avatar: 'img/travellers.jpg'`.
+1. Save a cut-out of their heads as a **PNG with a transparent background** in `img/`, e.g. `img/travellers.png`. Trim the empty space around the heads; about 400px wide is plenty.
+2. In `src/data/trip.js`, set `avatar: 'img/travellers.png'`.

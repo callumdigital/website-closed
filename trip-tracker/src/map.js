@@ -13,20 +13,25 @@ function haloText(parent, txt, x, y, anchor, ff, fs, fw, fill) {
   return t;
 }
 
-// The travellers' faces bubble; falls back to their initials until a photo is set (see src/data/trip.js).
+// Size of the travellers' marker: the cut-out photo at its own proportions, or the initials bubble.
+const facesSize = (R, avatar) => avatar.src ? { w: R * 2.8 * avatar.ratio, h: R * 2.8 } : { w: R * 2, h: R * 2 };
+
+// The travellers' marker. With a photo (a cut-out of their heads, transparent background) it's just the
+// image with a soft shadow that follows its outline; until then, a bubble with their initials.
 function drawFaces(sg, R, avatar) {
+  const { w, h } = facesSize(R, avatar);
+  if (avatar.src) {
+    sg.append('image').attr('class', 'faces').attr('href', avatar.src).attr('x', -w / 2).attr('y', -h / 2)
+      .attr('width', w).attr('height', h).attr('preserveAspectRatio', 'xMidYMid meet');
+    return { w, h };
+  }
   sg.append('circle').attr('r', R).attr('fill', 'var(--accent)').attr('class', 'pulse face');
   sg.append('circle').attr('r', R).attr('fill', 'var(--accent)');
-  if (avatar.src) {
-    sg.append('clipPath').attr('id', 'avatarClip').append('circle').attr('r', R);
-    sg.append('image').attr('href', avatar.src).attr('x', -R).attr('y', -R).attr('width', R * 2).attr('height', R * 2)
-      .attr('preserveAspectRatio', 'xMidYMid slice').attr('clip-path', 'url(#avatarClip)');
-  } else {
-    sg.append('text').text(avatar.initials).attr('text-anchor', 'middle').attr('dy', '.35em')
-      .attr('font-family', 'Figtree, sans-serif').attr('font-weight', 700).attr('font-size', R * .62).attr('fill', 'var(--card)');
-  }
+  sg.append('text').text(avatar.initials).attr('text-anchor', 'middle').attr('dy', '.35em')
+    .attr('font-family', 'Figtree, sans-serif').attr('font-weight', 700).attr('font-size', R * .62).attr('fill', 'var(--card)');
   sg.append('circle').attr('r', R).attr('fill', 'none').attr('stroke', 'var(--card)').attr('stroke-width', 3);
   sg.append('circle').attr('r', R + 1.5).attr('fill', 'none').attr('stroke', 'var(--accent)').attr('stroke-width', 1.5);
+  return { w, h };
 }
 
 /**
@@ -98,14 +103,15 @@ export function renderMap({ svgEl, box, fit, trip, sel, idx, cur, home, atHome, 
     if (atHome) drawFaces(hg, 18, avatar); else hg.append('rect').attr('x', -6).attr('y', -6).attr('width', 12).attr('height', 12).attr('rx', 2).attr('fill', 'var(--stamp)')
       .attr('stroke', 'var(--card)').attr('stroke-width', 2).attr('transform', 'rotate(45)');
     const flip = H0[0] > edge - 160;
-    const hx = atHome ? 26 : 12;
+    const hx = atHome ? facesSize(18, avatar).w / 2 + 8 : 12;
     haloText(hg, `Home · ${home.city}`, flip ? -hx : hx, 4, flip ? 'end' : 'start', 'Figtree, sans-serif', 12.5, 700, 'var(--stamp)');
   }
 
   // Zoomed out, only label the current city, the ends, and anything touching a non-European stop.
   const away = s => s && s.ll && !inEU(s.ll);
   const small = wide || W < 700; // zoomed-out or phone-sized map: smaller pins and labels
-  const R = wide ? 18 : small ? 20 : 26; // travellers' face bubble radius
+  const R = wide ? 18 : small ? 20 : 26; // travellers' marker size
+  const F = facesSize(R, avatar);
   const pinR = wide ? 3.5 : small ? 5 : 6.5;
   let curG = null;
   const groups = [];
@@ -129,7 +135,7 @@ export function renderMap({ svgEl, box, fit, trip, sel, idx, cur, home, atHome, 
   // and is dropped if both would collide with another label or pin (the dot's tooltip still names it).
   const taken = [];
   const hit = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
-  P.forEach((p, i) => { if (p) { const r = cur && cur.i === i ? R + 2 : pinR + 2; taken.push({ i, city: key(trip.stops[i].city), x: p[0] - r, y: p[1] - r, w: 2 * r, h: 2 * r }); } });
+  P.forEach((p, i) => { if (p) { const [hw, hh] = cur && cur.i === i ? [F.w / 2 + 2, F.h / 2 + 2] : [pinR + 2, pinR + 2]; taken.push({ i, city: key(trip.stops[i].city), x: p[0] - hw, y: p[1] - hh, w: 2 * hw, h: 2 * hh }); } });
   const labelled = new Set(); // a city visited twice (e.g. London) shares one pin position and gets one label
   const gap = small ? 8 : 11, fs = small ? 12.5 : 16;
   const order = trip.stops.map((s, i) => i).filter(i => P[i]).sort((a, b) => (cur && b === cur.i) - (cur && a === cur.i));
@@ -137,7 +143,7 @@ export function renderMap({ svgEl, box, fit, trip, sel, idx, cur, home, atHome, 
     const s = trip.stops[i], isCur = cur && cur.i === i, past = i <= idx;
     const showLabel = !wide || isCur || !inEU(s.ll) || i === 0 || i === trip.stops.length - 1 || away(trip.stops[i - 1]) || away(trip.stops[i + 1]);
     if (!showLabel || labelled.has(key(s.city))) return;
-    const tries = isCur ? [[0, -(R + 12), 'middle']] : [[gap, small ? 4 : 5.5, 'start'], [-gap, small ? 4 : 5.5, 'end']];
+    const tries = isCur ? [[0, -(F.h / 2 + 12), 'middle']] : [[gap, small ? 4 : 5.5, 'start'], [-gap, small ? 4 : 5.5, 'end']];
     for (const [x, y, anchor] of tries) {
       const t = haloText(groups[i], s.city, x, y, anchor, isCur ? 'Young Serif, serif' : 'Figtree, sans-serif',
         isCur ? (small ? 24 : 32) : fs, isCur ? 400 : 600, isCur ? 'var(--ink)' : past ? 'var(--ink)' : 'var(--muted)');

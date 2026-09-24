@@ -294,7 +294,7 @@ function startCountdown() {
 const avatar = { src: null, initials: TRIP.travellers.split(/\s*(?:&|and|,)\s*/).map(n => n.trim()[0] || '').join('&') };
 if (TRIP.avatar) {
   const img = new Image();
-  img.onload = () => { avatar.src = TRIP.avatar; if (trip) drawMap(); };
+  img.onload = () => { avatar.src = TRIP.avatar; avatar.ratio = img.naturalWidth / img.naturalHeight || 1; if (trip) drawMap(); };
   img.onerror = () => console.warn(`Traveller photo not found: ${TRIP.avatar}`);
   img.src = TRIP.avatar;
 }
