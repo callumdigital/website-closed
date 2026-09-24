@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { parseDate, parseCSV, buildTrip, currentStopIndex, DAY } from '../src/lib/trip.js';
+import { parseDate, parseClock, parseCSV, buildTrip, currentStopIndex, DAY } from '../src/lib/trip.js';
 
 test('parseDate handles ISO and day-first formats', () => {
   assert.equal(parseDate('2026-10-03'), Date.UTC(2026, 9, 3));
@@ -56,6 +56,18 @@ Thu 08 Oct,The sky > NZ,The sky > Auckland > Wellington`, near);
   assert.equal(trip.byDay.get(Date.UTC(2026, 9, 7)), undefined); // in the air
   assert.ok(trip.homeDays.has(Date.UTC(2026, 9, 8)));
   assert.equal(trip.days.length, 6);
+});
+
+test('arrival times', () => {
+  assert.equal(parseClock('21:30'), 1290);
+  assert.equal(parseClock('9:30pm'), 1290);
+  assert.equal(parseClock('9 PM'), 1260);
+  assert.equal(parseClock('12am'), 0);
+  assert.equal(parseClock('soon'), null);
+  const { rows } = parseCSV('Date,Country,City,Arrive\nSat 03 Oct,NZ > Singapore,Wellington > Changi,9:30pm\nSun 04 Oct,Singapore,Changi', Date.UTC(2026, 8, 24));
+  const trip = buildTrip(rows);
+  assert.equal(trip.arrivals.get(Date.UTC(2026, 9, 3)), 1290);
+  assert.equal(trip.arrivals.size, 1);
 });
 
 test('the committed itinerary parses cleanly', () => {

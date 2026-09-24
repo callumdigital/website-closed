@@ -1,6 +1,6 @@
 import TRIP from './data/trip.js';
 import { TZ } from './lib/places.js';
-import { DAY, key, plural, hav, parseCSV, buildTrip, geocodeMissing, clampToTrip, currentStopIndex } from './lib/trip.js';
+import { DAY, key, canonCountry, plural, hav, parseCSV, buildTrip, geocodeMissing, clampToTrip, currentStopIndex } from './lib/trip.js';
 import { renderMap, inEU } from './map.js';
 import { feature } from '../vendor/geo.js';
 
@@ -24,14 +24,42 @@ const geoCache = (() => { try { return JSON.parse(store.get('trip-geocache') || 
 let trip, sel, world, clockTimer, mapView = 'world';
 const stopAt = t => trip.byDay.get(t) || null;
 
+// Wall-clock time (minutes after midnight on day t) in time zone tz → a real instant.
+const tzOffset = (t, tz) => {
+  const p = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' })
+    .formatToParts(new Date(t)).map(x => [x.type, +x.value]));
+  return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - Math.floor(t / 1000) * 1000;
+};
+function zoned(t, minutes, tz) {
+  const local = t + minutes * 6e4; // wall-clock time in tz, written as if UTC
+  const guess = local - tzOffset(local, tz);
+  return local - tzOffset(guess, tz); // second pass handles DST edges
+}
+const clock12 = m => `${(Math.floor(m / 60) + 11) % 12 + 1}${m % 60 ? ':' + String(m % 60).padStart(2, '0') : ''}${m < 720 ? 'am' : 'pm'}`;
+
+// Travel days with an Arrive time: where they're flying to, and when they land (a real instant).
+function flight(t) {
+  const m = trip.arrivals.get(t);
+  if (m == null) return null;
+  const s = stopAt(t), home = TRIP.home;
+  const dest = s ? { city: s.city, country: s.country, stop: s, tz: TZ[s.mapCountry] || 'Europe/Paris' }
+    : trip.homeDays.has(t) && home ? { city: home.city, country: home.country, home: true, tz: TZ[canonCountry(home.country)] || TRIP.todayTimeZone } : null;
+  return dest && { ...dest, minutes: m, lands: zoned(t, m, dest.tz) };
+}
+// In the air for most of a travel day: shown flying unless it's today and they've already landed.
+const inAir = t => { const f = flight(t); return !!f && (t !== realToday || Date.now() < f.lands); };
+const here = t => inAir(t) ? null : stopAt(t); // where to put the faces
+
 function renderStats() {
-  const idx = currentStopIndex(trip, sel), done = trip.stops.slice(0, idx + 1);
+  const started = Date.now() >= takeoffAt(); // everything reads 0 until they're off
+  const { idx } = started ? mapState() : { idx: -1 }; // a stop only counts once they've landed there
+  const done = trip.stops.slice(0, idx + 1);
   const countries = new Set(done.map(s => s.country)), allC = new Set(trip.stops.map(s => s.country));
   // Distance along the located stops, starting from home (and back to it once they're home).
   const home = TRIP.home?.ll, last = trip.stops[trip.stops.length - 1];
   const pts = [...(home && done.length ? [home] : []), ...done.filter(s => s.ll).map(s => s.ll), ...(home && last && sel > last.end && trip.homeDays.size ? [home] : [])];
   let km = 0; for (let i = 1; i < pts.length; i++) km += hav(pts[i - 1], pts[i]);
-  const dayN = Math.round((sel - trip.start) / DAY) + 1;
+  const dayN = started ? Math.round((sel - trip.start) / DAY) + 1 : 0;
   $('stats').innerHTML = [
     [dayN, `/${trip.days.length}`, 'Days on the road'],
     [countries.size, `/${allC.size}`, 'Countries'],
@@ -41,17 +69,24 @@ function renderStats() {
 }
 
 function renderToday() {
-  const s = stopAt(sel), idx = currentStopIndex(trip, sel), nxt = trip.stops[idx + 1];
+  const fl = inAir(sel) ? flight(sel) : null, s = here(sel), idx = currentStopIndex(trip, sel), nxt = trip.stops[idx + 1];
   const dayN = Math.round((sel - trip.start) / DAY) + 1;
   const isToday = sel === realToday;
   const whenLabel = isToday ? `Today · ${fmt(sel, { weekday: 'long', day: 'numeric', month: 'long' })}` : fmt(sel, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   let lede, city, country, rows = '';
-  if (s) {
+  if (fl) {
+    lede = sel < realToday ? 'That day they flew to' : sel > realToday ? 'That day they’ll be flying to' : 'Up in the air ✈️ heading to';
+    city = fl.city; country = fl.country;
+    const route = trip.routeByDay.get(sel);
+    rows = `${route ? `<div class="row"><span>Travel day</span><b>${route.map(esc).join(' → ')}</b></div>` : ''}
+      <div class="row"><span>${sel < realToday ? 'Landed' : 'Lands'}</span><b>${clock12(fl.minutes)} local time</b></div>`;
+  } else if (s) {
     lede = sel === s.start && s.i > 0 ? 'Just arrived in'
       : sel === s.end && s.i < trip.stops.length - 1 ? 'Last day in'
       : s.i === trip.stops.length - 1 && sel === s.end ? 'Final stop —'
       : isToday ? 'Right now they’re in' : 'That day they were in';
     if (!isToday && sel > realToday) lede = 'That day they’ll be in';
+    if (flight(sel)) lede = 'Just landed in';
     if (sel === trip.start && realToday < trip.start) lede = 'Once they take off, first stop:'; // the countdown over the map has the exact time
     city = s.city; country = s.country;
     if (s.mystery) { lede = sel > realToday ? 'They’ll be somewhere in' : 'Somewhere in'; city = s.country || 'Parts unknown'; country = 'Exact spot TBC 🤫'; }
@@ -70,7 +105,9 @@ function renderToday() {
     city = 'In the air ✈️'; country = `${prev ? prev.city : TRIP.home?.city || '?'} → ${nxt ? nxt.city : TRIP.home?.city || '?'}`;
   }
   let nextHtml;
-  if (nxt) {
+  if (fl) {
+    nextHtml = `<div class="big">${esc(fl.city)} at ${clock12(fl.minutes)}</div><div class="small">${fl.home ? 'Welcome home!' : `${esc(fl.country)} · ${plural(fl.stop.nights, 'day')} there`}</div>`;
+  } else if (nxt) {
     const d = Math.round((nxt.start - sel) / DAY);
     const when = d === 1 ? 'tomorrow' : `in ${plural(d, 'day')}`;
     nextHtml = `<div class="big">${esc(nxt.city)} ${when}</div><div class="small">${esc(nxt.country)} · ${plural(nxt.nights, 'day')} there</div>`;
@@ -80,7 +117,7 @@ function renderToday() {
     nextHtml = `<div class="big">${TRIP.home ? 'Flying home to ' + esc(TRIP.home.city) : 'Home sweet home'}</div><div class="small">Last stop of the trip — welcome back soon.</div>`;
   }
   const home = TRIP.home?.ll ? TRIP.home : null;
-  const wxPlace = s && s.ll ? { name: s.city, ll: s.ll } : !s && home && trip.homeDays.has(sel) ? { name: home.city, ll: home.ll } : null;
+  const wxPlace = fl ? null : s && s.ll ? { name: s.city, ll: s.ll } : !s && home && trip.homeDays.has(sel) ? { name: home.city, ll: home.ll } : null;
   $('todayBody').innerHTML = `
     <div class="eyebrow">${whenLabel}</div>
     <div class="stampbadge"><span>Day</span><b>${dayN}</b><span>of ${trip.days.length}</span></div>
@@ -167,7 +204,7 @@ function renderStrip() {
 }
 
 function renderCards() {
-  const idx = currentStopIndex(trip, sel), s = stopAt(sel);
+  const { idx } = mapState(), s = here(sel);
   $('cards').innerHTML = trip.stops.map(st => {
     const state = s && st.i === s.i ? 'now' : st.i <= idx ? 'done' : 'soon';
     const tag = { now: 'Here', done: 'Visited' }[state];
@@ -187,12 +224,19 @@ function visibleArea(W, H) {
   return x1 - x0 > 200 && y1 - y0 > 200 ? [[x0, y0], [x1, y1]] : null;
 }
 
+// While flying into a stop, that stop isn't reached yet: the leg into it gets the plane.
+function mapState() {
+  const fl = inAir(sel) ? flight(sel) : null;
+  if (fl) return { idx: fl.home ? trip.stops.length - 1 : fl.stop.i - 1, cur: null, atHome: false, flyingTo: fl.home ? trip.stops.length : fl.stop.i };
+  return { idx: currentStopIndex(trip, sel), cur: stopAt(sel), atHome: trip.homeDays.has(sel), flyingTo: null };
+}
+
 function drawMap() {
   const box = $('map').getBoundingClientRect();
   if (!box.width || !box.height) return;
   const hasAway = renderMap({
     svgEl: $('svg'), box, fit: visibleArea(box.width, box.height), trip, sel, world, view: mapView, home: TRIP.home?.ll ? TRIP.home : null,
-    idx: currentStopIndex(trip, sel), cur: stopAt(sel), atHome: trip.homeDays.has(sel), avatar, onPick: go,
+    ...mapState(), avatar, onPick: go,
   });
   $('viewToggle').style.display = hasAway ? '' : 'none';
   $('viewToggle').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === mapView));
@@ -201,7 +245,7 @@ function drawMap() {
 // Europe view while they're in Europe; whole-trip view before they get there, in the air, and after they leave.
 // A mystery stop ("???") takes the view of the last place they were seen.
 function autoView(t) {
-  const s = stopAt(t);
+  const s = here(t);
   if (!s) return 'world';
   const seen = trip.stops.slice(0, s.i + 1).reverse().find(x => x.ll);
   return seen && inEU(seen.ll) ? 'europe' : 'world';
@@ -221,16 +265,12 @@ document.addEventListener('keydown', e => { if (e.key === 'ArrowLeft') go(sel - 
 new ResizeObserver(() => trip && drawMap()).observe($('map'));
 
 // Countdown over the map until take-off (day 1 at TRIP.takeoffTime, NZ time).
-const tzOffset = (t, tz) => {
-  const p = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' })
-    .formatToParts(new Date(t)).map(x => [x.type, +x.value]));
-  return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - Math.floor(t / 1000) * 1000;
-};
-function startCountdown() {
-  const tz = TRIP.todayTimeZone || 'Pacific/Auckland';
+function takeoffAt() {
   const [hh, mm] = (TRIP.takeoffTime || '00:00').split(':').map(Number);
-  const local = trip.start + ((hh || 0) * 60 + (mm || 0)) * 6e4; // wall-clock time in tz, written as if UTC
-  let takeoff = local - tzOffset(local, tz); takeoff = local - tzOffset(takeoff, tz); // second pass handles DST edges
+  return zoned(trip.start, (hh || 0) * 60 + (mm || 0), TRIP.todayTimeZone || 'Pacific/Auckland');
+}
+function startCountdown() {
+  const takeoff = takeoffAt();
   if (Date.now() >= takeoff) return;
   const first = trip.stops[0], pad = n => String(n).padStart(2, '0');
   $('cdFrom').textContent = TRIP.home ? `Take-off from ${TRIP.home.city} in` : 'Take-off in';
@@ -273,6 +313,8 @@ if (!rows.length) {
   mapView = autoView(sel);
   renderAll();
   startCountdown();
+  const fl = flight(realToday); // re-render the moment they land today
+  if (fl && Date.now() < fl.lands && fl.lands - Date.now() < 2 ** 31 - 1) setTimeout(() => { if (sel === realToday) go(sel); }, fl.lands - Date.now() + 1000);
   if (trip.stops.some(s => !s.ll)) {
     geocodeMissing(trip, geoCache).then(failed => {
       store.set('trip-geocache', JSON.stringify(geoCache));

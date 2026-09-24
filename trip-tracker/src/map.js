@@ -34,7 +34,7 @@ function drawFaces(sg, R, avatar) {
  * view: 'world' (flight map of the whole trip) | 'europe'. fit: optional [[x0,y0],[x1,y1]] the route must sit inside
  * (the part of the map not covered by floating panels). Returns whether the view toggle is relevant.
  */
-export function renderMap({ svgEl, box, fit, trip, sel, idx, cur, home, atHome, world, view, avatar, onPick }) {
+export function renderMap({ svgEl, box, fit, trip, sel, idx, cur, home, atHome, flyingTo, world, view, avatar, onPick }) {
   const W = box.width, H = box.height;
   const svg = select(svgEl).attr('viewBox', `0 0 ${W} ${H}`); svg.selectAll('*').remove();
   const hasAway = !!home || trip.stops.some(s => s.ll && !inEU(s.ll));
@@ -88,11 +88,11 @@ export function renderMap({ svgEl, box, fit, trip, sel, idx, cur, home, atHome, 
   const firstI = P.findIndex(p => p), lastI = P.length - 1 - [...P].reverse().findIndex(p => p);
   if (wide && home && firstI >= 0) {
     const H0 = proj(home.ll);
-    [[home.ll, trip.stops[firstI].ll, true], [trip.stops[lastI].ll, home.ll, sel > trip.stops[trip.stops.length - 1].end]].forEach(([a, b, past], k) => {
+    [[home.ll, trip.stops[firstI].ll, idx >= 0], [trip.stops[lastI].ll, home.ll, atHome || (flyingTo == null && sel > trip.stops[trip.stops.length - 1].end)]].forEach(([a, b, past], k) => {
       const el = g.append('path').attr('d', path({ type: 'LineString', coordinates: [a, b] })).attr('fill', 'none')
         .attr('stroke', past ? 'var(--accent)' : 'var(--muted)').attr('stroke-width', past ? 2 : 1.3)
         .attr('stroke-dasharray', past ? null : '5 6').attr('stroke-linecap', 'round').attr('opacity', past ? 1 : .7);
-      if (k === 1) legs[trip.stops.length] = el.node(); // the flight home, for the plane marker
+      legs[k === 0 ? 0 : trip.stops.length] = el.node(); // flights out and home, for the plane marker
     });
     const hg = g.append('g').attr('transform', `translate(${H0})`);
     if (atHome) drawFaces(hg, 18, avatar); else hg.append('rect').attr('x', -6).attr('y', -6).attr('width', 12).attr('height', 12).attr('rx', 2).attr('fill', 'var(--stamp)')
@@ -152,7 +152,7 @@ export function renderMap({ svgEl, box, fit, trip, sel, idx, cur, home, atHome, 
 
   // In transit: a plane midway along the leg, pointing the way.
   if (!cur && !atHome) {
-    const L = legs[idx + 1];
+    const L = legs[flyingTo ?? idx + 1];
     if (L) {
       const len = L.getTotalLength(), m = L.getPointAtLength(len / 2), n = L.getPointAtLength(Math.min(len, len / 2 + 2));
       const ang = Math.atan2(n.y - m.y, n.x - m.x) * 180 / Math.PI;

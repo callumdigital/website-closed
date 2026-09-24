@@ -14,6 +14,7 @@ Export the itinerary spreadsheet as CSV and replace `src/data/itinerary.csv` (co
 
 - Travel days: `London > Paris` (the last place is where they end up that day).
 - In the air: `The sky`. Unknown: `???`. Days back in the home city end the trip.
+- Optional `Arrive` column: the local time they land on a travel day (e.g. `21:30`). Until then the site shows them in the air.
 
 Leave a date out and it shows as "in the air". If a city isn't in `src/lib/places.js`, the site looks it up on OpenStreetMap when the page loads. Adding it to that file is faster and more reliable.
 
