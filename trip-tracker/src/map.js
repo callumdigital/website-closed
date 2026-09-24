@@ -1,7 +1,7 @@
 import { select, geoPath, geoNaturalEarth1, geoConicConformal, geoGraticule10 } from '../vendor/geo.js';
 import { key, hav } from './lib/trip.js';
 
-const inEU = ll => ll[0] > -30 && ll[0] < 45 && ll[1] > 30;
+export const inEU = ll => ll[0] > -30 && ll[0] < 45 && ll[1] > 30;
 
 // Text with a light backdrop rect (cheaper than stroke halos, which crashed iOS Safari in the prototype).
 function haloText(parent, txt, x, y, anchor, ff, fs, fw, fill) {
@@ -45,7 +45,10 @@ export function renderMap({ svgEl, box, fit, trip, sel, idx, cur, home, atHome, 
   if (wide && home) pts.push(home.ll);
   const lons = pts.map(p => p[0]).concat(wide ? [] : [-9, 24]), lats = pts.map(p => p[1]).concat(wide ? [] : [37, 56]);
   const pad = wide ? [10, 8] : [3, 2];
-  const ext = { type: 'MultiPoint', coordinates: [[Math.min(...lons) - pad[0], Math.min(...lats) - pad[1]], [Math.max(...lons) + pad[0], Math.max(...lats) + pad[1]]] };
+  // Fit all four corners of the padded box plus every stop: on the curved Europe projection, two corners
+  // alone don't bound the route (south-eastern stops like Athens can poke out past them).
+  const [w0, s0, e0, n0] = [Math.min(...lons) - pad[0], Math.min(...lats) - pad[1], Math.max(...lons) + pad[0], Math.max(...lats) + pad[1]];
+  const ext = { type: 'MultiPoint', coordinates: [[w0, s0], [e0, s0], [e0, n0], [w0, n0], ...pts] };
   const proj = (wide
     ? geoNaturalEarth1().rotate([-(Math.min(...lons) + Math.max(...lons)) / 2, 0])
     : geoConicConformal().rotate([-12, 0]).parallels([40, 58])

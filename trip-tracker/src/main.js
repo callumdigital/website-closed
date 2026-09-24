@@ -1,7 +1,7 @@
 import TRIP from './data/trip.js';
 import { TZ } from './lib/places.js';
 import { DAY, key, plural, hav, parseCSV, buildTrip, geocodeMissing, clampToTrip, currentStopIndex } from './lib/trip.js';
-import { renderMap } from './map.js';
+import { renderMap, inEU } from './map.js';
 import { feature } from '../vendor/geo.js';
 
 const $ = id => document.getElementById(id);
@@ -21,7 +21,7 @@ const store = {
 };
 const geoCache = (() => { try { return JSON.parse(store.get('trip-geocache') || '{}'); } catch { return {}; } })();
 
-let trip, sel, world, clockTimer, mapView = store.get('trip-mapview') || 'world';
+let trip, sel, world, clockTimer, mapView = 'world';
 const stopAt = t => trip.byDay.get(t) || null;
 
 function renderStats() {
@@ -79,6 +79,8 @@ function renderToday() {
   } else {
     nextHtml = `<div class="big">${TRIP.home ? 'Flying home to ' + esc(TRIP.home.city) : 'Home sweet home'}</div><div class="small">Last stop of the trip — welcome back soon.</div>`;
   }
+  const home = TRIP.home?.ll ? TRIP.home : null;
+  const wxPlace = s && s.ll ? { name: s.city, ll: s.ll } : !s && home && trip.homeDays.has(sel) ? { name: home.city, ll: home.ll } : null;
   $('todayBody').innerHTML = `
     <div class="eyebrow">${whenLabel}</div>
     <div class="stampbadge"><span>Day</span><b>${dayN}</b><span>of ${trip.days.length}</span></div>
@@ -88,9 +90,10 @@ function renderToday() {
       <div class="country"><span class="dot"></span>${esc(country)}</div>
     </div>
     <div class="rows">${rows}</div>
-    <div class="weather"><span>Weather forecast — coming soon</span><b>— °C</b></div>
+    ${wxPlace ? `<div class="weather" id="weather"><span class="wx-what">Checking the weather in ${esc(wxPlace.name)}…</span></div>` : ''}
     <div class="next"><span class="eyebrow">Up next</span>${nextHtml}</div>`;
 
+  if (wxPlace) showWeather(wxPlace, sel);
   clearInterval(clockTimer);
   if (s || trip.homeDays.has(sel)) {
     const tz = s ? TZ[s.mapCountry] || 'Europe/Paris' : TZ[TRIP.home.country] || 'Pacific/Auckland';
@@ -102,6 +105,41 @@ function renderToday() {
     };
     tick(); clockTimer = setInterval(tick, 15000);
   }
+}
+
+// Weather from Open-Meteo (free, no API key). It covers roughly the past 3 months to 2 weeks ahead.
+const WX = { 0: ['☀️', 'Clear'], 1: ['🌤️', 'Mostly clear'], 2: ['⛅', 'Partly cloudy'], 3: ['☁️', 'Cloudy'], 45: ['🌫️', 'Foggy'], 48: ['🌫️', 'Foggy'],
+  51: ['🌦️', 'Light drizzle'], 53: ['🌦️', 'Drizzle'], 55: ['🌧️', 'Heavy drizzle'], 56: ['🌧️', 'Freezing drizzle'], 57: ['🌧️', 'Freezing drizzle'],
+  61: ['🌦️', 'Light rain'], 63: ['🌧️', 'Rain'], 65: ['🌧️', 'Heavy rain'], 66: ['🌧️', 'Freezing rain'], 67: ['🌧️', 'Freezing rain'],
+  71: ['🌨️', 'Light snow'], 73: ['🌨️', 'Snow'], 75: ['❄️', 'Heavy snow'], 77: ['🌨️', 'Snow'], 80: ['🌦️', 'Showers'], 81: ['🌧️', 'Showers'],
+  82: ['⛈️', 'Heavy showers'], 85: ['🌨️', 'Snow showers'], 86: ['🌨️', 'Snow showers'], 95: ['⛈️', 'Thunderstorms'], 96: ['⛈️', 'Thunderstorms'], 99: ['⛈️', 'Thunderstorms'] };
+const wxCache = new Map();
+function fetchWeather(ll, t) {
+  const date = new Date(t).toISOString().slice(0, 10), now = t === realToday;
+  const k = `${ll}|${date}|${now}`;
+  if (!wxCache.has(k)) {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${ll[1]}&longitude=${ll[0]}&timezone=auto&start_date=${date}&end_date=${date}`
+      + `&daily=weather_code,temperature_2m_max,temperature_2m_min${now ? '&current=temperature_2m,weather_code' : ''}`;
+    wxCache.set(k, fetch(url).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).catch(e => { wxCache.delete(k); throw e; }));
+  }
+  return wxCache.get(k);
+}
+function showWeather(place, t) {
+  const el = () => sel === t && $('weather'); // ignore late answers once another day is picked
+  const set = html => { const w = el(); if (w) w.innerHTML = html; };
+  const round = v => Math.round(v);
+  if (t > realToday + 15 * DAY) return set(`<span class="wx-what">🔭 The forecast for ${esc(place.name)} shows up about 2 weeks out</span>`);
+  if (t < realToday - 92 * DAY) return set(`<span class="wx-what">Weather for ${esc(place.name)} isn't available this far back</span>`);
+  fetchWeather(place.ll, t).then(j => {
+    const d = j.daily || {}, cur = j.current;
+    const code = cur ? cur.weather_code : d.weather_code?.[0];
+    const [icon, label] = WX[code] || ['🌡️', 'Weather'];
+    const hi = d.temperature_2m_max?.[0], lo = d.temperature_2m_min?.[0];
+    const range = hi != null && lo != null ? ` · High ${round(hi)}° · Low ${round(lo)}°` : '';
+    const when = cur ? `${esc(place.name)} right now` : t > realToday ? `${esc(place.name)} forecast` : `${esc(place.name)} on the day`;
+    set(`<span class="wx-what"><span class="wx-icon">${icon}</span><span>${label}<small>${when}${range}</small></span></span>`
+      + `<b>${cur ? round(cur.temperature_2m) + '°C' : hi != null ? round(hi) + '°C' : ''}</b>`);
+  }).catch(() => set(`<span class="wx-what">Couldn't load the weather for ${esc(place.name)} right now</span>`));
 }
 
 function renderStrip() {
@@ -160,13 +198,22 @@ function drawMap() {
   $('viewToggle').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === mapView));
 }
 
+// Europe view while they're in Europe; whole-trip view before they get there, in the air, and after they leave.
+// A mystery stop ("???") takes the view of the last place they were seen.
+function autoView(t) {
+  const s = stopAt(t);
+  if (!s) return 'world';
+  const seen = trip.stops.slice(0, s.i + 1).reverse().find(x => x.ll);
+  return seen && inEU(seen.ll) ? 'europe' : 'world';
+}
+
 function renderAll() { renderStats(); renderToday(); renderStrip(); renderCards(); drawMap(); }
-function go(t) { sel = clampToTrip(trip, t); renderAll(); }
+function go(t) { sel = clampToTrip(trip, t); mapView = autoView(sel); renderAll(); } // the toggle overrides until the day changes
 
 // Events
 $('strip').addEventListener('click', e => { const b = e.target.closest('.day'); if (b) go(+b.dataset.t); });
 $('cards').addEventListener('click', e => { const c = e.target.closest('.pc'); if (c) { go(+c.dataset.t); $('map').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } });
-$('viewToggle').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; mapView = b.dataset.v; store.set('trip-mapview', mapView); drawMap(); });
+$('viewToggle').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; mapView = b.dataset.v; drawMap(); });
 $('prev').onclick = () => go(sel - DAY);
 $('next').onclick = () => go(sel + DAY);
 $('goToday').onclick = () => go(realToday);
@@ -223,6 +270,7 @@ if (!rows.length) {
 } else {
   trip = buildTrip(rows, geoCache, TRIP.home);
   sel = clampToTrip(trip, realToday);
+  mapView = autoView(sel);
   renderAll();
   startCountdown();
   if (trip.stops.some(s => !s.ll)) {
