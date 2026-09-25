@@ -204,7 +204,9 @@ function showWeather(place, t) {
   const el = () => sel === t && $('weather'); // ignore late answers once another day is picked
   const set = html => { const w = el(); if (w) w.innerHTML = html; };
   const round = v => Math.round(v);
-  if (t > realToday + 15 * DAY) return set(`<span class="wx-what">🔭 The forecast for ${esc(place.name)} shows up about 2 weeks out</span>`);
+  // Open-Meteo forecasts 15 days past *the place's* today, which in Europe is usually a day behind NZ's: so stop at 14.
+  const tooFar = () => set(`<span class="wx-what">🔭 The forecast for ${esc(place.name)} shows up about 2 weeks out</span>`);
+  if (t > realToday + 14 * DAY) return tooFar();
   if (t < realToday - 92 * DAY) return set(`<span class="wx-what">Weather for ${esc(place.name)} isn't available this far back</span>`);
   fetchWeather(place.ll, t).then(j => {
     const d = j.daily || {}, cur = j.current;
@@ -215,7 +217,8 @@ function showWeather(place, t) {
     const when = cur ? `${esc(place.name)} right now` : t > realToday ? `${esc(place.name)} forecast` : `${esc(place.name)} on the day`;
     set(`<span class="wx-what"><span class="wx-icon">${icon}</span><span>${label}<small>${when}${range}</small></span></span>`
       + `<b>${cur ? round(cur.temperature_2m) + '°C' : hi != null ? round(hi) + '°C' : ''}</b>`);
-  }).catch(() => set(`<span class="wx-what">Couldn't load the weather for ${esc(place.name)} right now</span>`));
+  }).catch(() => t > realToday + 12 * DAY ? tooFar() // right at the edge of the forecast: not there yet rather than broken
+    : set(`<span class="wx-what">Couldn't load the weather for ${esc(place.name)} right now</span>`));
 }
 
 // The day's photo from the travellers (the latest one; tap to see them all full size).
