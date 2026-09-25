@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Where in the world?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="src/style.css" rel="stylesheet">
+</head>
+<body>
+<!-- Full-bleed map with floating panels; on narrow screens the panels stack under the map. -->
+<main class="hero">
+  <div class="map-canvas" id="map">
+    <svg id="svg" aria-label="Map of the trip route"></svg>
+    <!-- Shown over the map until take-off -->
+    <div class="countdown" id="countdown" hidden>
+      <div class="cd-inner">
+        <div class="eyebrow" id="cdFrom">Take-off in</div>
+        <div class="cd-clock" role="timer" aria-live="off">
+          <div><b id="cdD">0</b><span>days</span></div>
+          <div><b id="cdH">00</b><span>hrs</span></div>
+          <div><b id="cdM">00</b><span>mins</span></div>
+          <div><b id="cdS">00</b><span>secs</span></div>
+        </div>
+        <p class="cd-sub" id="cdSub"></p>
+        <button class="btn" id="cdPeek">Peek at the route →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="topleft" id="topleft">
+    <h1>Where in the world <span id="isAre">is</span><br><em id="who"></em>?</h1>
+    <div class="viewtoggle" id="viewToggle" role="group" aria-label="Map view">
+      <button data-v="world" title="Whole trip" aria-label="Whole trip"><span aria-hidden="true">🌏</span></button>
+      <button data-v="region" id="regionBtn" title="Region" aria-label="Region"><span aria-hidden="true">🗺️</span></button>
+    </div>
+    <!-- The day's photos, a fanned pile of polaroids on the map (laptops; phones show them in the today card) -->
+    <div class="pile" id="polaroid" hidden></div>
+  </div>
+
+  <div class="stats card" id="stats"></div>
+
+  <div class="side" id="side">
+    <aside class="card today">
+      <div id="todayBody" class="today-body"></div>
+      <div class="daynav">
+        <button class="btn icon" id="prev" aria-label="Previous day">←</button>
+        <button class="btn primary" id="goToday">Jump to today</button>
+        <button class="btn icon" id="next" aria-label="Next day">→</button>
+      </div>
+    </aside>
+    <section class="card stopsbox">
+      <h2>Stops along the way</h2>
+      <div class="cards" id="cards"></div>
+    </section>
+  </div>
+
+  <section class="card scrub" aria-label="Pick a day">
+    <div class="strip-scroll"><div class="strip" id="strip"></div></div>
+  </section>
+</main>
+
+<!-- Full-screen photo gallery for a stop: the photo, plus a panel about the place -->
+<dialog class="lightbox" id="lightbox" aria-label="Photos">
+  <div class="lb-media">
+    <img id="lbImg" alt="">
+    <button class="lb-nav lb-prev" id="lbPrev" aria-label="Previous photo">←</button>
+    <button class="lb-nav lb-next" id="lbNext" aria-label="Next photo">→</button>
+  </div>
+  <aside class="lb-panel">
+    <div class="eyebrow" id="lbEyebrow"></div>
+    <h2 id="lbTitle"></h2>
+    <p class="lb-sub" id="lbSub"></p>
+    <div class="lb-photo">
+      <div class="lb-day" id="lbDay"></div>
+      <p class="lb-cap" id="lbCap"></p>
+    </div>
+    <div class="lb-thumbs" id="lbThumbs"></div>
+    <button class="btn" id="lbMap">Show on the map</button>
+  </aside>
+  <button class="lb-close" id="lbClose" aria-label="Close">✕</button>
+</dialog>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

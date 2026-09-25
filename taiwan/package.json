@@ -1,0 +1,21 @@
+{
+  "name": "trip-tracker",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "vendor": "vite build -c scripts/vendor.config.js && vite build -c scripts/supabase.config.js && cp node_modules/world-atlas/countries-50m.json vendor/",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.117.1",
+    "d3-geo": "^3.1.1",
+    "d3-selection": "^3.0.0",
+    "topojson-client": "^3.1.0",
+    "world-atlas": "^2.0.2"
+  },
+  "devDependencies": {
+    "vite": "^8.3.1"
+  }
+}
