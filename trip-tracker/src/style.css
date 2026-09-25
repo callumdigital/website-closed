@@ -129,9 +129,28 @@ h1 em{font-style:normal;color:var(--accent)}
 .monthlabel{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
 
 /* Shorter desktop windows: tighten the right column so the tiles still get room */
+/* Shorter laptop screens: a slimmer city card, so the stops underneath keep room for a full row */
 @media (max-height:900px) and (min-width:1101px){
-  .today{padding:20px 22px;gap:12px}
-  .today-body{gap:14px}
+  .today{padding:16px 20px;gap:10px}
+  .today-body{gap:10px}
+  .stampbadge{width:62px;height:62px;font-size:8.5px;top:-4px}
+  .stampbadge b{font-size:21px}
+  .today-body>.eyebrow,.stampbadge+div{padding-right:72px}
+  .lede{font-size:13.5px}
+  .city{font-size:clamp(26px,2.3vw,32px);margin:2px 0 4px}
+  .country{font-size:14.5px}
+  .row{padding:6px 0;font-size:13px}
+  .weather{min-height:0;padding:6px 12px;font-size:12.5px}
+  .wx-icon{font-size:18px}
+  .wx-what small{font-size:11.5px}
+  .weather b{font-size:20px}
+  .next{padding:9px 14px;gap:2px}
+  .next .big{font-size:19px}
+  .next .small{font-size:12.5px}
+  .daynav .btn{height:32px}
+  .daynav .btn.icon{width:32px}
+  .stopsbox{padding:14px 16px 16px;gap:10px;flex-basis:200px;min-height:200px}
+  .stopsbox h2{font-size:19px}
 }
 
 /* ── Stacked layout (tablets & phones) ───────────────────────────────── */

@@ -107,7 +107,7 @@ function renderToday() {
   const fl = inAir(sel) ? flight(sel) : null, s = here(sel), idx = currentStopIndex(trip, sel), nxt = trip.stops[idx + 1];
   const dayN = Math.round((sel - trip.start) / DAY) + 1;
   const isToday = sel === realToday;
-  const whenLabel = isToday ? `Today · ${fmt(sel, { weekday: 'long', day: 'numeric', month: 'long' })}` : fmt(sel, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const whenLabel = isToday ? `Today · ${fmt(sel, { weekday: 'short', day: 'numeric', month: 'short' })}` : fmt(sel, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
   let lede, city, country, rows = '';
   if (fl) {
     lede = sel < realToday ? 'That day they flew to' : sel > realToday ? 'That day they’ll be flying to' : liveFlight()?.boarding ? 'Boarding soon 🛫 flying to' : 'Up in the air ✈️ heading to';
@@ -128,14 +128,12 @@ function renderToday() {
     if (s.mystery) { lede = sel > realToday ? 'They’ll be somewhere in' : 'Somewhere in'; city = s.country || 'Parts unknown'; country = 'Exact spot TBC 🤫'; }
     const dayIn = Math.round((sel - s.start) / DAY) + 1;
     const route = trip.routeByDay.get(sel);
-    rows = `<div class="row"><span>Local time</span><b id="clock">—</b></div>
-      ${route ? `<div class="row"><span>Travel day</span><b>${routeText(route)}</b></div>` : ''}
-      <div class="row"><span>${s.mystery ? 'Here for' : 'In ' + esc(s.city)}</span><b>Day ${dayIn} of ${s.nights}</b></div>
-      <div class="row"><span>${s.nights > 1 ? 'Dates' : 'Date'}</span><b>${fmt(s.start, { day: 'numeric', month: 'short' })}${s.nights > 1 ? ' – ' + fmt(s.end, { day: 'numeric', month: 'short' }) : ''}</b></div>`;
+    rows = `      ${route ? `<div class="row"><span>Travel day</span><b>${routeText(route)}</b></div>` : ''}
+      <div class="row"><span>Stay</span><b>Day ${dayIn} of ${s.nights} · ${fmt(s.start, { day: 'numeric', month: 'short' })}${s.nights > 1 ? ' – ' + fmt(s.end, { day: 'numeric', month: 'short' }) : ''}</b></div>`;
   } else if (trip.homeDays.has(sel)) {
     lede = sel > realToday ? 'They’ll be back home in' : 'Back home in';
     city = TRIP.home.city; country = TRIP.home.country;
-    rows = `<div class="row"><span>Local time</span><b id="clock">—</b></div>`;
+    rows = '';
   } else {
     lede = 'Somewhere between'; const prev = trip.stops[idx];
     city = 'In the air ✈️'; country = `${prev ? prev.city : TRIP.home?.city || '?'} → ${nxt ? nxt.city : TRIP.home?.city || '?'}`;
@@ -158,7 +156,7 @@ function renderToday() {
   const home = TRIP.home?.ll ? TRIP.home : null;
   const wxPlace = fl ? null : s && s.ll ? { name: s.city, ll: s.ll } : !s && home && trip.homeDays.has(sel) ? { name: home.city, ll: home.ll } : null;
   $('todayBody').innerHTML = `
-    <div class="eyebrow">${whenLabel}</div>
+    <div class="eyebrow">${whenLabel}${s || trip.homeDays.has(sel) ? ' · <span id="clock"></span>' : ''}</div>
     <div class="stampbadge"><span>Day</span><b>${dayN}</b><span>of ${trip.days.length}</span></div>
     <div>
       <p class="lede">${lede}</p>
