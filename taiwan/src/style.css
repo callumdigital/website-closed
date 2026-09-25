@@ -1,8 +1,9 @@
 :root{
-  /* madebycal: crisp white, black ink, electric blue, sunshine yellow */
-  --paper:#FFFFFF; --card:#FFFFFF; --ink:#111111; --muted:#5A5A5A; --line:#E4E4E4;
-  --land:#F2F2F2; --land-stroke:#D2D2D2; --sea:#FFFFFF; --graticule:#EDEDED;
-  --home-land:#DCDCFF; --planned-land:#E9E9E9;
+  /* madebycal on warm paper: cream cards, a pale yellow sea, black ink, electric blue, sunshine yellow */
+  --paper:#FBF6EC; --card:#FFFDF8; --ink:#111111; --muted:#5E5850; --line:#E6DDCB;
+  --land:#F1ECE0; --land-stroke:#D9CFBA; --sea:#FFFCF0; --graticule:#F4EDD6; --tile:#F7F3EA;
+  --island:#FFFFFF; --region-on:#D9D9FF; /* Taiwan zoomed in: the island, and the regions they've reached */
+  --home-land:#DCDCFF; --planned-land:#E6DCC6;
   --accent:#1A1AFF; --accent-ink:#1010D0; --accent-soft:#FFF4C7; --accent-mid:#FFD12E;
   --stamp:#1A1AFF; --yellow:#FFD12E; --charcoal:#333333; --cream:#FFF9E6;
   --serif:'Comfortaa', 'Trebuchet MS', system-ui, sans-serif; --sans:'DM Mono', ui-monospace, Menlo, monospace;
@@ -272,7 +273,7 @@ body.up{min-height:100vh}
 /* ── madebycal layer ─────────────────────────────────────────────────── */
 /* Chunky rounded headlines, monospace everything else */
 h1,.city,.stat b,.next .big,.pc .nm,.stopsbox h2,.lb-panel h2,.up-card h2,.up-head h1,.cd-clock b,.weather b,.scrub-title,.pile .pol span,.lb-cap,.daypic figcaption{font-weight:700}
-h1{letter-spacing:-.02em;text-shadow:0 0 14px #fff,0 0 4px #fff;font-size:clamp(36px,4.1vw,62px)}
+h1{letter-spacing:-.02em;text-shadow:0 0 14px var(--sea),0 0 4px var(--sea);font-size:clamp(36px,4.1vw,62px)}
 body{font-size:14px;font-synthesis:none} /* DM Mono tops out at Medium 500: never fake a bold */
 .eyebrow{font-family:var(--sans);letter-spacing:.08em}
 /* Black-outlined cards and pill buttons, no soft shadows */
@@ -281,6 +282,7 @@ body{font-size:14px;font-synthesis:none} /* DM Mono tops out at Medium 500: neve
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .btn.primary:hover{background:var(--ink);border-color:var(--ink)}
 .viewtoggle{border:1.5px solid var(--ink);border-radius:18px;box-shadow:none}
+.viewtoggle button{border-radius:12.5px} /* 18px outer − 1.5px border − 4px padding, so the corners nest */
 .viewtoggle button.on{background:var(--yellow)}
 /* The day counter becomes the blue "let's build something cool" circle */
 .stampbadge{background:var(--accent);color:#fff;border:none;outline:none;transform:rotate(-6deg);font-family:var(--sans);letter-spacing:.04em}
@@ -294,8 +296,12 @@ body{font-size:14px;font-synthesis:none} /* DM Mono tops out at Medium 500: neve
 .day .t{color:var(--accent)}
 .stoplabel{border-left-width:2px}
 .pc{border:1.5px solid var(--ink)} .pc.now{border:2.5px solid var(--accent)}
+/* Tiles without photos: slightly off-white, with a little picture of the place */
+.pc:not(.has-pics){background:var(--tile)}
+.pc .emo{position:absolute;top:10px;left:12px;font-size:34px;line-height:1;transform:rotate(-8deg);filter:drop-shadow(0 2px 0 rgba(17,17,17,.12))}
+.pc.soon .emo{opacity:.75}
 .pc .tag{font-family:var(--sans)} .pc.now .tag{color:var(--accent)}
-.countdown{background:rgba(255,255,255,.86)}
+.countdown{background:color-mix(in srgb,var(--paper) 88%,transparent)}
 .cd-inner .eyebrow{color:var(--accent)}
 .cd-clock div{border:1.5px solid var(--ink);border-radius:18px}
 .cd-clock div:first-child{background:var(--accent);border-color:var(--accent)}

@@ -676,38 +676,38 @@ function St(e) {
 }
 //#endregion
 //#region node_modules/d3-array/src/range.js
-function N(e, t, n) {
+function Ct(e, t, n) {
 	e = +e, t = +t, n = (i = arguments.length) < 2 ? (t = e, e = 0, 1) : i < 3 ? 1 : +n;
 	for (var r = -1, i = Math.max(0, Math.ceil((t - e) / n)) | 0, a = Array(i); ++r < i;) a[r] = e + r * n;
 	return a;
 }
 //#endregion
 //#region node_modules/d3-geo/src/math.js
-var P = 1e-6, F = Math.PI, I = F / 2, Ct = F / 4, L = F * 2, R = 180 / F, z = F / 180, B = Math.abs, wt = Math.atan, V = Math.atan2, H = Math.cos, Tt = Math.ceil, Et = Math.exp, Dt = Math.log, Ot = Math.pow, U = Math.sin, kt = Math.sign || function(e) {
+var N = 1e-6, P = Math.PI, F = P / 2, wt = P / 4, I = P * 2, L = 180 / P, R = P / 180, z = Math.abs, Tt = Math.atan, B = Math.atan2, V = Math.cos, Et = Math.ceil, Dt = Math.exp, Ot = Math.hypot, kt = Math.log, At = Math.pow, H = Math.sin, jt = Math.sign || function(e) {
 	return e > 0 ? 1 : e < 0 ? -1 : 0;
-}, W = Math.sqrt, At = Math.tan;
-function jt(e) {
-	return e > 1 ? 0 : e < -1 ? F : Math.acos(e);
+}, U = Math.sqrt, Mt = Math.tan;
+function Nt(e) {
+	return e > 1 ? 0 : e < -1 ? P : Math.acos(e);
 }
-function Mt(e) {
-	return e > 1 ? I : e < -1 ? -I : Math.asin(e);
+function Pt(e) {
+	return e > 1 ? F : e < -1 ? -F : Math.asin(e);
 }
 //#endregion
 //#region node_modules/d3-geo/src/noop.js
-function G() {}
+function W() {}
 //#endregion
 //#region node_modules/d3-geo/src/stream.js
-function Nt(e, t) {
-	e && Ft.hasOwnProperty(e.type) && Ft[e.type](e, t);
+function Ft(e, t) {
+	e && Lt.hasOwnProperty(e.type) && Lt[e.type](e, t);
 }
-var Pt = {
+var It = {
 	Feature: function(e, t) {
-		Nt(e.geometry, t);
+		Ft(e.geometry, t);
 	},
 	FeatureCollection: function(e, t) {
-		for (var n = e.features, r = -1, i = n.length; ++r < i;) Nt(n[r].geometry, t);
+		for (var n = e.features, r = -1, i = n.length; ++r < i;) Ft(n[r].geometry, t);
 	}
-}, Ft = {
+}, Lt = {
 	Sphere: function(e, t) {
 		t.sphere();
 	},
@@ -718,74 +718,133 @@ var Pt = {
 		for (var n = e.coordinates, r = -1, i = n.length; ++r < i;) e = n[r], t.point(e[0], e[1], e[2]);
 	},
 	LineString: function(e, t) {
-		It(e.coordinates, t, 0);
+		Rt(e.coordinates, t, 0);
 	},
 	MultiLineString: function(e, t) {
-		for (var n = e.coordinates, r = -1, i = n.length; ++r < i;) It(n[r], t, 0);
+		for (var n = e.coordinates, r = -1, i = n.length; ++r < i;) Rt(n[r], t, 0);
 	},
 	Polygon: function(e, t) {
-		Lt(e.coordinates, t);
+		zt(e.coordinates, t);
 	},
 	MultiPolygon: function(e, t) {
-		for (var n = e.coordinates, r = -1, i = n.length; ++r < i;) Lt(n[r], t);
+		for (var n = e.coordinates, r = -1, i = n.length; ++r < i;) zt(n[r], t);
 	},
 	GeometryCollection: function(e, t) {
-		for (var n = e.geometries, r = -1, i = n.length; ++r < i;) Nt(n[r], t);
+		for (var n = e.geometries, r = -1, i = n.length; ++r < i;) Ft(n[r], t);
 	}
 };
-function It(e, t, n) {
+function Rt(e, t, n) {
 	var r = -1, i = e.length - n, a;
 	for (t.lineStart(); ++r < i;) a = e[r], t.point(a[0], a[1], a[2]);
 	t.lineEnd();
 }
-function Lt(e, t) {
+function zt(e, t) {
 	var n = -1, r = e.length;
-	for (t.polygonStart(); ++n < r;) It(e[n], t, 1);
+	for (t.polygonStart(); ++n < r;) Rt(e[n], t, 1);
 	t.polygonEnd();
 }
-function K(e, t) {
-	e && Pt.hasOwnProperty(e.type) ? Pt[e.type](e, t) : Nt(e, t);
+function G(e, t) {
+	e && It.hasOwnProperty(e.type) ? It[e.type](e, t) : Ft(e, t);
 }
 //#endregion
 //#region node_modules/d3-geo/src/cartesian.js
-function Rt(e) {
-	return [V(e[1], e[0]), Mt(e[2])];
+function Bt(e) {
+	return [B(e[1], e[0]), Pt(e[2])];
 }
-function q(e) {
-	var t = e[0], n = e[1], r = H(n);
+function Vt(e) {
+	var t = e[0], n = e[1], r = V(n);
 	return [
+		r * V(t),
 		r * H(t),
-		r * U(t),
-		U(n)
+		H(n)
 	];
 }
-function zt(e, t) {
+function Ht(e, t) {
 	return e[0] * t[0] + e[1] * t[1] + e[2] * t[2];
 }
-function Bt(e, t) {
+function Ut(e, t) {
 	return [
 		e[1] * t[2] - e[2] * t[1],
 		e[2] * t[0] - e[0] * t[2],
 		e[0] * t[1] - e[1] * t[0]
 	];
 }
-function Vt(e, t) {
+function Wt(e, t) {
 	e[0] += t[0], e[1] += t[1], e[2] += t[2];
 }
-function Ht(e, t) {
+function Gt(e, t) {
 	return [
 		e[0] * t,
 		e[1] * t,
 		e[2] * t
 	];
 }
-function Ut(e) {
-	var t = W(e[0] * e[0] + e[1] * e[1] + e[2] * e[2]);
+function Kt(e) {
+	var t = U(e[0] * e[0] + e[1] * e[1] + e[2] * e[2]);
 	e[0] /= t, e[1] /= t, e[2] /= t;
 }
 //#endregion
+//#region node_modules/d3-geo/src/centroid.js
+var qt, Jt, Yt, Xt, Zt, Qt, $t, en, tn, nn, rn, an, on, K, q, J, Y = {
+	sphere: W,
+	point: sn,
+	lineStart: ln,
+	lineEnd: fn,
+	polygonStart: function() {
+		Y.lineStart = pn, Y.lineEnd = mn;
+	},
+	polygonEnd: function() {
+		Y.lineStart = ln, Y.lineEnd = fn;
+	}
+};
+function sn(e, t) {
+	e *= R, t *= R;
+	var n = V(t);
+	cn(n * V(e), n * H(e), H(t));
+}
+function cn(e, t, n) {
+	++qt, Yt += (e - Yt) / qt, Xt += (t - Xt) / qt, Zt += (n - Zt) / qt;
+}
+function ln() {
+	Y.point = un;
+}
+function un(e, t) {
+	e *= R, t *= R;
+	var n = V(t);
+	K = n * V(e), q = n * H(e), J = H(t), Y.point = dn, cn(K, q, J);
+}
+function dn(e, t) {
+	e *= R, t *= R;
+	var n = V(t), r = n * V(e), i = n * H(e), a = H(t), o = B(U((o = q * a - J * i) * o + (o = J * r - K * a) * o + (o = K * i - q * r) * o), K * r + q * i + J * a);
+	Jt += o, Qt += o * (K + (K = r)), $t += o * (q + (q = i)), en += o * (J + (J = a)), cn(K, q, J);
+}
+function fn() {
+	Y.point = sn;
+}
+function pn() {
+	Y.point = hn;
+}
+function mn() {
+	gn(an, on), Y.point = sn;
+}
+function hn(e, t) {
+	an = e, on = t, e *= R, t *= R, Y.point = gn;
+	var n = V(t);
+	K = n * V(e), q = n * H(e), J = H(t), cn(K, q, J);
+}
+function gn(e, t) {
+	e *= R, t *= R;
+	var n = V(t), r = n * V(e), i = n * H(e), a = H(t), o = q * a - J * i, s = J * r - K * a, c = K * i - q * r, l = Ot(o, s, c), u = Pt(l), d = l && -u / l;
+	tn.add(d * o), nn.add(d * s), rn.add(d * c), Jt += u, Qt += u * (K + (K = r)), $t += u * (q + (q = i)), en += u * (J + (J = a)), cn(K, q, J);
+}
+function _n(e) {
+	qt = Jt = Yt = Xt = Zt = Qt = $t = en = 0, tn = new M(), nn = new M(), rn = new M(), G(e, Y);
+	var t = +tn, n = +nn, r = +rn, i = Ot(t, n, r);
+	return i < 1e-12 && (t = Qt, n = $t, r = en, Jt < 1e-6 && (t = Yt, n = Xt, r = Zt), i = Ot(t, n, r), i < 1e-12) ? [NaN, NaN] : [B(n, t) * L, Pt(r / i) * L];
+}
+//#endregion
 //#region node_modules/d3-geo/src/compose.js
-function Wt(e, t) {
+function vn(e, t) {
 	function n(n, r) {
 		return n = e(n, r), t(n[0], n[1]);
 	}
@@ -795,54 +854,54 @@ function Wt(e, t) {
 }
 //#endregion
 //#region node_modules/d3-geo/src/rotation.js
-function Gt(e, t) {
-	return B(e) > F && (e -= Math.round(e / L) * L), [e, t];
+function yn(e, t) {
+	return z(e) > P && (e -= Math.round(e / I) * I), [e, t];
 }
-Gt.invert = Gt;
-function Kt(e, t, n) {
-	return (e %= L) ? t || n ? Wt(Jt(e), Yt(t, n)) : Jt(e) : t || n ? Yt(t, n) : Gt;
+yn.invert = yn;
+function bn(e, t, n) {
+	return (e %= I) ? t || n ? vn(Sn(e), Cn(t, n)) : Sn(e) : t || n ? Cn(t, n) : yn;
 }
-function qt(e) {
+function xn(e) {
 	return function(t, n) {
-		return t += e, B(t) > F && (t -= Math.round(t / L) * L), [t, n];
+		return t += e, z(t) > P && (t -= Math.round(t / I) * I), [t, n];
 	};
 }
-function Jt(e) {
-	var t = qt(e);
-	return t.invert = qt(-e), t;
+function Sn(e) {
+	var t = xn(e);
+	return t.invert = xn(-e), t;
 }
-function Yt(e, t) {
-	var n = H(e), r = U(e), i = H(t), a = U(t);
+function Cn(e, t) {
+	var n = V(e), r = H(e), i = V(t), a = H(t);
 	function o(e, t) {
-		var o = H(t), s = H(e) * o, c = U(e) * o, l = U(t), u = l * n + s * r;
-		return [V(c * i - u * a, s * n - l * r), Mt(u * i + c * a)];
+		var o = V(t), s = V(e) * o, c = H(e) * o, l = H(t), u = l * n + s * r;
+		return [B(c * i - u * a, s * n - l * r), Pt(u * i + c * a)];
 	}
 	return o.invert = function(e, t) {
-		var o = H(t), s = H(e) * o, c = U(e) * o, l = U(t), u = l * i - c * a;
-		return [V(c * i + l * a, s * n + u * r), Mt(u * n - s * r)];
+		var o = V(t), s = V(e) * o, c = H(e) * o, l = H(t), u = l * i - c * a;
+		return [B(c * i + l * a, s * n + u * r), Pt(u * n - s * r)];
 	}, o;
 }
 //#endregion
 //#region node_modules/d3-geo/src/circle.js
-function Xt(e, t, n, r, i, a) {
+function wn(e, t, n, r, i, a) {
 	if (n) {
-		var o = H(t), s = U(t), c = r * n;
-		i == null ? (i = t + r * L, a = t - c / 2) : (i = Zt(o, i), a = Zt(o, a), (r > 0 ? i < a : i > a) && (i += r * L));
-		for (var l, u = i; r > 0 ? u > a : u < a; u -= c) l = Rt([
+		var o = V(t), s = H(t), c = r * n;
+		i == null ? (i = t + r * I, a = t - c / 2) : (i = Tn(o, i), a = Tn(o, a), (r > 0 ? i < a : i > a) && (i += r * I));
+		for (var l, u = i; r > 0 ? u > a : u < a; u -= c) l = Bt([
 			o,
-			-s * H(u),
-			-s * U(u)
+			-s * V(u),
+			-s * H(u)
 		]), e.point(l[0], l[1]);
 	}
 }
-function Zt(e, t) {
-	t = q(t), t[0] -= e, Ut(t);
-	var n = jt(-t[1]);
-	return ((-t[2] < 0 ? -n : n) + L - P) % L;
+function Tn(e, t) {
+	t = Vt(t), t[0] -= e, Kt(t);
+	var n = Nt(-t[1]);
+	return ((-t[2] < 0 ? -n : n) + I - N) % I;
 }
 //#endregion
 //#region node_modules/d3-geo/src/clip/buffer.js
-function Qt() {
+function En() {
 	var e = [], t;
 	return {
 		point: function(e, n, r) {
@@ -855,7 +914,7 @@ function Qt() {
 		lineStart: function() {
 			e.push(t = []);
 		},
-		lineEnd: G,
+		lineEnd: W,
 		rejoin: function() {
 			e.length > 1 && e.push(e.pop().concat(e.shift()));
 		},
@@ -867,31 +926,31 @@ function Qt() {
 }
 //#endregion
 //#region node_modules/d3-geo/src/pointEqual.js
-function $t(e, t) {
-	return B(e[0] - t[0]) < 1e-6 && B(e[1] - t[1]) < 1e-6;
+function Dn(e, t) {
+	return z(e[0] - t[0]) < 1e-6 && z(e[1] - t[1]) < 1e-6;
 }
 //#endregion
 //#region node_modules/d3-geo/src/clip/rejoin.js
-function en(e, t, n, r) {
+function On(e, t, n, r) {
 	this.x = e, this.z = t, this.o = n, this.e = r, this.v = !1, this.n = this.p = null;
 }
-function tn(e, t, n, r, i) {
+function kn(e, t, n, r, i) {
 	var a = [], o = [], s, c;
 	if (e.forEach(function(e) {
 		if (!((t = e.length - 1) <= 0)) {
 			var t, n = e[0], r = e[t], c;
-			if ($t(n, r)) {
+			if (Dn(n, r)) {
 				if (!n[2] && !r[2]) {
 					for (i.lineStart(), s = 0; s < t; ++s) i.point((n = e[s])[0], n[1]);
 					i.lineEnd();
 					return;
 				}
-				r[0] += 2 * P;
+				r[0] += 2 * N;
 			}
-			a.push(c = new en(n, e, null, !0)), o.push(c.o = new en(n, null, c, !1)), a.push(c = new en(r, e, null, !1)), o.push(c.o = new en(r, null, c, !0));
+			a.push(c = new On(n, e, null, !0)), o.push(c.o = new On(n, null, c, !1)), a.push(c = new On(r, e, null, !1)), o.push(c.o = new On(r, null, c, !0));
 		}
 	}), a.length) {
-		for (o.sort(t), nn(a), nn(o), s = 0, c = o.length; s < c; ++s) o[s].e = n = !n;
+		for (o.sort(t), An(a), An(o), s = 0, c = o.length; s < c; ++s) o[s].e = n = !n;
 		for (var l = a[0], u, d;;) {
 			for (var f = l, p = !0; f.v;) if ((f = f.n) === l) return;
 			u = f.z, i.lineStart();
@@ -911,7 +970,7 @@ function tn(e, t, n, r, i) {
 		}
 	}
 }
-function nn(e) {
+function An(e) {
 	if (t = e.length) {
 		for (var t, n = 0, r = e[0], i; ++n < t;) r.n = i = e[n], i.p = r, r = i;
 		r.n = i = e[0], i.p = r;
@@ -919,24 +978,24 @@ function nn(e) {
 }
 //#endregion
 //#region node_modules/d3-geo/src/polygonContains.js
-function rn(e) {
-	return B(e[0]) <= F ? e[0] : kt(e[0]) * ((B(e[0]) + F) % L - F);
+function jn(e) {
+	return z(e[0]) <= P ? e[0] : jt(e[0]) * ((z(e[0]) + P) % I - P);
 }
-function an(e, t) {
-	var n = rn(t), r = t[1], i = U(r), a = [
-		U(n),
-		-H(n),
+function Mn(e, t) {
+	var n = jn(t), r = t[1], i = H(r), a = [
+		H(n),
+		-V(n),
 		0
 	], o = 0, s = 0, c = new M();
-	i === 1 ? r = I + P : i === -1 && (r = -I - P);
-	for (var l = 0, u = e.length; l < u; ++l) if (f = (d = e[l]).length) for (var d, f, p = d[f - 1], m = rn(p), h = p[1] / 2 + Ct, g = U(h), _ = H(h), v = 0; v < f; ++v, m = b, g = S, _ = C, p = y) {
-		var y = d[v], b = rn(y), x = y[1] / 2 + Ct, S = U(x), C = H(x), w = b - m, T = w >= 0 ? 1 : -1, E = T * w, D = E > F, O = g * S;
-		if (c.add(V(O * T * U(E), _ * C + O * H(E))), o += D ? w + T * L : w, D ^ m >= n ^ b >= n) {
-			var k = Bt(q(p), q(y));
-			Ut(k);
-			var A = Bt(a, k);
-			Ut(A);
-			var ee = (D ^ w >= 0 ? -1 : 1) * Mt(A[2]);
+	i === 1 ? r = F + N : i === -1 && (r = -F - N);
+	for (var l = 0, u = e.length; l < u; ++l) if (f = (d = e[l]).length) for (var d, f, p = d[f - 1], m = jn(p), h = p[1] / 2 + wt, g = H(h), _ = V(h), v = 0; v < f; ++v, m = b, g = S, _ = C, p = y) {
+		var y = d[v], b = jn(y), x = y[1] / 2 + wt, S = H(x), C = V(x), w = b - m, T = w >= 0 ? 1 : -1, E = T * w, D = E > P, O = g * S;
+		if (c.add(B(O * T * H(E), _ * C + O * V(E))), o += D ? w + T * I : w, D ^ m >= n ^ b >= n) {
+			var k = Ut(Vt(p), Vt(y));
+			Kt(k);
+			var A = Ut(a, k);
+			Kt(A);
+			var ee = (D ^ w >= 0 ? -1 : 1) * Pt(A[2]);
 			(r > ee || r === ee && (k[0] || k[1])) && (s += D ^ w >= 0 ? 1 : -1);
 		}
 	}
@@ -944,9 +1003,9 @@ function an(e, t) {
 }
 //#endregion
 //#region node_modules/d3-geo/src/clip/index.js
-function on(e, t, n, r) {
+function Nn(e, t, n, r) {
 	return function(i) {
-		var a = t(i), o = Qt(), s = t(o), c = !1, l, u, d, f = {
+		var a = t(i), o = En(), s = t(o), c = !1, l, u, d, f = {
 			point: p,
 			lineStart: h,
 			lineEnd: g,
@@ -955,8 +1014,8 @@ function on(e, t, n, r) {
 			},
 			polygonEnd: function() {
 				f.point = p, f.lineStart = h, f.lineEnd = g, u = St(u);
-				var e = an(l, r);
-				u.length ? (c ||= (i.polygonStart(), !0), tn(u, cn, e, n, i)) : e && (c ||= (i.polygonStart(), !0), i.lineStart(), n(null, null, 1, i), i.lineEnd()), c &&= (i.polygonEnd(), !1), u = l = null;
+				var e = Mn(l, r);
+				u.length ? (c ||= (i.polygonStart(), !0), kn(u, Fn, e, n, i)) : e && (c ||= (i.polygonStart(), !0), i.lineStart(), n(null, null, 1, i), i.lineEnd()), c &&= (i.polygonEnd(), !1), u = l = null;
 			},
 			sphere: function() {
 				i.polygonStart(), i.lineStart(), n(null, null, 1, i), i.lineEnd(), i.polygonEnd();
@@ -991,32 +1050,32 @@ function on(e, t, n, r) {
 					}
 					return;
 				}
-				r > 1 && e & 2 && t.push(t.pop().concat(t.shift())), u.push(t.filter(sn));
+				r > 1 && e & 2 && t.push(t.pop().concat(t.shift())), u.push(t.filter(Pn));
 			}
 		}
 		return f;
 	};
 }
-function sn(e) {
+function Pn(e) {
 	return e.length > 1;
 }
-function cn(e, t) {
-	return ((e = e.x)[0] < 0 ? e[1] - I - P : I - e[1]) - ((t = t.x)[0] < 0 ? t[1] - I - P : I - t[1]);
+function Fn(e, t) {
+	return ((e = e.x)[0] < 0 ? e[1] - F - N : F - e[1]) - ((t = t.x)[0] < 0 ? t[1] - F - N : F - t[1]);
 }
 //#endregion
 //#region node_modules/d3-geo/src/clip/antimeridian.js
-var ln = on(function() {
+var In = Nn(function() {
 	return !0;
-}, un, fn, [-F, -I]);
-function un(e) {
+}, Ln, zn, [-P, -F]);
+function Ln(e) {
 	var t = NaN, n = NaN, r = NaN, i;
 	return {
 		lineStart: function() {
 			e.lineStart(), i = 1;
 		},
 		point: function(a, o) {
-			var s = a > 0 ? F : -F, c = B(a - t);
-			B(c - F) < 1e-6 ? (e.point(t, n = (n + o) / 2 > 0 ? I : -I), e.point(r, n), e.lineEnd(), e.lineStart(), e.point(s, n), e.point(a, n), i = 0) : r !== s && c >= F && (B(t - r) < 1e-6 && (t -= r * P), B(a - s) < 1e-6 && (a -= s * P), n = dn(t, n, a, o), e.point(r, n), e.lineEnd(), e.lineStart(), e.point(s, n), i = 0), e.point(t = a, n = o), r = s;
+			var s = a > 0 ? P : -P, c = z(a - t);
+			z(c - P) < 1e-6 ? (e.point(t, n = (n + o) / 2 > 0 ? F : -F), e.point(r, n), e.lineEnd(), e.lineStart(), e.point(s, n), e.point(a, n), i = 0) : r !== s && c >= P && (z(t - r) < 1e-6 && (t -= r * N), z(a - s) < 1e-6 && (a -= s * N), n = Rn(t, n, a, o), e.point(r, n), e.lineEnd(), e.lineStart(), e.point(s, n), i = 0), e.point(t = a, n = o), r = s;
 		},
 		lineEnd: function() {
 			e.lineEnd(), t = n = NaN;
@@ -1026,27 +1085,27 @@ function un(e) {
 		}
 	};
 }
-function dn(e, t, n, r) {
-	var i, a, o = U(e - n);
-	return B(o) > 1e-6 ? wt((U(t) * (a = H(r)) * U(n) - U(r) * (i = H(t)) * U(e)) / (i * a * o)) : (t + r) / 2;
+function Rn(e, t, n, r) {
+	var i, a, o = H(e - n);
+	return z(o) > 1e-6 ? Tt((H(t) * (a = V(r)) * H(n) - H(r) * (i = V(t)) * H(e)) / (i * a * o)) : (t + r) / 2;
 }
-function fn(e, t, n, r) {
+function zn(e, t, n, r) {
 	var i;
-	if (e == null) i = n * I, r.point(-F, i), r.point(0, i), r.point(F, i), r.point(F, 0), r.point(F, -i), r.point(0, -i), r.point(-F, -i), r.point(-F, 0), r.point(-F, i);
-	else if (B(e[0] - t[0]) > 1e-6) {
-		var a = e[0] < t[0] ? F : -F;
+	if (e == null) i = n * F, r.point(-P, i), r.point(0, i), r.point(P, i), r.point(P, 0), r.point(P, -i), r.point(0, -i), r.point(-P, -i), r.point(-P, 0), r.point(-P, i);
+	else if (z(e[0] - t[0]) > 1e-6) {
+		var a = e[0] < t[0] ? P : -P;
 		i = n * a / 2, r.point(-a, i), r.point(0, i), r.point(a, i);
 	} else r.point(t[0], t[1]);
 }
 //#endregion
 //#region node_modules/d3-geo/src/clip/circle.js
-function pn(e) {
-	var t = H(e), n = 2 * z, r = t > 0, i = B(t) > P;
+function Bn(e) {
+	var t = V(e), n = 2 * R, r = t > 0, i = z(t) > N;
 	function a(t, r, i, a) {
-		Xt(a, e, n, i, t, r);
+		wn(a, e, n, i, t, r);
 	}
 	function o(e, n) {
-		return H(e) * H(n) > t;
+		return V(e) * V(n) > t;
 	}
 	function s(e) {
 		var t, n, a, s, u;
@@ -1055,13 +1114,13 @@ function pn(e) {
 				s = a = !1, u = 1;
 			},
 			point: function(d, f) {
-				var p = [d, f], m, h = o(d, f), g = r ? h ? 0 : l(d, f) : h ? l(d + (d < 0 ? F : -F), f) : 0;
-				if (!t && (s = a = h) && e.lineStart(), h !== a && (m = c(t, p), (!m || $t(t, m) || $t(p, m)) && (p[2] = 1)), h !== a) u = 0, h ? (e.lineStart(), m = c(p, t), e.point(m[0], m[1])) : (m = c(t, p), e.point(m[0], m[1], 2), e.lineEnd()), t = m;
+				var p = [d, f], m, h = o(d, f), g = r ? h ? 0 : l(d, f) : h ? l(d + (d < 0 ? P : -P), f) : 0;
+				if (!t && (s = a = h) && e.lineStart(), h !== a && (m = c(t, p), (!m || Dn(t, m) || Dn(p, m)) && (p[2] = 1)), h !== a) u = 0, h ? (e.lineStart(), m = c(p, t), e.point(m[0], m[1])) : (m = c(t, p), e.point(m[0], m[1], 2), e.lineEnd()), t = m;
 				else if (i && t && r ^ h) {
 					var _;
 					!(g & n) && (_ = c(p, t, !0)) && (u = 0, r ? (e.lineStart(), e.point(_[0][0], _[0][1]), e.point(_[1][0], _[1][1]), e.lineEnd()) : (e.point(_[1][0], _[1][1]), e.lineEnd(), e.lineStart(), e.point(_[0][0], _[0][1], 3)));
 				}
-				h && (!t || !$t(t, p)) && e.point(p[0], p[1]), t = p, a = h, n = g;
+				h && (!t || !Dn(t, p)) && e.point(p[0], p[1]), t = p, a = h, n = g;
 			},
 			lineEnd: function() {
 				a && e.lineEnd(), t = null;
@@ -1072,36 +1131,36 @@ function pn(e) {
 		};
 	}
 	function c(e, n, r) {
-		var i = q(e), a = q(n), o = [
+		var i = Vt(e), a = Vt(n), o = [
 			1,
 			0,
 			0
-		], s = Bt(i, a), c = zt(s, s), l = s[0], u = c - l * l;
+		], s = Ut(i, a), c = Ht(s, s), l = s[0], u = c - l * l;
 		if (!u) return !r && e;
-		var d = t * c / u, f = -t * l / u, p = Bt(o, s), m = Ht(o, d);
-		Vt(m, Ht(s, f));
-		var h = p, g = zt(m, h), _ = zt(h, h), v = g * g - _ * (zt(m, m) - 1);
+		var d = t * c / u, f = -t * l / u, p = Ut(o, s), m = Gt(o, d);
+		Wt(m, Gt(s, f));
+		var h = p, g = Ht(m, h), _ = Ht(h, h), v = g * g - _ * (Ht(m, m) - 1);
 		if (!(v < 0)) {
-			var y = W(v), b = Ht(h, (-g - y) / _);
-			if (Vt(b, m), b = Rt(b), !r) return b;
+			var y = U(v), b = Gt(h, (-g - y) / _);
+			if (Wt(b, m), b = Bt(b), !r) return b;
 			var x = e[0], S = n[0], C = e[1], w = n[1], T;
 			S < x && (T = x, x = S, S = T);
-			var E = S - x, D = B(E - F) < P, O = D || E < 1e-6;
-			if (!D && w < C && (T = C, C = w, w = T), O ? D ? C + w > 0 ^ b[1] < (B(b[0] - x) < 1e-6 ? C : w) : C <= b[1] && b[1] <= w : E > F ^ (x <= b[0] && b[0] <= S)) {
-				var k = Ht(h, (-g + y) / _);
-				return Vt(k, m), [b, Rt(k)];
+			var E = S - x, D = z(E - P) < N, O = D || E < 1e-6;
+			if (!D && w < C && (T = C, C = w, w = T), O ? D ? C + w > 0 ^ b[1] < (z(b[0] - x) < 1e-6 ? C : w) : C <= b[1] && b[1] <= w : E > P ^ (x <= b[0] && b[0] <= S)) {
+				var k = Gt(h, (-g + y) / _);
+				return Wt(k, m), [b, Bt(k)];
 			}
 		}
 	}
 	function l(t, n) {
-		var i = r ? e : F - e, a = 0;
+		var i = r ? e : P - e, a = 0;
 		return t < -i ? a |= 1 : t > i && (a |= 2), n < -i ? a |= 4 : n > i && (a |= 8), a;
 	}
-	return on(o, s, a, r ? [0, -e] : [-F, e - F]);
+	return Nn(o, s, a, r ? [0, -e] : [-P, e - P]);
 }
 //#endregion
 //#region node_modules/d3-geo/src/clip/line.js
-function mn(e, t, n, r, i, a) {
+function Vn(e, t, n, r, i, a) {
 	var o = e[0], s = e[1], c = t[0], l = t[1], u = 0, d = 1, f = c - o, p = l - s, m = n - o;
 	if (!(!f && m > 0)) {
 		if (m /= f, f < 0) {
@@ -1143,8 +1202,8 @@ function mn(e, t, n, r, i, a) {
 }
 //#endregion
 //#region node_modules/d3-geo/src/clip/rectangle.js
-var hn = 1e9, gn = -hn;
-function _n(e, t, n, r) {
+var Hn = 1e9, Un = -Hn;
+function Wn(e, t, n, r) {
 	function i(i, a) {
 		return e <= i && i <= n && t <= a && a <= r;
 	}
@@ -1156,7 +1215,7 @@ function _n(e, t, n, r) {
 		else l.point(a[0], a[1]);
 	}
 	function o(r, i) {
-		return B(r[0] - e) < 1e-6 ? i > 0 ? 0 : 3 : B(r[0] - n) < 1e-6 ? i > 0 ? 2 : 1 : B(r[1] - t) < 1e-6 ? +(i > 0) : i > 0 ? 3 : 2;
+		return z(r[0] - e) < 1e-6 ? i > 0 ? 0 : 3 : z(r[0] - n) < 1e-6 ? i > 0 ? 2 : 1 : z(r[1] - t) < 1e-6 ? +(i > 0) : i > 0 ? 3 : 2;
 	}
 	function s(e, t) {
 		return c(e.x, t.x);
@@ -1166,7 +1225,7 @@ function _n(e, t, n, r) {
 		return n === r ? n === 0 ? t[1] - e[1] : n === 1 ? e[0] - t[0] : n === 2 ? e[1] - t[1] : t[0] - e[0] : n - r;
 	}
 	return function(o) {
-		var c = o, l = Qt(), u, d, f, p, m, h, g, _, v, y, b, x = {
+		var c = o, l = En(), u, d, f, p, m, h, g, _, v, y, b, x = {
 			point: S,
 			lineStart: E,
 			lineEnd: D,
@@ -1185,7 +1244,7 @@ function _n(e, t, n, r) {
 		}
 		function T() {
 			var e = C(), t = b && e, n = (u = St(u)).length;
-			(t || n) && (o.polygonStart(), t && (o.lineStart(), a(null, null, 1, o), o.lineEnd()), n && tn(u, s, e, a, o), o.polygonEnd()), c = o, u = d = f = null;
+			(t || n) && (o.polygonStart(), t && (o.lineStart(), a(null, null, 1, o), o.lineEnd()), n && kn(u, s, e, a, o), o.polygonEnd()), c = o, u = d = f = null;
 		}
 		function E() {
 			x.point = O, d && d.push(f = []), y = !0, v = !1, g = _ = NaN;
@@ -1198,8 +1257,8 @@ function _n(e, t, n, r) {
 			if (d && f.push([a, o]), y) p = a, m = o, h = s, y = !1, s && (c.lineStart(), c.point(a, o));
 			else if (s && v) c.point(a, o);
 			else {
-				var l = [g = Math.max(gn, Math.min(hn, g)), _ = Math.max(gn, Math.min(hn, _))], u = [a = Math.max(gn, Math.min(hn, a)), o = Math.max(gn, Math.min(hn, o))];
-				mn(l, u, e, t, n, r) ? (v || (c.lineStart(), c.point(l[0], l[1])), c.point(u[0], u[1]), s || c.lineEnd(), b = !1) : s && (c.lineStart(), c.point(a, o), b = !1);
+				var l = [g = Math.max(Un, Math.min(Hn, g)), _ = Math.max(Un, Math.min(Hn, _))], u = [a = Math.max(Un, Math.min(Hn, a)), o = Math.max(Un, Math.min(Hn, o))];
+				Vn(l, u, e, t, n, r) ? (v || (c.lineStart(), c.point(l[0], l[1])), c.point(u[0], u[1]), s || c.lineEnd(), b = !1) : s && (c.lineStart(), c.point(a, o), b = !1);
 			}
 			g = a, _ = o, v = s;
 		}
@@ -1207,24 +1266,125 @@ function _n(e, t, n, r) {
 	};
 }
 //#endregion
+//#region node_modules/d3-geo/src/length.js
+var Gn, Kn, qn, Jn, Yn = {
+	sphere: W,
+	point: W,
+	lineStart: Xn,
+	lineEnd: W,
+	polygonStart: W,
+	polygonEnd: W
+};
+function Xn() {
+	Yn.point = Qn, Yn.lineEnd = Zn;
+}
+function Zn() {
+	Yn.point = Yn.lineEnd = W;
+}
+function Qn(e, t) {
+	e *= R, t *= R, Kn = e, qn = H(t), Jn = V(t), Yn.point = $n;
+}
+function $n(e, t) {
+	e *= R, t *= R;
+	var n = H(t), r = V(t), i = z(e - Kn), a = V(i), o = r * H(i), s = Jn * n - qn * r * a, c = qn * n + Jn * r * a;
+	Gn.add(B(U(o * o + s * s), c)), Kn = e, qn = n, Jn = r;
+}
+function er(e) {
+	return Gn = new M(), G(e, Yn), +Gn;
+}
+//#endregion
+//#region node_modules/d3-geo/src/distance.js
+var tr = [null, null], nr = {
+	type: "LineString",
+	coordinates: tr
+};
+function rr(e, t) {
+	return tr[0] = e, tr[1] = t, er(nr);
+}
+//#endregion
+//#region node_modules/d3-geo/src/contains.js
+var ir = {
+	Feature: function(e, t) {
+		return or(e.geometry, t);
+	},
+	FeatureCollection: function(e, t) {
+		for (var n = e.features, r = -1, i = n.length; ++r < i;) if (or(n[r].geometry, t)) return !0;
+		return !1;
+	}
+}, ar = {
+	Sphere: function() {
+		return !0;
+	},
+	Point: function(e, t) {
+		return sr(e.coordinates, t);
+	},
+	MultiPoint: function(e, t) {
+		for (var n = e.coordinates, r = -1, i = n.length; ++r < i;) if (sr(n[r], t)) return !0;
+		return !1;
+	},
+	LineString: function(e, t) {
+		return cr(e.coordinates, t);
+	},
+	MultiLineString: function(e, t) {
+		for (var n = e.coordinates, r = -1, i = n.length; ++r < i;) if (cr(n[r], t)) return !0;
+		return !1;
+	},
+	Polygon: function(e, t) {
+		return lr(e.coordinates, t);
+	},
+	MultiPolygon: function(e, t) {
+		for (var n = e.coordinates, r = -1, i = n.length; ++r < i;) if (lr(n[r], t)) return !0;
+		return !1;
+	},
+	GeometryCollection: function(e, t) {
+		for (var n = e.geometries, r = -1, i = n.length; ++r < i;) if (or(n[r], t)) return !0;
+		return !1;
+	}
+};
+function or(e, t) {
+	return e && ar.hasOwnProperty(e.type) ? ar[e.type](e, t) : !1;
+}
+function sr(e, t) {
+	return rr(e, t) === 0;
+}
+function cr(e, t) {
+	for (var n, r, i, a = 0, o = e.length; a < o; a++) {
+		if (r = rr(e[a], t), r === 0 || a > 0 && (i = rr(e[a], e[a - 1]), i > 0 && n <= i && r <= i && (n + r - i) * (1 - ((n - r) / i) ** 2) < 1e-12 * i)) return !0;
+		n = r;
+	}
+	return !1;
+}
+function lr(e, t) {
+	return !!Mn(e.map(ur), dr(t));
+}
+function ur(e) {
+	return e = e.map(dr), e.pop(), e;
+}
+function dr(e) {
+	return [e[0] * R, e[1] * R];
+}
+function fr(e, t) {
+	return (e && ir.hasOwnProperty(e.type) ? ir[e.type] : or)(e, t);
+}
+//#endregion
 //#region node_modules/d3-geo/src/graticule.js
-function vn(e, t, n) {
-	var r = N(e, t - P, n).concat(t);
+function pr(e, t, n) {
+	var r = Ct(e, t - N, n).concat(t);
 	return function(e) {
 		return r.map(function(t) {
 			return [e, t];
 		});
 	};
 }
-function yn(e, t, n) {
-	var r = N(e, t - P, n).concat(t);
+function mr(e, t, n) {
+	var r = Ct(e, t - N, n).concat(t);
 	return function(e) {
 		return r.map(function(t) {
 			return [t, e];
 		});
 	};
 }
-function bn() {
+function hr() {
 	var e, t, n, r, i, a, o, s, c = 10, l = c, u = 90, d = 360, f, p, m, h, g = 2.5;
 	function _() {
 		return {
@@ -1233,10 +1393,10 @@ function bn() {
 		};
 	}
 	function v() {
-		return N(Tt(r / u) * u, n, u).map(m).concat(N(Tt(s / d) * d, o, d).map(h)).concat(N(Tt(t / c) * c, e, c).filter(function(e) {
-			return B(e % u) > P;
-		}).map(f)).concat(N(Tt(a / l) * l, i, l).filter(function(e) {
-			return B(e % d) > P;
+		return Ct(Et(r / u) * u, n, u).map(m).concat(Ct(Et(s / d) * d, o, d).map(h)).concat(Ct(Et(t / c) * c, e, c).filter(function(e) {
+			return z(e % u) > N;
+		}).map(f)).concat(Ct(Et(a / l) * l, i, l).filter(function(e) {
+			return z(e % d) > N;
 		}).map(p));
 	}
 	return _.lines = function() {
@@ -1264,109 +1424,109 @@ function bn() {
 	}, _.stepMinor = function(e) {
 		return arguments.length ? (c = +e[0], l = +e[1], _) : [c, l];
 	}, _.precision = function(c) {
-		return arguments.length ? (g = +c, f = vn(a, i, 90), p = yn(t, e, g), m = vn(s, o, 90), h = yn(r, n, g), _) : g;
-	}, _.extentMajor([[-180, -90 + P], [180, 90 - P]]).extentMinor([[-180, -80 - P], [180, 80 + P]]);
+		return arguments.length ? (g = +c, f = pr(a, i, 90), p = mr(t, e, g), m = pr(s, o, 90), h = mr(r, n, g), _) : g;
+	}, _.extentMajor([[-180, -90 + N], [180, 90 - N]]).extentMinor([[-180, -80 - N], [180, 80 + N]]);
 }
-function xn() {
-	return bn()();
+function gr() {
+	return hr()();
 }
 //#endregion
 //#region node_modules/d3-geo/src/identity.js
-var Sn = (e) => e, Cn = new M(), wn = new M(), Tn, En, Dn, On, J = {
-	point: G,
-	lineStart: G,
-	lineEnd: G,
+var _r = (e) => e, vr = new M(), yr = new M(), br, xr, Sr, Cr, X = {
+	point: W,
+	lineStart: W,
+	lineEnd: W,
 	polygonStart: function() {
-		J.lineStart = kn, J.lineEnd = Mn;
+		X.lineStart = wr, X.lineEnd = Dr;
 	},
 	polygonEnd: function() {
-		J.lineStart = J.lineEnd = J.point = G, Cn.add(B(wn)), wn = new M();
+		X.lineStart = X.lineEnd = X.point = W, vr.add(z(yr)), yr = new M();
 	},
 	result: function() {
-		var e = Cn / 2;
-		return Cn = new M(), e;
+		var e = vr / 2;
+		return vr = new M(), e;
 	}
 };
-function kn() {
-	J.point = An;
+function wr() {
+	X.point = Tr;
 }
-function An(e, t) {
-	J.point = jn, Tn = Dn = e, En = On = t;
+function Tr(e, t) {
+	X.point = Er, br = Sr = e, xr = Cr = t;
 }
-function jn(e, t) {
-	wn.add(On * e - Dn * t), Dn = e, On = t;
+function Er(e, t) {
+	yr.add(Cr * e - Sr * t), Sr = e, Cr = t;
 }
-function Mn() {
-	jn(Tn, En);
+function Dr() {
+	Er(br, xr);
 }
 //#endregion
 //#region node_modules/d3-geo/src/path/bounds.js
-var Y = Infinity, Nn = Y, Pn = -Y, Fn = Pn, In = {
-	point: Ln,
-	lineStart: G,
-	lineEnd: G,
-	polygonStart: G,
-	polygonEnd: G,
+var Or = Infinity, kr = Or, Ar = -Or, jr = Ar, Mr = {
+	point: Nr,
+	lineStart: W,
+	lineEnd: W,
+	polygonStart: W,
+	polygonEnd: W,
 	result: function() {
-		var e = [[Y, Nn], [Pn, Fn]];
-		return Pn = Fn = -(Nn = Y = Infinity), e;
+		var e = [[Or, kr], [Ar, jr]];
+		return Ar = jr = -(kr = Or = Infinity), e;
 	}
 };
-function Ln(e, t) {
-	e < Y && (Y = e), e > Pn && (Pn = e), t < Nn && (Nn = t), t > Fn && (Fn = t);
+function Nr(e, t) {
+	e < Or && (Or = e), e > Ar && (Ar = e), t < kr && (kr = t), t > jr && (jr = t);
 }
 //#endregion
 //#region node_modules/d3-geo/src/path/centroid.js
-var Rn = 0, zn = 0, Bn = 0, Vn = 0, Hn = 0, Un = 0, Wn = 0, Gn = 0, Kn = 0, qn, Jn, X, Z, Q = {
-	point: $,
-	lineStart: Yn,
-	lineEnd: Qn,
+var Pr = 0, Fr = 0, Ir = 0, Lr = 0, Rr = 0, zr = 0, Br = 0, Vr = 0, Hr = 0, Ur, Wr, Z, Q, $ = {
+	point: Gr,
+	lineStart: Kr,
+	lineEnd: Yr,
 	polygonStart: function() {
-		Q.lineStart = $n, Q.lineEnd = er;
+		$.lineStart = Xr, $.lineEnd = Zr;
 	},
 	polygonEnd: function() {
-		Q.point = $, Q.lineStart = Yn, Q.lineEnd = Qn;
+		$.point = Gr, $.lineStart = Kr, $.lineEnd = Yr;
 	},
 	result: function() {
-		var e = Kn ? [Wn / Kn, Gn / Kn] : Un ? [Vn / Un, Hn / Un] : Bn ? [Rn / Bn, zn / Bn] : [NaN, NaN];
-		return Rn = zn = Bn = Vn = Hn = Un = Wn = Gn = Kn = 0, e;
+		var e = Hr ? [Br / Hr, Vr / Hr] : zr ? [Lr / zr, Rr / zr] : Ir ? [Pr / Ir, Fr / Ir] : [NaN, NaN];
+		return Pr = Fr = Ir = Lr = Rr = zr = Br = Vr = Hr = 0, e;
 	}
 };
-function $(e, t) {
-	Rn += e, zn += t, ++Bn;
+function Gr(e, t) {
+	Pr += e, Fr += t, ++Ir;
 }
-function Yn() {
-	Q.point = Xn;
+function Kr() {
+	$.point = qr;
 }
-function Xn(e, t) {
-	Q.point = Zn, $(X = e, Z = t);
+function qr(e, t) {
+	$.point = Jr, Gr(Z = e, Q = t);
 }
-function Zn(e, t) {
-	var n = e - X, r = t - Z, i = W(n * n + r * r);
-	Vn += i * (X + e) / 2, Hn += i * (Z + t) / 2, Un += i, $(X = e, Z = t);
+function Jr(e, t) {
+	var n = e - Z, r = t - Q, i = U(n * n + r * r);
+	Lr += i * (Z + e) / 2, Rr += i * (Q + t) / 2, zr += i, Gr(Z = e, Q = t);
 }
-function Qn() {
-	Q.point = $;
+function Yr() {
+	$.point = Gr;
 }
-function $n() {
-	Q.point = tr;
+function Xr() {
+	$.point = Qr;
 }
-function er() {
-	nr(qn, Jn);
+function Zr() {
+	$r(Ur, Wr);
 }
-function tr(e, t) {
-	Q.point = nr, $(qn = X = e, Jn = Z = t);
+function Qr(e, t) {
+	$.point = $r, Gr(Ur = Z = e, Wr = Q = t);
 }
-function nr(e, t) {
-	var n = e - X, r = t - Z, i = W(n * n + r * r);
-	Vn += i * (X + e) / 2, Hn += i * (Z + t) / 2, Un += i, i = Z * e - X * t, Wn += i * (X + e), Gn += i * (Z + t), Kn += i * 3, $(X = e, Z = t);
+function $r(e, t) {
+	var n = e - Z, r = t - Q, i = U(n * n + r * r);
+	Lr += i * (Z + e) / 2, Rr += i * (Q + t) / 2, zr += i, i = Q * e - Z * t, Br += i * (Z + e), Vr += i * (Q + t), Hr += i * 3, Gr(Z = e, Q = t);
 }
 //#endregion
 //#region node_modules/d3-geo/src/path/context.js
-function rr(e) {
+function ei(e) {
 	this._context = e;
 }
-rr.prototype = {
+ei.prototype = {
 	_radius: 4.5,
 	pointRadius: function(e) {
 		return this._radius = e, this;
@@ -1391,43 +1551,43 @@ rr.prototype = {
 			case 1:
 				this._context.lineTo(e, t);
 				break;
-			default: this._context.moveTo(e + this._radius, t), this._context.arc(e, t, this._radius, 0, L);
+			default: this._context.moveTo(e + this._radius, t), this._context.arc(e, t, this._radius, 0, I);
 		}
 	},
-	result: G
+	result: W
 };
 //#endregion
 //#region node_modules/d3-geo/src/path/measure.js
-var ir = new M(), ar, or, sr, cr, lr, ur = {
-	point: G,
+var ti = new M(), ni, ri, ii, ai, oi, si = {
+	point: W,
 	lineStart: function() {
-		ur.point = dr;
+		si.point = ci;
 	},
 	lineEnd: function() {
-		ar && fr(or, sr), ur.point = G;
+		ni && li(ri, ii), si.point = W;
 	},
 	polygonStart: function() {
-		ar = !0;
+		ni = !0;
 	},
 	polygonEnd: function() {
-		ar = null;
+		ni = null;
 	},
 	result: function() {
-		var e = +ir;
-		return ir = new M(), e;
+		var e = +ti;
+		return ti = new M(), e;
 	}
 };
-function dr(e, t) {
-	ur.point = fr, or = cr = e, sr = lr = t;
+function ci(e, t) {
+	si.point = li, ri = ai = e, ii = oi = t;
 }
-function fr(e, t) {
-	cr -= e, lr -= t, ir.add(W(cr * cr + lr * lr)), cr = e, lr = t;
+function li(e, t) {
+	ai -= e, oi -= t, ti.add(U(ai * ai + oi * oi)), ai = e, oi = t;
 }
 //#endregion
 //#region node_modules/d3-geo/src/path/string.js
-var pr, mr, hr, gr, _r = class {
+var ui, di, fi, pi, mi = class {
 	constructor(e) {
-		this._append = e == null ? vr : yr(e), this._radius = 4.5, this._ = "";
+		this._append = e == null ? hi : gi(e), this._radius = 4.5, this._ = "";
 	}
 	pointRadius(e) {
 		return this._radius = +e, this;
@@ -1453,11 +1613,11 @@ var pr, mr, hr, gr, _r = class {
 				this._append`L${e},${t}`;
 				break;
 			default:
-				if (this._append`M${e},${t}`, this._radius !== hr || this._append !== mr) {
+				if (this._append`M${e},${t}`, this._radius !== fi || this._append !== di) {
 					let e = this._radius, t = this._;
-					this._ = "", this._append`m0,${e}a${e},${e} 0 1,1 0,${-2 * e}a${e},${e} 0 1,1 0,${2 * e}z`, hr = e, mr = this._append, gr = this._, this._ = t;
+					this._ = "", this._append`m0,${e}a${e},${e} 0 1,1 0,${-2 * e}a${e},${e} 0 1,1 0,${2 * e}z`, fi = e, di = this._append, pi = this._, this._ = t;
 				}
-				this._ += gr;
+				this._ += pi;
 		}
 	}
 	result() {
@@ -1465,44 +1625,44 @@ var pr, mr, hr, gr, _r = class {
 		return this._ = "", e.length ? e : null;
 	}
 };
-function vr(e) {
+function hi(e) {
 	let t = 1;
 	this._ += e[0];
 	for (let n = e.length; t < n; ++t) this._ += arguments[t] + e[t];
 }
-function yr(e) {
+function gi(e) {
 	let t = Math.floor(e);
 	if (!(t >= 0)) throw RangeError(`invalid digits: ${e}`);
-	if (t > 15) return vr;
-	if (t !== pr) {
+	if (t > 15) return hi;
+	if (t !== ui) {
 		let e = 10 ** t;
-		pr = t, mr = function(t) {
+		ui = t, di = function(t) {
 			let n = 1;
 			this._ += t[0];
 			for (let r = t.length; n < r; ++n) this._ += Math.round(arguments[n] * e) / e + t[n];
 		};
 	}
-	return mr;
+	return di;
 }
 //#endregion
 //#region node_modules/d3-geo/src/path/index.js
-function br(e, t) {
+function _i(e, t) {
 	let n = 3, r = 4.5, i, a;
 	function o(e) {
-		return e && (typeof r == "function" && a.pointRadius(+r.apply(this, arguments)), K(e, i(a))), a.result();
+		return e && (typeof r == "function" && a.pointRadius(+r.apply(this, arguments)), G(e, i(a))), a.result();
 	}
 	return o.area = function(e) {
-		return K(e, i(J)), J.result();
+		return G(e, i(X)), X.result();
 	}, o.measure = function(e) {
-		return K(e, i(ur)), ur.result();
+		return G(e, i(si)), si.result();
 	}, o.bounds = function(e) {
-		return K(e, i(In)), In.result();
+		return G(e, i(Mr)), Mr.result();
 	}, o.centroid = function(e) {
-		return K(e, i(Q)), Q.result();
+		return G(e, i($)), $.result();
 	}, o.projection = function(t) {
-		return arguments.length ? (i = t == null ? (e = null, Sn) : (e = t).stream, o) : e;
+		return arguments.length ? (i = t == null ? (e = null, _r) : (e = t).stream, o) : e;
 	}, o.context = function(e) {
-		return arguments.length ? (a = e == null ? (t = null, new _r(n)) : new rr(t = e), typeof r != "function" && a.pointRadius(r), o) : t;
+		return arguments.length ? (a = e == null ? (t = null, new mi(n)) : new ei(t = e), typeof r != "function" && a.pointRadius(r), o) : t;
 	}, o.pointRadius = function(e) {
 		return arguments.length ? (r = typeof e == "function" ? e : (a.pointRadius(+e), +e), o) : r;
 	}, o.digits = function(e) {
@@ -1513,21 +1673,21 @@ function br(e, t) {
 			if (!(t >= 0)) throw RangeError(`invalid digits: ${e}`);
 			n = t;
 		}
-		return t === null && (a = new _r(n)), o;
+		return t === null && (a = new mi(n)), o;
 	}, o.projection(e).digits(n).context(t);
 }
 //#endregion
 //#region node_modules/d3-geo/src/transform.js
-function xr(e) {
+function vi(e) {
 	return function(t) {
-		var n = new Sr();
+		var n = new yi();
 		for (var r in e) n[r] = e[r];
 		return n.stream = t, n;
 	};
 }
-function Sr() {}
-Sr.prototype = {
-	constructor: Sr,
+function yi() {}
+yi.prototype = {
+	constructor: yi,
 	point: function(e, t) {
 		this.stream.point(e, t);
 	},
@@ -1549,48 +1709,48 @@ Sr.prototype = {
 };
 //#endregion
 //#region node_modules/d3-geo/src/projection/fit.js
-function Cr(e, t, n) {
+function bi(e, t, n) {
 	var r = e.clipExtent && e.clipExtent();
-	return e.scale(150).translate([0, 0]), r != null && e.clipExtent(null), K(n, e.stream(In)), t(In.result()), r != null && e.clipExtent(r), e;
+	return e.scale(150).translate([0, 0]), r != null && e.clipExtent(null), G(n, e.stream(Mr)), t(Mr.result()), r != null && e.clipExtent(r), e;
 }
-function wr(e, t, n) {
-	return Cr(e, function(n) {
+function xi(e, t, n) {
+	return bi(e, function(n) {
 		var r = t[1][0] - t[0][0], i = t[1][1] - t[0][1], a = Math.min(r / (n[1][0] - n[0][0]), i / (n[1][1] - n[0][1])), o = +t[0][0] + (r - a * (n[1][0] + n[0][0])) / 2, s = +t[0][1] + (i - a * (n[1][1] + n[0][1])) / 2;
 		e.scale(150 * a).translate([o, s]);
 	}, n);
 }
-function Tr(e, t, n) {
-	return wr(e, [[0, 0], t], n);
+function Si(e, t, n) {
+	return xi(e, [[0, 0], t], n);
 }
-function Er(e, t, n) {
-	return Cr(e, function(n) {
+function Ci(e, t, n) {
+	return bi(e, function(n) {
 		var r = +t, i = r / (n[1][0] - n[0][0]), a = (r - i * (n[1][0] + n[0][0])) / 2, o = -i * n[0][1];
 		e.scale(150 * i).translate([a, o]);
 	}, n);
 }
-function Dr(e, t, n) {
-	return Cr(e, function(n) {
+function wi(e, t, n) {
+	return bi(e, function(n) {
 		var r = +t, i = r / (n[1][1] - n[0][1]), a = -i * n[0][0], o = (r - i * (n[1][1] + n[0][1])) / 2;
 		e.scale(150 * i).translate([a, o]);
 	}, n);
 }
 //#endregion
 //#region node_modules/d3-geo/src/projection/resample.js
-var Or = 16, kr = H(30 * z);
-function Ar(e, t) {
-	return +t ? Mr(e, t) : jr(e);
+var Ti = 16, Ei = V(30 * R);
+function Di(e, t) {
+	return +t ? ki(e, t) : Oi(e);
 }
-function jr(e) {
-	return xr({ point: function(t, n) {
+function Oi(e) {
+	return vi({ point: function(t, n) {
 		t = e(t, n), this.stream.point(t[0], t[1]);
 	} });
 }
-function Mr(e, t) {
+function ki(e, t) {
 	function n(r, i, a, o, s, c, l, u, d, f, p, m, h, g) {
 		var _ = l - r, v = u - i, y = _ * _ + v * v;
 		if (y > 4 * t && h--) {
-			var b = o + f, x = s + p, S = c + m, C = W(b * b + x * x + S * S), w = Mt(S /= C), T = B(B(S) - 1) < 1e-6 || B(a - d) < 1e-6 ? (a + d) / 2 : V(x, b), E = e(T, w), D = E[0], O = E[1], k = D - r, A = O - i, ee = v * k - _ * A;
-			(ee * ee / y > t || B((_ * k + v * A) / y - .5) > .3 || o * f + s * p + c * m < kr) && (n(r, i, a, o, s, c, D, O, T, b /= C, x /= C, S, h, g), g.point(D, O), n(D, O, T, b, x, S, l, u, d, f, p, m, h, g));
+			var b = o + f, x = s + p, S = c + m, C = U(b * b + x * x + S * S), w = Pt(S /= C), T = z(z(S) - 1) < 1e-6 || z(a - d) < 1e-6 ? (a + d) / 2 : B(x, b), E = e(T, w), D = E[0], O = E[1], k = D - r, A = O - i, ee = v * k - _ * A;
+			(ee * ee / y > t || z((_ * k + v * A) / y - .5) > .3 || o * f + s * p + c * m < Ei) && (n(r, i, a, o, s, c, D, O, T, b /= C, x /= C, S, h, g), g.point(D, O), n(D, O, T, b, x, S, l, u, d, f, p, m, h, g));
 		}
 	}
 	return function(t) {
@@ -1612,8 +1772,8 @@ function Mr(e, t) {
 			u = NaN, h.point = v, t.lineStart();
 		}
 		function v(r, i) {
-			var a = q([r, i]), o = e(r, i);
-			n(u, d, l, f, p, m, u = o[0], d = o[1], l = r, f = a[0], p = a[1], m = a[2], Or, t), t.point(u, d);
+			var a = Vt([r, i]), o = e(r, i);
+			n(u, d, l, f, p, m, u = o[0], d = o[1], l = r, f = a[0], p = a[1], m = a[2], Ti, t), t.point(u, d);
 		}
 		function y() {
 			h.point = g, t.lineEnd();
@@ -1625,23 +1785,23 @@ function Mr(e, t) {
 			v(r = e, t), i = u, a = d, o = f, s = p, c = m, h.point = v;
 		}
 		function S() {
-			n(u, d, l, f, p, m, i, a, r, o, s, c, Or, t), h.lineEnd = y, y();
+			n(u, d, l, f, p, m, i, a, r, o, s, c, Ti, t), h.lineEnd = y, y();
 		}
 		return h;
 	};
 }
 //#endregion
 //#region node_modules/d3-geo/src/projection/index.js
-var Nr = xr({ point: function(e, t) {
-	this.stream.point(e * z, t * z);
+var Ai = vi({ point: function(e, t) {
+	this.stream.point(e * R, t * R);
 } });
-function Pr(e) {
-	return xr({ point: function(t, n) {
+function ji(e) {
+	return vi({ point: function(t, n) {
 		var r = e(t, n);
 		return this.stream.point(r[0], r[1]);
 	} });
 }
-function Fr(e, t, n, r, i) {
+function Mi(e, t, n, r, i) {
 	function a(a, o) {
 		return a *= r, o *= i, [t + e * a, n - e * o];
 	}
@@ -1649,9 +1809,9 @@ function Fr(e, t, n, r, i) {
 		return [(a - t) / e * r, (n - o) / e * i];
 	}, a;
 }
-function Ir(e, t, n, r, i, a) {
-	if (!a) return Fr(e, t, n, r, i);
-	var o = H(a), s = U(a), c = o * e, l = s * e, u = o / e, d = s / e, f = (s * n - o * t) / e, p = (s * t + o * n) / e;
+function Ni(e, t, n, r, i, a) {
+	if (!a) return Mi(e, t, n, r, i);
+	var o = V(a), s = H(a), c = o * e, l = s * e, u = o / e, d = s / e, f = (s * n - o * t) / e, p = (s * t + o * n) / e;
 	function m(e, a) {
 		return e *= r, a *= i, [c * e - l * a + t, n - l * e - c * a];
 	}
@@ -1659,61 +1819,61 @@ function Ir(e, t, n, r, i, a) {
 		return [r * (u * e - d * t + f), i * (p - d * e - u * t)];
 	}, m;
 }
-function Lr(e) {
-	return Rr(function() {
+function Pi(e) {
+	return Fi(function() {
 		return e;
 	})();
 }
-function Rr(e) {
-	var t, n = 150, r = 480, i = 250, a = 0, o = 0, s = 0, c = 0, l = 0, u, d = 0, f = 1, p = 1, m = null, h = ln, g = null, _, v, y, b = Sn, x = .5, S, C, w, T, E;
+function Fi(e) {
+	var t, n = 150, r = 480, i = 250, a = 0, o = 0, s = 0, c = 0, l = 0, u, d = 0, f = 1, p = 1, m = null, h = In, g = null, _, v, y, b = _r, x = .5, S, C, w, T, E;
 	function D(e) {
-		return w(e[0] * z, e[1] * z);
+		return w(e[0] * R, e[1] * R);
 	}
 	function O(e) {
-		return e = w.invert(e[0], e[1]), e && [e[0] * R, e[1] * R];
+		return e = w.invert(e[0], e[1]), e && [e[0] * L, e[1] * L];
 	}
 	D.stream = function(e) {
-		return T && E === e ? T : T = Nr(Pr(u)(h(S(b(E = e)))));
+		return T && E === e ? T : T = Ai(ji(u)(h(S(b(E = e)))));
 	}, D.preclip = function(e) {
 		return arguments.length ? (h = e, m = void 0, A()) : h;
 	}, D.postclip = function(e) {
 		return arguments.length ? (b = e, g = _ = v = y = null, A()) : b;
 	}, D.clipAngle = function(e) {
-		return arguments.length ? (h = +e ? pn(m = e * z) : (m = null, ln), A()) : m * R;
+		return arguments.length ? (h = +e ? Bn(m = e * R) : (m = null, In), A()) : m * L;
 	}, D.clipExtent = function(e) {
-		return arguments.length ? (b = e == null ? (g = _ = v = y = null, Sn) : _n(g = +e[0][0], _ = +e[0][1], v = +e[1][0], y = +e[1][1]), A()) : g == null ? null : [[g, _], [v, y]];
+		return arguments.length ? (b = e == null ? (g = _ = v = y = null, _r) : Wn(g = +e[0][0], _ = +e[0][1], v = +e[1][0], y = +e[1][1]), A()) : g == null ? null : [[g, _], [v, y]];
 	}, D.scale = function(e) {
 		return arguments.length ? (n = +e, k()) : n;
 	}, D.translate = function(e) {
 		return arguments.length ? (r = +e[0], i = +e[1], k()) : [r, i];
 	}, D.center = function(e) {
-		return arguments.length ? (a = e[0] % 360 * z, o = e[1] % 360 * z, k()) : [a * R, o * R];
+		return arguments.length ? (a = e[0] % 360 * R, o = e[1] % 360 * R, k()) : [a * L, o * L];
 	}, D.rotate = function(e) {
-		return arguments.length ? (s = e[0] % 360 * z, c = e[1] % 360 * z, l = e.length > 2 ? e[2] % 360 * z : 0, k()) : [
-			s * R,
-			c * R,
-			l * R
+		return arguments.length ? (s = e[0] % 360 * R, c = e[1] % 360 * R, l = e.length > 2 ? e[2] % 360 * R : 0, k()) : [
+			s * L,
+			c * L,
+			l * L
 		];
 	}, D.angle = function(e) {
-		return arguments.length ? (d = e % 360 * z, k()) : d * R;
+		return arguments.length ? (d = e % 360 * R, k()) : d * L;
 	}, D.reflectX = function(e) {
 		return arguments.length ? (f = e ? -1 : 1, k()) : f < 0;
 	}, D.reflectY = function(e) {
 		return arguments.length ? (p = e ? -1 : 1, k()) : p < 0;
 	}, D.precision = function(e) {
-		return arguments.length ? (S = Ar(C, x = e * e), A()) : W(x);
+		return arguments.length ? (S = Di(C, x = e * e), A()) : U(x);
 	}, D.fitExtent = function(e, t) {
-		return wr(D, e, t);
+		return xi(D, e, t);
 	}, D.fitSize = function(e, t) {
-		return Tr(D, e, t);
+		return Si(D, e, t);
 	}, D.fitWidth = function(e, t) {
-		return Er(D, e, t);
+		return Ci(D, e, t);
 	}, D.fitHeight = function(e, t) {
-		return Dr(D, e, t);
+		return wi(D, e, t);
 	};
 	function k() {
-		var e = Ir(n, 0, 0, f, p, d).apply(null, t(a, o)), m = Ir(n, r - e[0], i - e[1], f, p, d);
-		return u = Kt(s, c, l), C = Wt(t, m), w = Wt(u, C), S = Ar(C, x), A();
+		var e = Ni(n, 0, 0, f, p, d).apply(null, t(a, o)), m = Ni(n, r - e[0], i - e[1], f, p, d);
+		return u = bn(s, c, l), C = vn(t, m), w = vn(u, C), S = Di(C, x), A();
 	}
 	function A() {
 		return T = E = null, D;
@@ -1724,67 +1884,67 @@ function Rr(e) {
 }
 //#endregion
 //#region node_modules/d3-geo/src/projection/conic.js
-function zr(e) {
-	var t = 0, n = F / 3, r = Rr(e), i = r(t, n);
+function Ii(e) {
+	var t = 0, n = P / 3, r = Fi(e), i = r(t, n);
 	return i.parallels = function(e) {
-		return arguments.length ? r(t = e[0] * z, n = e[1] * z) : [t * R, n * R];
+		return arguments.length ? r(t = e[0] * R, n = e[1] * R) : [t * L, n * L];
 	}, i;
 }
 //#endregion
 //#region node_modules/d3-geo/src/projection/mercator.js
-function Br(e, t) {
-	return [e, Dt(At((I + t) / 2))];
+function Li(e, t) {
+	return [e, kt(Mt((F + t) / 2))];
 }
-Br.invert = function(e, t) {
-	return [e, 2 * wt(Et(t)) - I];
+Li.invert = function(e, t) {
+	return [e, 2 * Tt(Dt(t)) - F];
 };
 //#endregion
 //#region node_modules/d3-geo/src/projection/conicConformal.js
-function Vr(e) {
-	return At((I + e) / 2);
+function Ri(e) {
+	return Mt((F + e) / 2);
 }
-function Hr(e, t) {
-	var n = H(e), r = e === t ? U(e) : Dt(n / H(t)) / Dt(Vr(t) / Vr(e)), i = n * Ot(Vr(e), r) / r;
-	if (!r) return Br;
+function zi(e, t) {
+	var n = V(e), r = e === t ? H(e) : kt(n / V(t)) / kt(Ri(t) / Ri(e)), i = n * At(Ri(e), r) / r;
+	if (!r) return Li;
 	function a(e, t) {
-		i > 0 ? t < -I + 1e-6 && (t = -I + P) : t > I - 1e-6 && (t = I - P);
-		var n = i / Ot(Vr(t), r);
-		return [n * U(r * e), i - n * H(r * e)];
+		i > 0 ? t < -F + 1e-6 && (t = -F + N) : t > F - 1e-6 && (t = F - N);
+		var n = i / At(Ri(t), r);
+		return [n * H(r * e), i - n * V(r * e)];
 	}
 	return a.invert = function(e, t) {
-		var n = i - t, a = kt(r) * W(e * e + n * n), o = V(e, B(n)) * kt(n);
-		return n * r < 0 && (o -= F * kt(e) * kt(n)), [o / r, 2 * wt(Ot(i / a, 1 / r)) - I];
+		var n = i - t, a = jt(r) * U(e * e + n * n), o = B(e, z(n)) * jt(n);
+		return n * r < 0 && (o -= P * jt(e) * jt(n)), [o / r, 2 * Tt(At(i / a, 1 / r)) - F];
 	}, a;
 }
-function Ur() {
-	return zr(Hr).scale(109.5).parallels([30, 30]);
+function Bi() {
+	return Ii(zi).scale(109.5).parallels([30, 30]);
 }
 //#endregion
 //#region node_modules/d3-geo/src/projection/naturalEarth1.js
-function Wr(e, t) {
+function Vi(e, t) {
 	var n = t * t, r = n * n;
 	return [e * (.8707 - .131979 * n + r * (-.013791 + r * (.003971 * n - .001529 * r))), t * (1.007226 + n * (.015085 + r * (-.044475 + .028874 * n - .005916 * r)))];
 }
-Wr.invert = function(e, t) {
+Vi.invert = function(e, t) {
 	var n = t, r = 25, i;
 	do {
 		var a = n * n, o = a * a;
 		n -= i = (n * (1.007226 + a * (.015085 + o * (-.044475 + .028874 * a - .005916 * o))) - t) / (1.007226 + a * (.045255 + o * (-.311325 + .259866 * a - .005916 * 11 * o)));
-	} while (B(i) > 1e-6 && --r > 0);
+	} while (z(i) > 1e-6 && --r > 0);
 	return [e / (.8707 + (a = n * n) * (-.131979 + a * (-.013791 + a * a * a * (.003971 - .001529 * a)))), n];
 };
-function Gr() {
-	return Lr(Wr).scale(175.295);
+function Hi() {
+	return Pi(Vi).scale(175.295);
 }
 //#endregion
 //#region node_modules/topojson-client/src/identity.js
-function Kr(e) {
+function Ui(e) {
 	return e;
 }
 //#endregion
 //#region node_modules/topojson-client/src/transform.js
-function qr(e) {
-	if (e == null) return Kr;
+function Wi(e) {
+	if (e == null) return Ui;
 	var t, n, r = e.scale[0], i = e.scale[1], a = e.translate[0], o = e.translate[1];
 	return function(e, s) {
 		s || (t = n = 0);
@@ -1795,21 +1955,21 @@ function qr(e) {
 }
 //#endregion
 //#region node_modules/topojson-client/src/reverse.js
-function Jr(e, t) {
+function Gi(e, t) {
 	for (var n, r = e.length, i = r - t; i < --r;) n = e[i], e[i++] = e[r], e[r] = n;
 }
 //#endregion
 //#region node_modules/topojson-client/src/feature.js
-function Yr(e, t) {
+function Ki(e, t) {
 	return typeof t == "string" && (t = e.objects[t]), t.type === "GeometryCollection" ? {
 		type: "FeatureCollection",
 		features: t.geometries.map(function(t) {
-			return Xr(e, t);
+			return qi(e, t);
 		})
-	} : Xr(e, t);
+	} : qi(e, t);
 }
-function Xr(e, t) {
-	var n = t.id, r = t.bbox, i = t.properties == null ? {} : t.properties, a = Zr(e, t);
+function qi(e, t) {
+	var n = t.id, r = t.bbox, i = t.properties == null ? {} : t.properties, a = Ji(e, t);
 	return n == null && r == null ? {
 		type: "Feature",
 		properties: i,
@@ -1827,12 +1987,12 @@ function Xr(e, t) {
 		geometry: a
 	};
 }
-function Zr(e, t) {
-	var n = qr(e.transform), r = e.arcs;
+function Ji(e, t) {
+	var n = Wi(e.transform), r = e.arcs;
 	function i(e, t) {
 		t.length && t.pop();
 		for (var i = r[e < 0 ? ~e : e], a = 0, o = i.length; a < o; ++a) t.push(n(i[a], a));
-		e < 0 && Jr(t, o);
+		e < 0 && Gi(t, o);
 	}
 	function a(e) {
 		return n(e);
@@ -1883,4 +2043,98 @@ function Zr(e, t) {
 	return l(t);
 }
 //#endregion
-export { Yr as feature, Ur as geoConicConformal, xn as geoGraticule10, Gr as geoNaturalEarth1, br as geoPath, bt as select };
+//#region node_modules/topojson-client/src/stitch.js
+function Yi(e, t) {
+	var n = {}, r = {}, i = {}, a = [], o = -1;
+	t.forEach(function(n, r) {
+		var i = e.arcs[n < 0 ? ~n : n], a;
+		i.length < 3 && !i[1][0] && !i[1][1] && (a = t[++o], t[o] = n, t[r] = a);
+	}), t.forEach(function(e) {
+		var t = s(e), n = t[0], a = t[1], o, c;
+		if (o = i[n]) {
+			if (delete i[o.end], o.push(e), o.end = a, c = r[a]) {
+				delete r[c.start];
+				var l = c === o ? o : o.concat(c);
+				r[l.start = o.start] = i[l.end = c.end] = l;
+			} else r[o.start] = i[o.end] = o;
+		} else if (o = r[a]) {
+			if (delete r[o.start], o.unshift(e), o.start = n, c = i[n]) {
+				delete i[c.end];
+				var u = c === o ? o : c.concat(o);
+				r[u.start = c.start] = i[u.end = o.end] = u;
+			} else r[o.start] = i[o.end] = o;
+		} else o = [e], r[o.start = n] = i[o.end = a] = o;
+	});
+	function s(t) {
+		var n = e.arcs[t < 0 ? ~t : t], r = n[0], i;
+		return e.transform ? (i = [0, 0], n.forEach(function(e) {
+			i[0] += e[0], i[1] += e[1];
+		})) : i = n[n.length - 1], t < 0 ? [i, r] : [r, i];
+	}
+	function c(e, t) {
+		for (var r in e) {
+			var i = e[r];
+			delete t[i.start], delete i.start, delete i.end, i.forEach(function(e) {
+				n[e < 0 ? ~e : e] = 1;
+			}), a.push(i);
+		}
+	}
+	return c(i, r), c(r, i), t.forEach(function(e) {
+		n[e < 0 ? ~e : e] || a.push([e]);
+	}), a;
+}
+//#endregion
+//#region node_modules/topojson-client/src/mesh.js
+function Xi(e) {
+	return Ji(e, Zi.apply(this, arguments));
+}
+function Zi(e, t, n) {
+	var r, i, a;
+	if (arguments.length > 1) r = Qi(e, t, n);
+	else for (i = 0, r = Array(a = e.arcs.length); i < a; ++i) r[i] = i;
+	return {
+		type: "MultiLineString",
+		arcs: Yi(e, r)
+	};
+}
+function Qi(e, t, n) {
+	var r = [], i = [], a;
+	function o(e) {
+		var t = e < 0 ? ~e : e;
+		(i[t] || (i[t] = [])).push({
+			i: e,
+			g: a
+		});
+	}
+	function s(e) {
+		e.forEach(o);
+	}
+	function c(e) {
+		e.forEach(s);
+	}
+	function l(e) {
+		e.forEach(c);
+	}
+	function u(e) {
+		switch (a = e, e.type) {
+			case "GeometryCollection":
+				e.geometries.forEach(u);
+				break;
+			case "LineString":
+				s(e.arcs);
+				break;
+			case "MultiLineString":
+			case "Polygon":
+				c(e.arcs);
+				break;
+			case "MultiPolygon": l(e.arcs);
+		}
+	}
+	return u(t), i.forEach(n == null ? function(e) {
+		r.push(e[0].i);
+	} : function(e) {
+		n(e[0].g, e[e.length - 1].g) && r.push(e[0].i);
+	}), r;
+}
+//#endregion
+export { Ki as feature, _n as geoCentroid, Bi as geoConicConformal, fr as geoContains, gr as geoGraticule10, Hi as geoNaturalEarth1, _i as geoPath, Xi as mesh, bt as select };

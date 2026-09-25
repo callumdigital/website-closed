@@ -2,7 +2,8 @@ import TRIP from './data/trip.js';
 import { TZ } from './lib/places.js';
 import { DAY, key, canonCountry, plural, hav, parseCSV, buildTrip, geocodeMissing, clampToTrip, currentStopIndex } from './lib/trip.js';
 import { renderMap, inRegion } from './map.js';
-import { feature } from '../vendor/geo.js';
+import { feature, mesh, geoContains } from '../vendor/geo.js';
+import { REGIONS, regionOf, stopEmoji } from './lib/regions.js';
 import { photosEnabled, loadPhotos } from './lib/photos.js';
 
 const $ = id => document.getElementById(id);
@@ -22,8 +23,13 @@ const store = {
 };
 const geoCache = (() => { try { return JSON.parse(store.get('trip-geocache') || '{}'); } catch { return {}; } })();
 
-let trip, sel, world, clockTimer, mapView = 'world';
+let trip, sel, world, counties, clockTimer, mapView = 'world';
 const stopAt = t => trip.byDay.get(t) || null;
+// Which county (and so region) each stop is in, once the county shapes have loaded. Redone if a stop gets geocoded later.
+function placeStops() {
+  if (!counties) return;
+  trip.stops.forEach(s => { if (s.countyLL !== s.ll) { s.countyLL = s.ll; s.county = s.ll && counties.find(c => geoContains(c, s.ll)) || null; } });
+}
 let photosByDay = new Map(); // 'YYYY-MM-DD' → the travellers' uploads for that day
 const isoDay = t => new Date(t).toISOString().slice(0, 10);
 
@@ -90,6 +96,10 @@ function renderStats() {
   const { idx } = started ? mapState() : { idx: -1 }; // a stop only counts once they've landed there
   const done = trip.stops.slice(0, idx + 1);
   const countries = new Set(done.map(s => s.country)), allC = new Set(trip.stops.map(s => s.country));
+  // One country? Count its regions instead: 1/1 countries isn't much of a stat.
+  placeStops();
+  const regional = counties && allC.size === 1 && trip.stops.some(s => s.county);
+  const regions = new Set(done.map(s => s.county?.region).filter(Boolean)), allR = new Set(trip.stops.map(s => s.county?.region).filter(Boolean));
   // Distance along the located stops, starting from home (and back to it once they're home).
   const home = TRIP.home?.ll, last = trip.stops[trip.stops.length - 1];
   const pts = [...(home && done.length ? [home] : []), ...done.filter(s => s.ll).map(s => s.ll), ...(home && last && sel > last.end && trip.homeDays.size && !inAir(sel) && !liveFlight() ? [home] : [])];
@@ -97,7 +107,7 @@ function renderStats() {
   const dayN = started ? Math.round((sel - trip.start) / DAY) + 1 : 0;
   $('stats').innerHTML = [
     [dayN, `/${trip.days.length}`, 'Days on the road'],
-    [countries.size, `/${allC.size}`, 'Countries'],
+    regional ? [regions.size, `/${allR.size}`, 'Regions'] : [countries.size, `/${allC.size}`, 'Countries'],
     [done.length, `/${trip.stops.length}`, 'Cities'],
     [Math.round(km).toLocaleString('en-GB'), 'km', 'Travelled so far'],
   ].map(([a, b, c]) => `<div class="stat"><b>${a}<small>${b}</small></b><span>${c}</span></div>`).join('');
@@ -313,13 +323,16 @@ function renderStrip() {
 
 function renderCards() {
   const { idx } = mapState(), s = here(sel);
+  placeStops();
   $('cards').innerHTML = trip.stops.map(st => {
     const state = s && st.i === s.i ? 'now' : st.i <= idx ? 'done' : 'soon';
     const tag = { now: 'Here', done: 'Visited' }[state];
     const dates = `${fmt(st.start, { day: 'numeric', month: 'short' })} – ${fmt(st.end, { day: 'numeric', month: 'short' })}`;
     const pics = stopPhotos(st), cover = pics[pics.length - 1];
-    return `<button class="pc ${state}${cover ? ' has-pics' : ''}" data-i="${st.i}" title="${esc(st.city)}, ${esc(st.country)} · ${dates}">
-      ${cover ? `<img src="${esc(cover.url)}" alt="" loading="lazy">` : ''}${tag ? `<span class="tag">${tag}</span>` : ''}
+    // No photos yet: a little picture of the place instead.
+    const r = REGIONS[st.county?.region];
+    return `<button class="pc ${state}${cover ? ' has-pics' : ''}" data-i="${st.i}" title="${esc(st.city)}, ${esc(st.country)}${r ? ` · ${r.name}` : ''} · ${dates}">
+      ${cover ? `<img src="${esc(cover.url)}" alt="" loading="lazy">` : `<span class="emo" aria-hidden="true">${st.mystery ? '❓' : stopEmoji(st.city)}</span>`}${tag ? `<span class="tag">${tag}</span>` : ''}
       <span class="nm">${esc(st.city)}</span><span class="info">${plural(st.nights, 'day')}${pics.length ? ` · 📷 ${pics.length}` : ''}</span></button>`;
   }).join('');
 }
@@ -347,7 +360,7 @@ function drawMap() {
   const box = $('map').getBoundingClientRect();
   if (!box.width || !box.height) return;
   const hasAway = renderMap({
-    svgEl: $('svg'), box, fit: visibleArea(box.width, box.height), trip, sel, world, view: mapView, home: TRIP.home?.ll ? TRIP.home : null,
+    svgEl: $('svg'), box, fit: visibleArea(box.width, box.height), trip, sel, world, counties, view: mapView, home: TRIP.home?.ll ? TRIP.home : null,
     ...mapState(), flightProgress: liveFlight()?.progress ?? null, avatar, onPick: go,
   });
   $('viewToggle').style.display = hasAway ? '' : 'none';
@@ -472,4 +485,15 @@ if (!rows.length) {
     world = feature(w, w.objects.countries).features.filter(f => f.properties.name !== 'Antarctica');
     drawMap();
   }).catch(() => { /* map still works without country shading */ });
+  // County shapes for the zoomed-in view: shaded by region, and they colour the stop tiles.
+  fetch('vendor/taiwan-counties.json').then(r => r.json()).then(t => {
+    // Kinmen and Matsu hug China's coast and just read as clutter there, so they're left off.
+    const shown = c => !['Kinmen County', 'Lienchiang County'].includes(c.properties.COUNTYENG);
+    counties = feature(t, t.objects.counties).features.filter(shown);
+    counties.forEach(c => { c.region = regionOf(c); });
+    // Lines between regions, and the coast (edges with a county on one side only).
+    counties.borders = mesh(t, t.objects.counties, (a, b) => a !== b && regionOf(a) !== regionOf(b));
+    counties.coast = mesh(t, t.objects.counties, (a, b) => a === b && shown(a));
+    renderStats(); renderCards(); drawMap();
+  }).catch(() => { /* plain map without regions */ });
 }

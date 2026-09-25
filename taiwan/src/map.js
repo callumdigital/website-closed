@@ -2,6 +2,7 @@ import { select, geoPath, geoNaturalEarth1, geoConicConformal, geoGraticule10 } 
 import { key, hav } from './lib/trip.js';
 
 import TRIP from './data/trip.js';
+import { REGIONS } from './lib/regions.js';
 
 // The zoomed-in region (set in src/data/trip.js): which places count as "in" it, and how to draw it.
 const REGION = TRIP.region;
@@ -41,9 +42,10 @@ function drawFaces(sg, R, avatar) {
 /**
  * Draws the route map into `svgEl`, sized to `box`.
  * view: 'world' (flight map of the whole trip) | 'region' (zoomed in on TRIP.region). fit: optional [[x0,y0],[x1,y1]] the route must sit inside
- * (the part of the map not covered by floating panels). Returns whether the view toggle is relevant.
+ * (the part of the map not covered by floating panels). counties: optional county shapes, each with .region
+ * (plus .borders and .coast lines), for the zoomed-in view: the island in one colour, visited regions highlighted. Returns whether the view toggle is relevant.
  */
-export function renderMap({ svgEl, box, fit, trip, sel, idx, cur, home, atHome, flyingTo, flightProgress, world, view, avatar, onPick }) {
+export function renderMap({ svgEl, box, fit, trip, sel, idx, cur, home, atHome, flyingTo, flightProgress, world, counties, view, avatar, onPick }) {
   const W = box.width, H = box.height;
   const svg = select(svgEl).attr('viewBox', `0 0 ${W} ${H}`); svg.selectAll('*').remove();
   const hasAway = !!home || trip.stops.some(s => s.ll && !inRegion(s.ll));
@@ -69,15 +71,28 @@ export function renderMap({ svgEl, box, fit, trip, sel, idx, cur, home, atHome, 
   const planned = new Set(trip.stops.map(s => key(s.mapCountry)));
   const g = svg.append('g');
   g.append('path').attr('d', path(geoGraticule10())).attr('fill', 'none').attr('stroke', 'var(--graticule)').attr('stroke-width', .6).attr('stroke-dasharray', '2 3');
+  const byCounty = counties && !wide; // zoomed in: the counties take over the shading of the region itself
   if (world) g.selectAll('path.c').data(world).join('path').attr('class', 'c').attr('d', path)
     .attr('fill', d => {
       const k = key(d.properties.name);
+      if (byCounty && planned.has(k)) return 'var(--land)';
       return wide && home && k === key(home.country) ? 'var(--home-land)'
         : cur && k === key(cur.mapCountry) ? 'var(--accent-mid)'
         : visited.has(k) ? 'var(--accent-soft)'
         : planned.has(k) ? 'var(--planned-land)' : 'var(--land)';
     })
     .attr('stroke', 'var(--land-stroke)').attr('stroke-width', wide ? .5 : .8).attr('stroke-linejoin', 'round');
+  // The island in one colour, the regions they've reached highlighted, dashed lines between regions, and an inked coast.
+  const been = new Set(trip.stops.slice(0, idx + 1).map(s => s.county?.region).filter(Boolean));
+  if (byCounty) {
+    const fill = d => been.has(d.region) ? 'var(--region-on)' : 'var(--island)';
+    g.selectAll('path.county').data(counties).join('path').attr('class', 'county').attr('d', path)
+      .attr('fill', fill).attr('stroke', fill).attr('stroke-width', .6) // stroke = fill hides the seams between counties
+      .append('title').text(d => REGIONS[d.region]?.name ? `${REGIONS[d.region].name} Taiwan` : d.properties.COUNTYENG);
+    g.append('path').attr('d', path(counties.borders)).attr('fill', 'none').attr('stroke', 'var(--ink)').attr('stroke-opacity', .35)
+      .attr('stroke-width', 1).attr('stroke-dasharray', '3 3').attr('stroke-linejoin', 'round');
+    g.append('path').attr('d', path(counties.coast)).attr('fill', 'none').attr('stroke', 'var(--ink)').attr('stroke-width', 1.2).attr('stroke-linejoin', 'round');
+  }
 
   // Legs: short hops as gentle arcs, long-haul (>2500 km) as great-circle flight paths.
   const P = trip.stops.map((s, i) => shown[i] ? proj(s.ll) : null);
@@ -159,6 +174,16 @@ export function renderMap({ svgEl, box, fit, trip, sel, idx, cur, home, atHome, 
     }
   });
   if (curG) curG.raise(); // keep the faces on top of nearby pins
+
+  // Region names out in the sea beside each region, wherever they don't bump into a city label.
+  if (byCounty) Object.entries(REGIONS).forEach(([id, r]) => r.labels.some(([lon, lat, anchor]) => {
+    const p = proj([lon, lat]), lg = g.append('g').attr('class', 'region-name').attr('transform', `translate(${p})`);
+    const t = haloText(lg, r.name.toUpperCase(), 0, 0, anchor, '"DM Mono", monospace', small ? 10.5 : 12.5, 500, been.has(id) ? 'var(--accent)' : 'var(--muted)').attr('letter-spacing', '.24em');
+    const bb = t.node().getBBox(), box = { x: p[0] + bb.x - 3, y: p[1] + bb.y - 1, w: bb.width + 6, h: bb.height + 2 };
+    const inside = box.x >= 2 && box.y >= 2 && box.x + box.w <= edge && box.y + box.h <= H - 2;
+    if (!inside || taken.some(o => hit(box, o))) { lg.remove(); return false; }
+    t.node().previousSibling.remove(); taken.push(box); return true; // no backdrop needed out at sea
+  }));
 
   // In transit: the travellers riding a little cartoon plane halfway along the leg. The plane faces the way
   // they're going and tilts with the route (never upside down); their heads stay upright, and it gently bobs.
