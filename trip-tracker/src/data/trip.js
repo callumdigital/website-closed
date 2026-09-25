@@ -12,7 +12,7 @@ export default {
   takeoffTime: '00:00',
   // Daily photo uploads (see SETUP-PHOTOS.md). Paste these from Supabase → Project Settings → API.
   // Both are safe to publish: what people can do is locked down by the rules in supabase/setup.sql.
-  photos: { supabaseUrl: '', supabaseKey: '' },
+  photos: { supabaseUrl: 'https://axnfhpyiwgiokiyhrnek.supabase.co/rest/v1/ ', supabaseKey: 'sb_publishable_g3MO-Ha6S2RnprHM54o4fA_PUP7i3W6' },
   // Where the trip starts and ends: drawn on the map, not counted as a stop.
   home: { city: 'Wellington', country: 'New Zealand', ll: [174.7762, -41.2865] },
 };
