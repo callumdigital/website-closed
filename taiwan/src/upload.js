@@ -56,9 +56,10 @@ if (!photosEnabled) {
   $('signin').addEventListener('submit', async e => {
     e.preventDefault();
     status('signinStatus', 'Sending…');
+    // The link always comes back to …/upload.html (with or without .html typed), so the email template can spot this tracker.
     // shouldCreateUser: false → only accounts made in Supabase (Authentication → Users) get a link,
     // and they get the Magic Link email rather than "Confirm your email address".
-    const { error } = await sb.auth.signInWithOtp({ email: $('email').value.trim(), options: { emailRedirectTo: location.href.split('#')[0], shouldCreateUser: false } });
+    const { error } = await sb.auth.signInWithOtp({ email: $('email').value.trim(), options: { emailRedirectTo: new URL('upload.html', location.href).href, shouldCreateUser: false } });
     const notSetUp = error && /signup|not allowed|not found/i.test(error.message);
     status('signinStatus', !error ? '✉️ Check your email and tap the link (on this phone).'
       : notSetUp ? 'That email isn’t set up for photo uploads. Ask the site owner to add you.'
