@@ -60,7 +60,7 @@ if (!photosEnabled) {
     // and they get the Magic Link email rather than "Confirm your email address".
     const { error } = await sb.auth.signInWithOtp({ email: $('email').value.trim(), options: { emailRedirectTo: location.href.split('#')[0], shouldCreateUser: false } });
     const notSetUp = error && /signup|not allowed|not found/i.test(error.message);
-    status('signinStatus', !error ? '✉️ Check your email and tap the link (on this phone).'
+    status('signinStatus', !error ? '✉️ Check your email and tap the link (on this phone). If you haven’t recieved it, check your spam folder.'
       : notSetUp ? 'That email isn’t set up for photo uploads. Ask the site owner to add you.'
       : `Couldn't send the link: ${error.message}`, !error);
   });
