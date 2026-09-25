@@ -1,6 +1,6 @@
 Date,Country,City,Arrive,Depart
 Thu 05 Nov,NZ,Wellington > Auckland > Taipei,17:00,07:50
-Fri 06 Nov,Taiwan,Taipei,05:30,
+Fri 06 Nov,Taiwan,Taipei,,
 Sat 07 Nov,Taiwan,Taipei,,
 Sun 08 Nov,Taiwan,Taipei,,
 Mon 09 Nov,Taiwan,Taipei > Jiufen,,
@@ -8,13 +8,8 @@ Tue 10 Nov,Taiwan,Jiufen > Taipei > Taichung,,
 Wed 11 Nov,Taiwan,Taichung,,
 Thu 12 Nov,Taiwan,Taichung > Sun Moon Lake,,
 Fri 13 Nov,Taiwan,Sun Moon Lake,,
-Sat 14 Nov,Taiwan,Sun Moon Lake > Tainan,,
-Sun 15 Nov,Taiwan,Tainan,,
-Mon 16 Nov,Taiwan,Tainan > Kaohsiung,,
-Tue 17 Nov,Taiwan,Kaohsiung,,
-Wed 18 Nov,Taiwan,Kaohsiung > Hualien,,
-Thu 19 Nov,Taiwan,Hualien,,
-Fri 20 Nov,Taiwan,Hualien > Taipei,,
-Sat 21 Nov,Taiwan,Taipei,,
-Sun 22 Nov,Taiwan > NZ,Taipei > The sky,,23:30
-Mon 23 Nov,NZ,The sky > Auckland > Wellington,17:00,
+Sat 14 Nov,Taiwan,Sun Moon Lake > Taipei,,
+Sun 15 Nov,Taiwan,Taipei,,
+Mon 16 Nov,Taiwan,Taipei
+Sun 17 Nov,Taiwan > NZ,Taipei > The sky,,18:45
+Mon 18 Nov,NZ,The sky > Auckland > Wellington,17:10,
