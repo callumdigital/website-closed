@@ -194,27 +194,62 @@ function dayPhotoHtml(t) {
     ${pics.length > 1 ? `<span class="count">📷 ${pics.length}</span>` : ''}
     ${p.caption ? `<figcaption>${esc(p.caption)}</figcaption>` : ''}</figure>`;
 }
-let lb = { pics: [], i: 0 };
-function showLightbox() {
+// ── Photo gallery ─────────────────────────────────────────────────────────
+// A stop's photos across all its days, oldest first.
+function stopPhotos(st) {
+  const out = [];
+  for (let t = st.start; t <= st.end; t += DAY) out.push(...(photosByDay.get(isoDay(t)) || []));
+  return out;
+}
+// Opens the full-screen gallery at `photo`. It shows every photo from that photo's stop,
+// or just that day's photos on a day that isn't a stop (in the air, back home).
+let lb = { pics: [], i: 0, stop: null, t: null };
+function openGallery(t, photo) {
+  const st = stopAt(t);
+  const pics = st ? stopPhotos(st) : photosByDay.get(isoDay(t)) || [];
+  if (!pics.length) return;
+  lb = { pics, i: Math.max(0, photo ? pics.findIndex(p => p.id === photo.id) : pics.length - 1), stop: st, t };
+  const home = trip.homeDays.has(t) && TRIP.home;
+  $('lbEyebrow').textContent = st ? `Stop ${st.i + 1} of ${trip.stops.length}` : home ? 'Home' : 'On the move';
+  $('lbTitle').textContent = st ? (st.mystery ? `Somewhere in ${st.country}` : st.city) : home ? home.city : 'In the air ✈️';
+  const range = st && `${fmt(st.start, { day: 'numeric', month: 'short' })}${st.nights > 1 ? ' – ' + fmt(st.end, { day: 'numeric', month: 'short' }) : ''}`;
+  $('lbSub').innerHTML = st ? `${esc(st.country)} · <b>${plural(st.nights, 'day')}</b> there<br>${range} · ${plural(pics.length, 'photo')}`
+    : `${fmt(t, { weekday: 'long', day: 'numeric', month: 'long' })} · ${plural(pics.length, 'photo')}`;
+  $('lbThumbs').innerHTML = pics.length > 1 ? pics.map((p, i) => `<button type="button" data-i="${i}" aria-label="Photo ${i + 1}"><img src="${esc(p.url)}" alt="" loading="lazy"></button>`).join('') : '';
+  showPhoto();
+  if (!$('lightbox').open) $('lightbox').showModal();
+}
+function showPhoto() {
   const p = lb.pics[lb.i];
-  $('lbImg').src = p.url; $('lbImg').alt = p.caption || 'Photo from the day';
+  $('lbImg').src = p.url; $('lbImg').alt = p.caption || 'Trip photo';
+  $('lbDay').textContent = `${fmt(Date.parse(p.day), { weekday: 'long', day: 'numeric', month: 'long' })}${lb.pics.length > 1 ? ` · ${lb.i + 1} of ${lb.pics.length}` : ''}`;
   $('lbCap').textContent = p.caption || '';
   $('lbPrev').hidden = $('lbNext').hidden = lb.pics.length < 2;
+  $('lbThumbs').querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.i === lb.i));
 }
-// Laptop view: the newest photo of the day as a polaroid on the map.
+const stepPhoto = d => { lb.i = (lb.i + d + lb.pics.length) % lb.pics.length; showPhoto(); };
+
+// Laptop view: the day's newest photos as a row of polaroids on the map, overlapping only at the edges.
+// As many as fit beside the map (1–4) are shown; the last one says how many more there are.
+const PILE = [[10, -5], [0, 3], [14, -2], [4, 4]]; // [y offset, rotation] per card, left to right
 function renderPolaroid() {
-  const pics = photosByDay.get(isoDay(sel)) || [], p = pics[pics.length - 1];
-  $('polaroid').hidden = !p;
-  if (!p) return;
-  if ($('polImg').getAttribute('src') !== p.url) $('polImg').src = p.url;
-  $('polImg').alt = p.caption || 'Photo from the day';
-  $('polCap').textContent = p.caption || '';
-  $('polCount').hidden = pics.length < 2; $('polCount').textContent = `📷 ${pics.length}`;
-}
-function openLightbox() {
-  const pics = photosByDay.get(isoDay(sel)) || [];
-  if (!pics.length) return;
-  lb = { pics, i: pics.length - 1 }; showLightbox(); $('lightbox').showModal();
+  const pics = photosByDay.get(isoDay(sel)) || [], pile = $('polaroid');
+  pile.hidden = !pics.length;
+  if (!pics.length) { pile.innerHTML = ''; return; }
+  const css = getComputedStyle(pile);
+  const pw = parseFloat(css.getPropertyValue('--pw')) || 170, ph = parseFloat(css.getPropertyValue('--ph')) || 125;
+  const step = Math.round(pw * 0.85); // ~15% overlap
+  const room = $('side').getBoundingClientRect().left - $('topleft').getBoundingClientRect().left - 460; // leave the map ~460px
+  const fit = Math.max(1, Math.min(4, Math.floor((room - pw) / step) + 1));
+  const shown = pics.slice(-fit), extra = pics.length - shown.length;
+  pile.innerHTML = shown.map((p, k) => {
+    const [y, r] = shown.length === 1 ? [4, -3] : PILE[k];
+    return `<button class="pol" type="button" data-id="${esc(p.id)}" style="--x:${k * step + 8}px;--y:${y}px;--r:${r}deg;z-index:${k + 1}" aria-label="Open photo${p.caption ? ': ' + esc(p.caption) : ''}">
+      <img src="${esc(p.url)}" alt="" loading="lazy"><span>${esc(p.caption || '')}</span>
+      ${k === shown.length - 1 && extra ? `<em class="more">+${extra} more</em>` : ''}</button>`;
+  }).join('');
+  pile.style.width = `${pw + (shown.length - 1) * step + 24}px`;
+  pile.style.height = `${ph + 70}px`;
 }
 
 function renderStrip() {
@@ -247,7 +282,10 @@ function renderCards() {
     const state = s && st.i === s.i ? 'now' : st.i <= idx ? 'done' : 'soon';
     const tag = { now: 'Here', done: 'Visited' }[state];
     const dates = `${fmt(st.start, { day: 'numeric', month: 'short' })} – ${fmt(st.end, { day: 'numeric', month: 'short' })}`;
-    return `<button class="pc ${state}" data-t="${st.start}" title="${esc(st.city)}, ${esc(st.country)} · ${dates}">${tag ? `<span class="tag">${tag}</span>` : ''}${esc(st.city)}</button>`;
+    const pics = stopPhotos(st), cover = pics[pics.length - 1];
+    return `<button class="pc ${state}${cover ? ' has-pics' : ''}" data-i="${st.i}" title="${esc(st.city)}, ${esc(st.country)} · ${dates}">
+      ${cover ? `<img src="${esc(cover.url)}" alt="" loading="lazy">` : ''}${tag ? `<span class="tag">${tag}</span>` : ''}
+      <span class="nm">${esc(st.city)}</span><span class="info">${plural(st.nights, 'day')}${pics.length ? ` · 📷 ${pics.length}` : ''}</span></button>`;
   }).join('');
 }
 
@@ -294,16 +332,28 @@ function renderAll() { renderStats(); renderToday(); renderStrip(); renderCards(
 function go(t) { sel = clampToTrip(trip, t); mapView = autoView(sel); renderAll(); } // the toggle overrides until the day changes
 
 // Events
-$('todayBody').addEventListener('click', e => { if (e.target.closest('#daypic')) openLightbox(); });
-$('polaroid').addEventListener('click', openLightbox);
-$('polaroid').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(); } });
-$('todayBody').addEventListener('keydown', e => { if (e.target.closest('#daypic') && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openLightbox(); } });
-$('lbPrev').onclick = () => { lb.i = (lb.i - 1 + lb.pics.length) % lb.pics.length; showLightbox(); };
-$('lbNext').onclick = () => { lb.i = (lb.i + 1) % lb.pics.length; showLightbox(); };
+$('todayBody').addEventListener('click', e => { if (e.target.closest('#daypic')) openGallery(sel); });
+$('polaroid').addEventListener('click', e => {
+  const b = e.target.closest('.pol'); if (!b) return;
+  openGallery(sel, (photosByDay.get(isoDay(sel)) || []).find(p => p.id === b.dataset.id));
+});
+$('todayBody').addEventListener('keydown', e => { if (e.target.closest('#daypic') && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openGallery(sel); } });
+$('lbPrev').onclick = () => stepPhoto(-1);
+$('lbNext').onclick = () => stepPhoto(1);
 $('lbClose').onclick = () => $('lightbox').close();
-$('lightbox').addEventListener('click', e => { if (e.target === $('lightbox')) $('lightbox').close(); }); // tap outside the photo
+$('lbThumbs').addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (b) { lb.i = +b.dataset.i; showPhoto(); } });
+$('lbMap').onclick = () => { $('lightbox').close(); go(lb.stop ? Date.parse(lb.pics[lb.i].day) : lb.t); $('map').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); };
+$('lightbox').addEventListener('keydown', e => { if (e.key === 'ArrowLeft') stepPhoto(-1); if (e.key === 'ArrowRight') stepPhoto(1); });
+$('lightbox').addEventListener('click', e => { if (e.target.classList.contains('lb-media')) $('lightbox').close(); }); // tap the dark area beside the photo
 $('strip').addEventListener('click', e => { const b = e.target.closest('.day'); if (b) go(+b.dataset.t); });
-$('cards').addEventListener('click', e => { const c = e.target.closest('.pc'); if (c) { go(+c.dataset.t); $('map').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } });
+// A stop tile jumps the map there, and opens its photos if it has any.
+$('cards').addEventListener('click', e => {
+  const c = e.target.closest('.pc'); if (!c) return;
+  const st = trip.stops[+c.dataset.i];
+  go(st.start);
+  if (stopPhotos(st).length) openGallery(st.start, stopPhotos(st)[0]);
+  else $('map').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+});
 $('viewToggle').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; mapView = b.dataset.v; drawMap(); });
 $('prev').onclick = () => go(sel - DAY);
 $('next').onclick = () => go(sel + DAY);
@@ -362,7 +412,7 @@ if (!rows.length) {
   startCountdown();
   // The travellers' photos: load now, then check for new ones every few minutes.
   if (photosEnabled) {
-    const refresh = () => loadPhotos().then(m => { photosByDay = m; renderToday(); renderStrip(); drawMap(); }).catch(e => console.warn('Photos:', e.message));
+    const refresh = () => loadPhotos().then(m => { photosByDay = m; renderToday(); renderStrip(); renderCards(); drawMap(); }).catch(e => console.warn('Photos:', e.message));
     refresh(); setInterval(refresh, 5 * 60e3);
   }
   const fl = flight(realToday); // re-render the moment they land today

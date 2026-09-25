@@ -36,12 +36,8 @@
       <button data-v="world" title="Whole trip" aria-label="Whole trip"><span aria-hidden="true">🌏</span></button>
       <button data-v="europe" title="Europe" aria-label="Europe"><span aria-hidden="true">🇪🇺</span></button>
     </div>
-    <!-- The day's photo, pinned to the map like a polaroid (laptops; phones show it in the today card) -->
-    <figure class="polaroid" id="polaroid" role="button" tabindex="0" aria-label="Open the day's photos" hidden>
-      <img id="polImg" alt="">
-      <span class="count" id="polCount" hidden></span>
-      <figcaption id="polCap"></figcaption>
-    </figure>
+    <!-- The day's photos, a fanned pile of polaroids on the map (laptops; phones show them in the today card) -->
+    <div class="pile" id="polaroid" hidden></div>
   </div>
 
   <div class="stats card" id="stats"></div>
@@ -66,12 +62,24 @@
   </section>
 </main>
 
-<!-- Full-size view of a day's photos -->
-<dialog class="lightbox" id="lightbox" aria-label="Photo">
-  <img id="lbImg" alt="">
-  <p id="lbCap"></p>
-  <button class="lb-nav lb-prev" id="lbPrev" aria-label="Previous photo">←</button>
-  <button class="lb-nav lb-next" id="lbNext" aria-label="Next photo">→</button>
+<!-- Full-screen photo gallery for a stop: the photo, plus a panel about the place -->
+<dialog class="lightbox" id="lightbox" aria-label="Photos">
+  <div class="lb-media">
+    <img id="lbImg" alt="">
+    <button class="lb-nav lb-prev" id="lbPrev" aria-label="Previous photo">←</button>
+    <button class="lb-nav lb-next" id="lbNext" aria-label="Next photo">→</button>
+  </div>
+  <aside class="lb-panel">
+    <div class="eyebrow" id="lbEyebrow"></div>
+    <h2 id="lbTitle"></h2>
+    <p class="lb-sub" id="lbSub"></p>
+    <div class="lb-photo">
+      <div class="lb-day" id="lbDay"></div>
+      <p class="lb-cap" id="lbCap"></p>
+    </div>
+    <div class="lb-thumbs" id="lbThumbs"></div>
+    <button class="btn" id="lbMap">Show on the map</button>
+  </aside>
   <button class="lb-close" id="lbClose" aria-label="Close">✕</button>
 </dialog>
 <script type="module" src="src/main.js"></script>
