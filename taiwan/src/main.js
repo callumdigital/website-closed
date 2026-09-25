@@ -91,6 +91,19 @@ function flightRows(live) {
        <div class="row"><span>Flight</span><b class="fprog"><span class="fbar"><i style="width:${pct}%"></i></span>${pct}% of the way</b></div>`;
 }
 
+// The whole trip, there and back: for the "trip complete" panel.
+function tripTotals() {
+  const home = TRIP.home?.ll, pts = [...(home ? [home] : []), ...trip.stops.filter(s => s.ll).map(s => s.ll), ...(home ? [home] : [])];
+  let km = 0; for (let i = 1; i < pts.length; i++) km += hav(pts[i - 1], pts[i]);
+  return { km: Math.round(km) };
+}
+
+function doneHtml() {
+  const pair = /&| and /.test(TRIP.travellers || '');
+  return `<div class="done"><div class="eyebrow">Trip complete 🎉</div><div class="big">Welcome home${pair ? ', you two' : ''}!</div>
+    <div class="small">${plural(trip.days.length, 'day')} · ${plural(trip.stops.length, 'stop')} · ${tripTotals().km.toLocaleString('en-GB')} km</div></div>`;
+}
+
 function renderStats() {
   const started = Date.now() >= takeoffAt(); // everything reads 0 until they're off
   const { idx } = started ? mapState() : { idx: -1 }; // a stop only counts once they've landed there
@@ -160,7 +173,8 @@ function renderToday() {
     const when = d === 1 ? 'tomorrow' : `in ${plural(d, 'day')}`;
     nextHtml = `<div class="big">${esc(nxt.city)} ${when}</div><div class="small">· ${plural(nxt.nights, 'day')} there</div>`;
   } else if (trip.homeDays.has(sel)) {
-    nextHtml = `<div class="big">Trip complete 🎉</div><div class="small">· Welcome home, you two.</div>`;
+    // Back home: not an "up next" but a celebration, with the whole trip's numbers.
+    nextHtml = doneHtml();
   } else {
     nextHtml = `<div class="big">${TRIP.home ? 'Flying home to ' + esc(TRIP.home.city) : 'Home sweet home'}</div><div class="small">· Last stop of the trip — welcome back soon.</div>`;
   }
@@ -177,7 +191,7 @@ function renderToday() {
     ${dayPhotoHtml(sel)}
     <div class="rows">${rows}</div>
     ${wxPlace ? `<div class="weather" id="weather"><span class="wx-what">Checking the weather in ${esc(wxPlace.name)}…</span></div>` : ''}
-    <div class="next"><span class="eyebrow">Up next</span>${nextHtml}</div>`;
+    ${nextHtml.startsWith('<div class="done">') ? nextHtml : `<div class="next"><span class="eyebrow">Up next</span>${nextHtml}</div>`}`;
 
   renderPolaroid();
   if (wxPlace) showWeather(wxPlace, sel);
@@ -396,7 +410,12 @@ function sizeToday() {
     <div class="next"><span class="eyebrow">Up next</span><div class="big">${esc(city)} tomorrow</div><div class="small">· 5 days there</div></div></div>
     <div class="daynav"><button class="btn">.</button></div>`;
   card.parentNode.appendChild(probe);
-  card.style.setProperty('--today-h', Math.ceil(probe.getBoundingClientRect().height) + 'px');
+  const full = probe.getBoundingClientRect().height;
+  // The home-day version (weather + the trip-complete panel) can be the tallest instead.
+  probe.querySelector('.rows').remove();
+  probe.querySelector('.next').outerHTML = doneHtml();
+  probe.querySelector('.city').textContent = TRIP.home?.city || city;
+  card.style.setProperty('--today-h', Math.ceil(Math.max(full, probe.getBoundingClientRect().height)) + 'px');
   probe.remove();
 }
 function renderAll() { sizeToday(); renderStats(); renderToday(); renderStrip(); renderCards(); drawMap(); }
