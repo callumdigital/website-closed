@@ -53,6 +53,38 @@ function flight(t) {
 const inAir = t => { const f = flight(t); return !!f && (t !== realToday || Date.now() < f.lands); };
 const here = t => inAir(t) ? null : stopAt(t); // where to put the faces
 
+// Flights with both a Depart and an Arrive time, so the plane can track along the route as it flies.
+// Departure is in the time zone of where they're leaving from; the landing is the next Arrive on/after that day.
+// A travel day's route for display, without the "The sky" placeholders.
+const routeText = r => r.filter(p => !/^(the )?sky$|^in the air$/i.test(p)).map(esc).join(' → ');
+const homeTz = () => TZ[canonCountry(TRIP.home?.country || '')] || TRIP.todayTimeZone || 'Pacific/Auckland';
+function flightsWithTimes() {
+  const out = [];
+  for (const [d, mins] of trip.departures) {
+    let from = null; // the last place they were before this day
+    for (let t = d - DAY; t >= trip.start && !from; t -= DAY) from = stopAt(t) || (trip.homeDays.has(t) ? 'home' : null);
+    const tz = from && from !== 'home' ? TZ[from.mapCountry] || 'Europe/Paris' : homeTz();
+    const arrDay = [...trip.arrivals.keys()].filter(t => t >= d).sort((a, b) => a - b)[0];
+    const f = arrDay != null && flight(arrDay);
+    if (f) out.push({ depDay: d, arrDay, depMinutes: mins, departs: zoned(d, mins, tz), lands: f.lands });
+  }
+  return out;
+}
+// Today's flight, if they're on (or about to board) one right now: how far along it they are, 0 to 1.
+function liveFlight() {
+  if (sel !== realToday) return null;
+  const now = Date.now();
+  const f = flightsWithTimes().find(f => realToday >= f.depDay && realToday <= f.arrDay && now < f.lands);
+  return f ? { ...f, boarding: now < f.departs, progress: Math.max(0, Math.min(1, (now - f.departs) / (f.lands - f.departs))) } : null;
+}
+function flightRows(live) {
+  if (!live) return '';
+  const pct = Math.round(live.progress * 100);
+  return live.boarding ? `<div class="row"><span>Boarding</span><b>Takes off ${clock12(live.depMinutes)} local time</b></div>`
+    : `<div class="row"><span>Took off</span><b>${clock12(live.depMinutes)} local time</b></div>
+       <div class="row"><span>Flight</span><b class="fprog"><span class="fbar"><i style="width:${pct}%"></i></span>${pct}% of the way</b></div>`;
+}
+
 function renderStats() {
   const started = Date.now() >= takeoffAt(); // everything reads 0 until they're off
   const { idx } = started ? mapState() : { idx: -1 }; // a stop only counts once they've landed there
@@ -60,7 +92,7 @@ function renderStats() {
   const countries = new Set(done.map(s => s.country)), allC = new Set(trip.stops.map(s => s.country));
   // Distance along the located stops, starting from home (and back to it once they're home).
   const home = TRIP.home?.ll, last = trip.stops[trip.stops.length - 1];
-  const pts = [...(home && done.length ? [home] : []), ...done.filter(s => s.ll).map(s => s.ll), ...(home && last && sel > last.end && trip.homeDays.size ? [home] : [])];
+  const pts = [...(home && done.length ? [home] : []), ...done.filter(s => s.ll).map(s => s.ll), ...(home && last && sel > last.end && trip.homeDays.size && !inAir(sel) && !liveFlight() ? [home] : [])];
   let km = 0; for (let i = 1; i < pts.length; i++) km += hav(pts[i - 1], pts[i]);
   const dayN = started ? Math.round((sel - trip.start) / DAY) + 1 : 0;
   $('stats').innerHTML = [
@@ -78,10 +110,11 @@ function renderToday() {
   const whenLabel = isToday ? `Today · ${fmt(sel, { weekday: 'long', day: 'numeric', month: 'long' })}` : fmt(sel, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   let lede, city, country, rows = '';
   if (fl) {
-    lede = sel < realToday ? 'That day they flew to' : sel > realToday ? 'That day they’ll be flying to' : 'Up in the air ✈️ heading to';
+    lede = sel < realToday ? 'That day they flew to' : sel > realToday ? 'That day they’ll be flying to' : liveFlight()?.boarding ? 'Boarding soon 🛫 flying to' : 'Up in the air ✈️ heading to';
     city = fl.city; country = fl.country;
     const route = trip.routeByDay.get(sel);
-    rows = `${route ? `<div class="row"><span>Travel day</span><b>${route.map(esc).join(' → ')}</b></div>` : ''}
+    rows = `${route ? `<div class="row"><span>Travel day</span><b>${routeText(route)}</b></div>` : ''}
+      ${flightRows(liveFlight())}
       <div class="row"><span>${sel < realToday ? 'Landed' : 'Lands'}</span><b>${clock12(fl.minutes)} local time</b></div>`;
   } else if (s) {
     lede = sel === s.start && s.i > 0 ? 'Just arrived in'
@@ -96,7 +129,7 @@ function renderToday() {
     const dayIn = Math.round((sel - s.start) / DAY) + 1;
     const route = trip.routeByDay.get(sel);
     rows = `<div class="row"><span>Local time</span><b id="clock">—</b></div>
-      ${route ? `<div class="row"><span>Travel day</span><b>${route.map(esc).join(' → ')}</b></div>` : ''}
+      ${route ? `<div class="row"><span>Travel day</span><b>${routeText(route)}</b></div>` : ''}
       <div class="row"><span>${s.mystery ? 'Here for' : 'In ' + esc(s.city)}</span><b>Day ${dayIn} of ${s.nights}</b></div>
       <div class="row"><span>${s.nights > 1 ? 'Dates' : 'Date'}</span><b>${fmt(s.start, { day: 'numeric', month: 'short' })}${s.nights > 1 ? ' – ' + fmt(s.end, { day: 'numeric', month: 'short' }) : ''}</b></div>`;
   } else if (trip.homeDays.has(sel)) {
@@ -106,6 +139,9 @@ function renderToday() {
   } else {
     lede = 'Somewhere between'; const prev = trip.stops[idx];
     city = 'In the air ✈️'; country = `${prev ? prev.city : TRIP.home?.city || '?'} → ${nxt ? nxt.city : TRIP.home?.city || '?'}`;
+    const live = liveFlight();
+    if (live?.boarding) { lede = 'Boarding soon 🛫 in'; city = prev ? prev.city : TRIP.home?.city || '?'; country = `Flying to ${nxt ? nxt.city : TRIP.home?.city || '?'}`; }
+    rows = flightRows(live);
   }
   let nextHtml;
   if (fl) {
@@ -313,7 +349,7 @@ function drawMap() {
   if (!box.width || !box.height) return;
   const hasAway = renderMap({
     svgEl: $('svg'), box, fit: visibleArea(box.width, box.height), trip, sel, world, view: mapView, home: TRIP.home?.ll ? TRIP.home : null,
-    ...mapState(), avatar, onPick: go,
+    ...mapState(), flightProgress: liveFlight()?.progress ?? null, avatar, onPick: go,
   });
   $('viewToggle').style.display = hasAway ? '' : 'none';
   $('viewToggle').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === mapView));
@@ -363,6 +399,7 @@ new ResizeObserver(() => trip && drawMap()).observe($('map'));
 
 // Countdown over the map until take-off (day 1 at TRIP.takeoffTime, NZ time).
 function takeoffAt() {
+  if (trip.departures.has(trip.start)) return zoned(trip.start, trip.departures.get(trip.start), homeTz()); // day 1's Depart time
   const [hh, mm] = (TRIP.takeoffTime || '00:00').split(':').map(Number);
   return zoned(trip.start, (hh || 0) * 60 + (mm || 0), TRIP.todayTimeZone || 'Pacific/Auckland');
 }
@@ -415,6 +452,7 @@ if (!rows.length) {
     const refresh = () => loadPhotos().then(m => { photosByDay = m; renderToday(); renderStrip(); renderCards(); drawMap(); }).catch(e => console.warn('Photos:', e.message));
     refresh(); setInterval(refresh, 5 * 60e3);
   }
+  setInterval(() => { if (liveFlight()) { renderToday(); drawMap(); } }, 60e3); // keep the plane moving along the route
   const fl = flight(realToday); // re-render the moment they land today
   if (fl && Date.now() < fl.lands && fl.lands - Date.now() < 2 ** 31 - 1) setTimeout(() => { if (sel === realToday) go(sel); }, fl.lands - Date.now() + 1000);
   if (trip.stops.some(s => !s.ll)) {

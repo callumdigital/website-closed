@@ -53,6 +53,7 @@ const lastLeg = v => v.split('>').map(x => x.trim()).filter(Boolean);
  * (date / city / country, any order); with no header they're read as date, city, country.
  * Travel days can list a route like "London > Edinburgh": the last place is where they end up that day.
  * An optional Arrive column ("21:30") says when they land there; until then they show as in the air.
+ * An optional Depart column says when they take off (local time where they leave from).
  */
 export function parseCSV(text, near) {
   const rows = [], bad = [];
@@ -61,7 +62,7 @@ export function parseCSV(text, near) {
   let col = { date: 0, city: 1, country: 2 }, first = 0;
   const head = split(lines[0] || '').map(h => h.toLowerCase());
   if (head.some(h => h.includes('date'))) {
-    col = { date: head.findIndex(h => h.includes('date')), city: head.findIndex(h => h.includes('city')), country: head.findIndex(h => h.includes('country')), arrive: head.findIndex(h => h.includes('arriv')) };
+    col = { date: head.findIndex(h => h.includes('date')), city: head.findIndex(h => h.includes('city')), country: head.findIndex(h => h.includes('country')), arrive: head.findIndex(h => h.includes('arriv')), depart: head.findIndex(h => h.includes('depart')) };
     first = 1;
   }
   lines.forEach((line, i) => {
@@ -73,7 +74,8 @@ export function parseCSV(text, near) {
     const countries = lastLeg(cols[col.country] || '');
     const city = route[route.length - 1], country = countries[countries.length - 1] || '';
     const arrive = col.arrive >= 0 ? parseClock(cols[col.arrive]) : null; // local time they land, on a travel day
-    rows.push({ t: d, city, country, mapCountry: canonCountry(country), route: route.length > 1 ? route : null, arrive });
+    const depart = col.depart >= 0 ? parseClock(cols[col.depart]) : null; // local time they take off
+    rows.push({ t: d, city, country, mapCountry: canonCountry(country), route: route.length > 1 ? route : null, arrive, depart });
   });
   rows.sort((a, b) => a.t - b.t);
   return { rows, bad };
@@ -84,10 +86,11 @@ export function parseCSV(text, near) {
  * and days back in the home city aren't stops. "???" becomes a mystery stop with no map position.
  */
 export function buildTrip(rows, geoCache = {}, home = null) {
-  const stops = [], byDay = new Map(), routeByDay = new Map(), homeDays = new Set(), arrivals = new Map();
+  const stops = [], byDay = new Map(), routeByDay = new Map(), homeDays = new Set(), arrivals = new Map(), departures = new Map();
   rows.forEach(r => {
     if (r.route) routeByDay.set(r.t, r.route);
     if (r.arrive != null) arrivals.set(r.t, r.arrive);
+    if (r.depart != null) departures.set(r.t, r.depart);
     const k = key(r.city);
     if (IN_AIR.has(k)) return;
     if (home && k === key(home.city)) { homeDays.add(r.t); return; }
@@ -104,7 +107,7 @@ export function buildTrip(rows, geoCache = {}, home = null) {
   });
   const start = rows[0]?.t, end = rows[rows.length - 1]?.t;
   const days = []; if (rows.length) for (let t = start; t <= end; t += DAY) days.push(t);
-  return { stops, byDay, routeByDay, homeDays, arrivals, start, end, days };
+  return { stops, byDay, routeByDay, homeDays, arrivals, departures, start, end, days };
 }
 
 // Looks up cities missing from COORDS via OpenStreetMap (1 req/sec per their usage policy).

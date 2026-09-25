@@ -29,7 +29,8 @@ button{font-family:inherit;cursor:pointer;color:inherit}
 /* The travellers' cut-out heads: a shadow that hugs the cut-out, and a gentle bob */
 .faces{filter:drop-shadow(0 3px 4px rgba(42,37,32,.35));animation:bob 3s ease-in-out infinite}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
-@media (prefers-reduced-motion:reduce){.pulse{animation:none;opacity:0}.faces{animation:none}}
+.bob{animation:bob 2.4s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.pulse{animation:none;opacity:0}.faces,.bob{animation:none}}
 
 /* Title + view toggle, top left. Only the controls catch clicks, so the map stays pannable underneath. */
 .topleft{position:absolute;top:40px;left:56px;max-width:calc(100% - var(--side-w) - 150px);display:flex;flex-direction:column;align-items:flex-start;gap:36px;pointer-events:none}
@@ -72,6 +73,9 @@ h1 em{font-style:normal;color:var(--accent)}
 .wx-what>span:last-child{color:var(--ink);font-weight:500}
 .wx-icon{font-size:24px;line-height:1}
 .weather b{font-family:var(--serif);font-weight:400;font-size:26px;color:var(--ink);white-space:nowrap}
+.fprog{display:flex;align-items:center;gap:8px}
+.fbar{display:inline-block;width:70px;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.fbar i{display:block;height:100%;background:var(--accent)}
 .next{background:var(--accent-soft);border-radius:12px;padding:14px 18px;display:flex;flex-direction:column;gap:4px}
 .next .eyebrow{color:var(--accent-ink)}
 .next .big{font-family:var(--serif);font-size:24px;line-height:1.15;color:var(--accent-ink)}

@@ -39,7 +39,7 @@ function drawFaces(sg, R, avatar) {
  * view: 'world' (flight map of the whole trip) | 'europe'. fit: optional [[x0,y0],[x1,y1]] the route must sit inside
  * (the part of the map not covered by floating panels). Returns whether the view toggle is relevant.
  */
-export function renderMap({ svgEl, box, fit, trip, sel, idx, cur, home, atHome, flyingTo, world, view, avatar, onPick }) {
+export function renderMap({ svgEl, box, fit, trip, sel, idx, cur, home, atHome, flyingTo, flightProgress, world, view, avatar, onPick }) {
   const W = box.width, H = box.height;
   const svg = select(svgEl).attr('viewBox', `0 0 ${W} ${H}`); svg.selectAll('*').remove();
   const hasAway = !!home || trip.stops.some(s => s.ll && !inEU(s.ll));
@@ -156,16 +156,38 @@ export function renderMap({ svgEl, box, fit, trip, sel, idx, cur, home, atHome, 
   });
   if (curG) curG.raise(); // keep the faces on top of nearby pins
 
-  // In transit: a plane midway along the leg, pointing the way.
+  // In transit: the travellers riding a little cartoon plane halfway along the leg. The plane faces the way
+  // they're going and tilts with the route (never upside down); their heads stay upright, and it gently bobs.
   if (!cur && !atHome) {
     const L = legs[flyingTo ?? idx + 1];
     if (L) {
-      const len = L.getTotalLength(), m = L.getPointAtLength(len / 2), n = L.getPointAtLength(Math.min(len, len / 2 + 2));
-      const ang = Math.atan2(n.y - m.y, n.x - m.x) * 180 / Math.PI;
-      const pg = g.append('g').attr('transform', `translate(${m.x},${m.y}) rotate(${ang})`);
-      pg.append('circle').attr('r', 14).attr('fill', 'var(--card)').attr('stroke', 'var(--stamp)').attr('stroke-width', 1.5);
-      pg.append('path').attr('d', 'M9,0 L-3,-2 L-6,-9 L-8,-9 L-6,-2 L-9,-1.5 L-11,-4 L-12,-4 L-11,0 L-12,4 L-11,4 L-9,1.5 L-6,2 L-8,9 L-6,9 L-3,2 Z')
-        .attr('transform', 'translate(1.5,0)').attr('fill', 'var(--stamp)');
+      // Halfway along, unless we know how far through the flight they are right now.
+      const len = L.getTotalLength(), at = Math.max(0, Math.min(len - 2, len * (flightProgress ?? 0.5)));
+      const m = L.getPointAtLength(at), n = L.getPointAtLength(at + 2);
+      const dx = n.x - m.x, dy = n.y - m.y, left = dx < 0;
+      const tilt = Math.max(-20, Math.min(20, Math.atan2(dy, Math.abs(dx)) * 180 / Math.PI));
+      const bob = g.append('g').attr('transform', `translate(${m.x},${m.y})`).append('g').attr('class', 'bob');
+      // Heads first, so the plane's body covers their chins: they're sitting in it.
+      const heads = bob.append('g').attr('transform', `rotate(${left ? -tilt : tilt})`);
+      if (avatar.src) {
+        const hh = small ? 32 : 38, hw = hh * avatar.ratio;
+        heads.append('image').attr('href', avatar.src).attr('x', -hw / 2).attr('y', -hh - 1).attr('width', hw).attr('height', hh)
+          .attr('preserveAspectRatio', 'xMidYMid meet').style('filter', 'drop-shadow(0 2px 2px rgba(42,37,32,.3))');
+      } else {
+        heads.append('circle').attr('cy', -15).attr('r', 11).attr('fill', 'var(--accent)').attr('stroke', 'var(--card)').attr('stroke-width', 2);
+        heads.append('text').text(avatar.initials).attr('y', -15).attr('dy', '.35em').attr('text-anchor', 'middle')
+          .attr('font-family', 'Figtree, sans-serif').attr('font-weight', 700).attr('font-size', 7.5).attr('fill', 'var(--card)');
+      }
+      const plane = bob.append('g').attr('transform', `scale(${left ? -1 : 1},1) rotate(${tilt})`);
+      [[-36, 1, 4.5], [-46, 3, 3.5], [-54, 1, 2.5]].forEach(([x, y, r]) =>
+        plane.append('circle').attr('cx', x).attr('cy', y).attr('r', r).attr('fill', '#fff').attr('stroke', 'var(--line)').attr('opacity', .9));
+      plane.append('path').attr('d', 'M-24,-3 L-31,-17 L-21,-17 L-12,-3 Z').attr('fill', 'var(--stamp)').attr('stroke', 'var(--ink)').attr('stroke-width', 1.2).attr('stroke-linejoin', 'round');
+      plane.append('path').attr('d', 'M-27,-2 Q-27,-7 -20,-7 L15,-7 Q28,-7 31,0 Q28,6 15,6 L-20,6 Q-27,6 -27,2 Z')
+        .attr('fill', 'var(--card)').attr('stroke', 'var(--ink)').attr('stroke-width', 1.5);
+      plane.append('path').attr('d', 'M-24,2.5 L24,2.5').attr('stroke', 'var(--stamp)').attr('stroke-width', 1.5);
+      plane.append('path').attr('d', 'M19,-6 Q26,-5 28,-1 L20,-1 Z').attr('fill', 'var(--accent-mid)');
+      [-12, -5, 2, 9].forEach(x => plane.append('circle').attr('cx', x).attr('cy', -2).attr('r', 1.7).attr('fill', 'var(--accent-mid)'));
+      plane.append('path').attr('d', 'M-6,3 L7,3 L-1,15 L-10,15 Z').attr('fill', 'var(--accent)').attr('stroke', 'var(--ink)').attr('stroke-width', 1.2).attr('stroke-linejoin', 'round');
     }
   }
   return hasAway;
