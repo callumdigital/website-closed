@@ -5,7 +5,7 @@ export default {
   // Cut-out of the traveller's head(s), shown as the "you are here" marker on the map.
   // Save it as a PNG with a transparent background in img/ and set the path, e.g. 'img/cal.png'.
   // Until then the initials show in a bubble.
-  avatar: 'img/callum.png',
+  avatar: 'img/callumherman.png',
   // Which time zone decides what "today" is on the site.
   todayTimeZone: 'Pacific/Auckland',
   // Fallback departure time on day 1 for the countdown, if the CSV has no Depart time for day 1.
