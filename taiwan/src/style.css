@@ -58,6 +58,8 @@ h1 em{font-style:normal;color:var(--accent)}
 
 .today{padding:24px 26px;display:flex;flex-direction:column;gap:16px;flex:0 1 auto;min-height:0;overflow-y:auto} /* scrolls inside rather than pushing the stops off-screen */
 .today-body{display:flex;flex-direction:column;gap:18px;position:relative}
+.today{height:var(--today-h,auto)} /* fixed on laptops (set in main.js), so the stops below don't jump around */
+.today .daynav{margin-top:auto} /* on lighter days the buttons stay at the bottom */
 .stampbadge{width:84px;height:84px;border-radius:50%;border:2px solid var(--stamp);outline:1px solid var(--stamp);outline-offset:3px;color:var(--stamp);display:flex;flex-direction:column;align-items:center;justify-content:center;transform:rotate(-9deg);position:absolute;top:-2px;right:0;text-transform:uppercase;letter-spacing:.1em;font-size:10.5px;font-weight:700;line-height:1.1;text-align:center}
 .stampbadge b{font-family:var(--serif);font-weight:400;font-size:28px;letter-spacing:0;line-height:1}
 .today-body>.eyebrow,.stampbadge+div{padding-right:100px}
@@ -79,10 +81,11 @@ h1 em{font-style:normal;color:var(--accent)}
 .fprog{display:flex;align-items:center;gap:8px}
 .fbar{display:inline-block;width:70px;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
 .fbar i{display:block;height:100%;background:var(--accent)}
-.next{background:var(--accent-soft);border-radius:12px;padding:14px 18px;display:flex;flex-direction:column;gap:4px}
-.next .eyebrow{color:var(--accent-ink)}
-.next .big{font-family:var(--serif);font-size:24px;line-height:1.15;color:var(--accent-ink)}
-.next .small{font-size:13.5px;color:var(--accent-ink)}
+/* Up next: one quiet line, not a highlight */
+.next{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;font-size:13.5px;color:var(--muted);min-width:0}
+.next .eyebrow{font-size:11px}
+.next .big{font-weight:600;color:var(--ink)}
+.next .small{font-size:13px}
 .daynav{display:flex;gap:8px}
 .daynav .primary{flex:1}
 
@@ -147,9 +150,6 @@ h1 em{font-style:normal;color:var(--accent)}
   .wx-icon{font-size:18px}
   .wx-what small{font-size:11.5px}
   .weather b{font-size:20px}
-  .next{padding:9px 14px;gap:2px}
-  .next .big{font-size:19px}
-  .next .small{font-size:12.5px}
   .daynav .btn{height:32px}
   .daynav .btn.icon{width:32px}
   .stopsbox{padding:14px 16px 16px;gap:10px;flex-basis:200px;min-height:200px}
@@ -272,7 +272,7 @@ body.up{min-height:100vh}
 
 /* ── madebycal layer ─────────────────────────────────────────────────── */
 /* Chunky rounded headlines, monospace everything else */
-h1,.city,.stat b,.next .big,.pc .nm,.stopsbox h2,.lb-panel h2,.up-card h2,.up-head h1,.cd-clock b,.weather b,.scrub-title,.pile .pol span,.lb-cap,.daypic figcaption{font-weight:700}
+h1,.city,.stat b,.pc .nm,.stopsbox h2,.lb-panel h2,.up-card h2,.up-head h1,.cd-clock b,.weather b,.scrub-title,.pile .pol span,.lb-cap,.daypic figcaption{font-weight:700}
 h1{letter-spacing:-.02em;text-shadow:0 0 14px var(--sea),0 0 4px var(--sea);font-size:clamp(36px,4.1vw,62px)}
 body{font-size:14px;font-synthesis:none} /* DM Mono tops out at Medium 500: never fake a bold */
 .eyebrow{font-family:var(--sans);letter-spacing:.08em}
@@ -288,8 +288,6 @@ body{font-size:14px;font-synthesis:none} /* DM Mono tops out at Medium 500: neve
 .stampbadge{background:var(--accent);color:#fff;border:none;outline:none;transform:rotate(-6deg);font-family:var(--sans);letter-spacing:.04em}
 .stampbadge b{font-family:var(--serif);font-weight:700;color:#fff}
 .country .dot{background:var(--yellow);box-shadow:0 0 0 1.5px var(--ink)}
-.next{background:var(--yellow);border:1.5px solid var(--ink)}
-.next .eyebrow,.next .big,.next .small{color:var(--ink)}
 .row{border-bottom-style:solid} .rows{border-top-style:solid}
 .fbar{background:var(--line)} .fbar i{background:var(--accent)}
 .day{color:var(--ink)} .day.sel{background:var(--accent)!important;color:#fff}

@@ -154,15 +154,15 @@ function renderToday() {
   }
   let nextHtml;
   if (fl) {
-    nextHtml = `<div class="big">${esc(fl.city)} at ${clock12(fl.minutes)}</div><div class="small">${fl.home ? 'Welcome home!' : `${esc(fl.country)} · ${plural(fl.stop.nights, 'day')} there`}</div>`;
+    nextHtml = `<div class="big">${esc(fl.city)} at ${clock12(fl.minutes)}</div><div class="small">· ${fl.home ? 'Welcome home!' : `${plural(fl.stop.nights, 'day')} there`}</div>`;
   } else if (nxt) {
     const d = Math.round((nxt.start - sel) / DAY);
     const when = d === 1 ? 'tomorrow' : `in ${plural(d, 'day')}`;
-    nextHtml = `<div class="big">${esc(nxt.city)} ${when}</div><div class="small">${esc(nxt.country)} · ${plural(nxt.nights, 'day')} there</div>`;
+    nextHtml = `<div class="big">${esc(nxt.city)} ${when}</div><div class="small">· ${plural(nxt.nights, 'day')} there</div>`;
   } else if (trip.homeDays.has(sel)) {
-    nextHtml = `<div class="big">Trip complete 🎉</div><div class="small">Welcome home, you two.</div>`;
+    nextHtml = `<div class="big">Trip complete 🎉</div><div class="small">· Welcome home, you two.</div>`;
   } else {
-    nextHtml = `<div class="big">${TRIP.home ? 'Flying home to ' + esc(TRIP.home.city) : 'Home sweet home'}</div><div class="small">Last stop of the trip — welcome back soon.</div>`;
+    nextHtml = `<div class="big">${TRIP.home ? 'Flying home to ' + esc(TRIP.home.city) : 'Home sweet home'}</div><div class="small">· Last stop of the trip — welcome back soon.</div>`;
   }
   const home = TRIP.home?.ll ? TRIP.home : null;
   const wxPlace = fl ? null : s && s.ll ? { name: s.city, ll: s.ll } : !s && home && trip.homeDays.has(sel) ? { name: home.city, ll: home.ll } : null;
@@ -376,7 +376,30 @@ function autoView(t) {
   return seen && inRegion(seen.ll) ? 'region' : 'world';
 }
 
-function renderAll() { renderStats(); renderToday(); renderStrip(); renderCards(); drawMap(); }
+// On laptops the today card keeps one height whatever the day holds: tall enough for a full day (travel route, stay,
+// weather, up next) using this trip's longest names, measured on a hidden copy. Phones keep their natural height.
+let sizedFor = '';
+function sizeToday() {
+  const card = document.querySelector('.today');
+  if (!matchMedia('(min-width:1101px)').matches) { card.style.removeProperty('--today-h'); sizedFor = ''; return; }
+  const longest = xs => xs.reduce((a, b) => (b.length > a.length ? b : a), '');
+  const city = longest(trip.stops.map(s => s.city)), route = longest([...trip.routeByDay.values()].map(routeText));
+  const k = `${card.clientWidth}|${innerHeight}|${city}|${route}`;
+  if (k === sizedFor) return; sizedFor = k;
+  const probe = card.cloneNode(false);
+  probe.removeAttribute('id'); probe.style.cssText = 'position:absolute;visibility:hidden;height:auto;left:0;top:0;width:' + card.offsetWidth + 'px';
+  probe.innerHTML = `<div class="today-body"><div class="eyebrow">Today · Wed, 30 Sep · 23:59 GMT+13</div>
+    <div class="stampbadge"><span>Day</span><b>88</b><span>of 88</span></div>
+    <div><p class="lede">Right now they’re in</p><div class="city">${esc(city)}</div><div class="country"><span class="dot"></span>Country</div></div>
+    <div class="rows"><div class="row"><span>Travel day</span><b>${route || 'A → B'}</b></div><div class="row"><span>Stay</span><b>Day 1 of 5 · 30 Sep – 4 Oct</b></div></div>
+    <div class="weather"><span class="wx-what"><span class="wx-icon">🌤️</span><span>Mostly clear<small>${esc(city)} right now · High 25° · Low 18°</small></span></span><b>22°C</b></div>
+    <div class="next"><span class="eyebrow">Up next</span><div class="big">${esc(city)} tomorrow</div><div class="small">· 5 days there</div></div></div>
+    <div class="daynav"><button class="btn">.</button></div>`;
+  card.parentNode.appendChild(probe);
+  card.style.setProperty('--today-h', Math.ceil(probe.getBoundingClientRect().height) + 'px');
+  probe.remove();
+}
+function renderAll() { sizeToday(); renderStats(); renderToday(); renderStrip(); renderCards(); drawMap(); }
 function go(t) { sel = clampToTrip(trip, t); mapView = autoView(sel); renderAll(); } // the toggle overrides until the day changes
 
 // Events
@@ -407,8 +430,8 @@ $('prev').onclick = () => go(sel - DAY);
 $('next').onclick = () => go(sel + DAY);
 $('goToday').onclick = () => go(realToday);
 document.addEventListener('keydown', e => { if ($('lightbox').open) return; if (e.key === 'ArrowLeft') go(sel - DAY); if (e.key === 'ArrowRight') go(sel + DAY); });
-new ResizeObserver(() => trip && drawMap()).observe($('map'));
-document.fonts?.ready.then(() => trip && drawMap()); // re-measure map labels once the web fonts have loaded
+new ResizeObserver(() => { if (trip) { drawMap(); sizeToday(); } }).observe($('map'));
+document.fonts?.ready.then(() => { if (trip) { drawMap(); sizeToday(); } }); // re-measure map labels once the web fonts have loaded
 
 // Countdown over the map until take-off (day 1 at TRIP.takeoffTime, NZ time).
 function takeoffAt() {
