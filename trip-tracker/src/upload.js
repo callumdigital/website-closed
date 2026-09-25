@@ -5,18 +5,25 @@ import { parseCSV, buildTrip } from './lib/trip.js';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-const views = ['notSetUp', 'signin', 'notAllowed', 'post', 'recent'];
+const views = ['loading', 'oops', 'notSetUp', 'signin', 'notAllowed', 'post', 'recent'];
 const show = (...ids) => views.forEach(v => { $(v).hidden = !ids.includes(v); });
 const status = (id, msg, ok) => { $(id).textContent = msg; $(id).classList.toggle('ok', !!ok); };
+// Anything unexpected goes on screen, so a traveller can screenshot it rather than see a blank page.
+const oops = err => { $('oopsText').textContent = String(err?.message || err); show('oops'); };
+const withTimeout = (p, ms, msg) => Promise.race([p, new Promise((_, no) => setTimeout(() => no(new Error(msg)), ms))]);
 
 if (!photosEnabled) {
   show('notSetUp');
 } else {
   // Implicit flow: the sign-in link works even if the email app opens it in a different browser.
-  const sb = createClient(base, TRIP.photos.supabaseKey.trim(), { auth: { flowType: 'implicit', persistSession: true, detectSessionInUrl: true } });
+  let sb;
+  try {
+    sb = createClient(base, TRIP.photos.supabaseKey.trim(), { auth: { flowType: 'implicit', persistSession: true, detectSessionInUrl: true } });
+  } catch (err) { oops(`Couldn't connect to the photo service: ${err.message}. Check photos in src/data/trip.js.`); throw err; }
 
-  // Which city a date is, from the itinerary, so they can see they've picked the right day.
-  const trip = await fetch('src/data/itinerary.csv', { cache: 'no-cache' }).then(r => r.text()).then(t => buildTrip(parseCSV(t).rows, {}, TRIP.home)).catch(() => null);
+  // Which city a date is, from the itinerary, so they can see they've picked the right day (loads in the background).
+  let trip = null;
+  fetch('src/data/itinerary.csv', { cache: 'no-cache' }).then(r => r.text()).then(t => { trip = buildTrip(parseCSV(t).rows, {}, TRIP.home); updateWhere(); }).catch(() => {});
   const whereOn = iso => {
     if (!trip) return '';
     const t = Date.parse(iso), s = trip.byDay.get(t);
@@ -32,13 +39,19 @@ if (!photosEnabled) {
     const email = session?.user?.email;
     if (email === lastUser) return; lastUser = email;
     if (!email) return show('signin');
-    const { data: allowed } = await sb.rpc('is_uploader');
+    const { data: allowed, error } = await sb.rpc('is_uploader');
+    if (error) return oops(`Couldn't check your access: ${error.message}`);
     if (!allowed) { $('whoami').textContent = email; return show('notAllowed'); }
     show('post', 'recent');
     loadRecent();
   }
   sb.auth.onAuthStateChange((_e, session) => { setTimeout(() => render(session)); }); // not inside the auth callback's lock
-  render((await sb.auth.getSession()).data.session);
+  // Show sign-in straight away if there's no saved session; some phone browsers stall the session check,
+  // so give up on it after 8 seconds rather than leave a blank page.
+  show('signin');
+  withTimeout(sb.auth.getSession(), 8000, 'Timed out checking your sign-in.')
+    .then(({ data }) => render(data.session))
+    .catch(() => { if (lastUser === null) render(null); }); // only if nothing has signed in meanwhile
 
   $('signin').addEventListener('submit', async e => {
     e.preventDefault();
