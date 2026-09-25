@@ -1,6 +1,6 @@
 import TRIP from './data/trip.js';
 import { createClient } from '../vendor/supabase.js';
-import { base, photosEnabled, publicUrl, resizeImage } from './lib/photos.js';
+import { base, photosEnabled, publicUrl, resizeImage, tripId } from './lib/photos.js';
 import { parseCSV, buildTrip } from './lib/trip.js';
 
 const $ = id => document.getElementById(id);
@@ -39,7 +39,7 @@ if (!photosEnabled) {
     const email = session?.user?.email;
     if (email === lastUser) return; lastUser = email;
     if (!email) return show('signin');
-    const { data: allowed, error } = await sb.rpc('is_uploader');
+    const { data: allowed, error } = await sb.rpc('can_upload', { p_trip: tripId });
     if (error) return oops(`Couldn't check your access: ${error.message}`);
     if (!allowed) { $('whoami').textContent = email; return show('notAllowed'); }
     show('post', 'recent');
@@ -84,10 +84,10 @@ if (!photosEnabled) {
   async function postOne(file, day, caption) {
     let blob;
     try { blob = await resizeImage(file); } catch { throw new Error(`“${file.name}” can’t be read here. Try a JPEG, or a screenshot of it.`); }
-    const path = `${day}/${crypto.randomUUID()}.jpg`;
+    const path = `${tripId}/${day}/${crypto.randomUUID()}.jpg`; // grouped by trip in storage
     const up = await sb.storage.from('photos').upload(path, blob, { contentType: 'image/jpeg', cacheControl: '31536000' });
     if (up.error) throw up.error;
-    const ins = await sb.from('photos').insert({ day, path, caption });
+    const ins = await sb.from('photos').insert({ trip: tripId, day, path, caption });
     if (ins.error) { await sb.storage.from('photos').remove([path]); throw ins.error; }
   }
 
@@ -115,7 +115,7 @@ if (!photosEnabled) {
   });
 
   async function loadRecent() {
-    const { data, error } = await sb.from('photos').select('id,day,path,caption').order('created_at', { ascending: false }).limit(12);
+    const { data, error } = await sb.from('photos').select('id,day,path,caption').eq('trip', tripId).order('created_at', { ascending: false }).limit(12);
     if (error) { $('recentList').innerHTML = `<li class="up-note">Couldn't load recent photos.</li>`; return; }
     $('recentList').innerHTML = data.length ? data.map(p => `<li>
       <img src="${esc(publicUrl(p.path))}" alt="" loading="lazy">

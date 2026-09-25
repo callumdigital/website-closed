@@ -5,13 +5,15 @@ const cfg = TRIP.photos || {};
 // Just the project address: tolerate a pasted API endpoint like https://x.supabase.co/rest/v1/
 export const base = (cfg.supabaseUrl || '').trim().replace(/\/(rest|auth|storage)\/v1.*$/, '').replace(/\/+$/, '');
 export const photosEnabled = !!(base && cfg.supabaseKey);
+// Which trip these photos belong to, so several trackers can share one Supabase project.
+export const tripId = (cfg.trip || 'europe').trim().toLowerCase();
 
 export const publicUrl = path => `${base}/storage/v1/object/public/photos/${path.split('/').map(encodeURIComponent).join('/')}`;
 
 // Everyone can read: a plain REST call with the public key, no library needed on the main page.
 // Returns Map of 'YYYY-MM-DD' → [{ id, url, caption, created_at }], oldest first.
 export async function loadPhotos() {
-  const r = await fetch(`${base}/rest/v1/photos?select=id,day,path,caption,created_at&order=created_at.asc`, {
+  const r = await fetch(`${base}/rest/v1/photos?select=id,day,path,caption,created_at&trip=eq.${encodeURIComponent(tripId)}&order=created_at.asc`, {
     headers: { apikey: cfg.supabaseKey }, // works with both the legacy anon key and the newer publishable key
   });
   if (!r.ok) throw new Error(`Photos: ${r.status}`);

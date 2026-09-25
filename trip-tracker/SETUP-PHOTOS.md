@@ -43,3 +43,17 @@ Send them `https://yourname.github.io/trip-tracker/upload.html`. On their phone:
 - **Free projects pause after about a week with no activity.** Visits to the site count, so this is only a risk before the trip. Open the site once before they fly to be safe.
 - **Photos are public.** Anyone with the site link can see them.
 - **To add another uploader later**, add their email to the list in `supabase/setup.sql`, run it again, and create their account (step 3b).
+
+## Sharing one Supabase project between trackers
+Both trackers (e.g. Europe and Taiwan) can use the **same** Supabase project. Each photo is tagged with its trip, and each site only shows and manages its own.
+
+1. In each site's `src/data/trip.js`, give `photos` the same `supabaseUrl` and `supabaseKey`, and its own `trip` name:
+   ```js
+   photos: { supabaseUrl: 'https://abcdefgh.supabase.co', supabaseKey: 'sb_publishable_…', trip: 'taiwan' },
+   ```
+   (No `trip` means `'europe'`.)
+2. In `supabase/setup.sql`, list who can post to which trip (one line per person per trip), then run it in the SQL Editor. It upgrades an existing project safely; old photos become `'europe'`.
+3. **Authentication → Users:** make sure everyone on the list has an account (Auto Confirm ticked).
+4. **Authentication → URL Configuration → Redirect URLs:** add each site, e.g. `https://callum.digital/taiwan/**`.
+
+The sign-in email templates are shared by every tracker on the project, so keep them general.
