@@ -1,191 +1,42 @@
-# Portfolio Website
+# Trip Tracker
 
-A modern, polished portfolio website built with HTML, CSS, and vanilla JavaScript. Inspired by the design language of Backseat and The Wall projects.
+Where in the world are Annalisa & Mitchell today? This is a static site that shows the travellers' location on any day of the trip. It's built from the Claude Design prototype in `design-handoff/`.
 
-## 🎨 Design Features
+It runs with **no build step**, so classic GitHub Pages ("Deploy from a branch") serves it as-is.
 
-- **Bold Typography**: Large, impactful headings with proper hierarchy
-- **Vibrant Colors**: Eye-catching color palette inspired by transport maps
-- **Card-Based Layout**: Clean, modular design system
-- **Smooth Animations**: Delightful micro-interactions throughout
-- **Responsive Design**: Works beautifully on all screen sizes
-- **Accessible**: Built with WCAG guidelines in mind
+## Publish (classic GitHub Pages)
 
-## 🚀 Quick Start
+Go to **Settings → Pages → Build and deployment → Source: Deploy from a branch**, then pick **main** and **/ (root)**.
 
-Simply open `index.html` in your browser - no build process needed!
+## Update the itinerary
 
-```bash
-# Option 1: Direct open
-open index.html
+Export the itinerary spreadsheet as CSV and replace `src/data/itinerary.csv` (columns `Date`, `Country`, `City`; dates like `Sat 03 Oct`). Commit, and the site updates within a few minutes.
 
-# Option 2: Local server (recommended)
-python3 -m http.server 8000
-# Then visit http://localhost:8000
+- Travel days: `London > Paris` (the last place is where they end up that day).
+- In the air: `The sky`. Unknown: `???`. Days back in the home city end the trip.
+- Optional `Arrive` column: the local time they land on a travel day (e.g. `21:30`). Until then the site shows them in the air.
+- Optional `Depart` column: the local time they take off (where they're leaving from). With both, the plane moves along the route in real time. Day 1's Depart time also sets the countdown.
 
-# Option 3: Using Node.js
-npx serve
+Leave a date out and it shows as "in the air". If a city isn't in `src/lib/places.js`, the site looks it up on OpenStreetMap when the page loads. Adding it to that file is faster and more reliable.
+
+Trip title, travellers and home city are set in `src/data/trip.js`.
+
+## Daily photos
+
+The travellers post a photo a day from `upload.html` (sign-in by email link). Photos are stored in Supabase; see **SETUP-PHOTOS.md** to switch it on.
+
+## Develop
+
+```sh
+npm install
+npm run dev     # local server (any static server works)
+npm test        # parser tests + checks the committed CSV parses
+npm run vendor  # only when upgrading d3/topojson/world-atlas: rebuilds vendor/
 ```
 
-## 📁 File Structure
+## Travellers' photo on the map
 
-```
-├── index.html          # Main HTML structure
-├── style.css           # All styles and design system
-├── script.js           # Interactive features and animations
-└── README.md           # This file
-```
+The "you are here" marker shows the travellers' initials until you add a photo:
 
-## ✨ Features
-
-### Navigation
-- Fixed header that hides on scroll down, shows on scroll up
-- Smooth scroll to sections
-- Responsive mobile menu
-
-### Hero Section
-- Large, bold typography
-- Animated floating cards
-- Clear call-to-action buttons
-
-### Work Section
-- Project cards with hover effects
-- Tags and descriptions
-- Grid layout that adapts to screen size
-
-### Skills Section
-- Colorful skill cards
-- Icon + description format
-- Responsive grid
-
-### About Section
-- Animated counter statistics
-- Personal story
-- Two-column layout
-
-### Contact Section
-- Multiple contact methods
-- Hover effects on cards
-- Links to social profiles
-
-### Hidden Features
-- **Konami Code Easter Egg**: Try ↑↑↓↓←→←→BA
-- **Dark Mode**: Press Cmd+Shift+D (or Ctrl+Shift+D)
-- **Console Messages**: Check your browser console
-- **Auto-hide Navigation**: Scroll behavior
-- **Smooth Reveals**: Elements animate in on scroll
-
-## 🎨 Design System
-
-### Colors
-- **Accent**: #FF00C3 (Pink)
-- **Yellow**: #FFD35A
-- **Blue**: #C9E7FF
-- **Teal**: #C4FFF9
-- **Cream**: #FFEFB7
-- And more vibrant options
-
-### Typography
-- System fonts for optimal performance
-- Font weights: 400 (regular), 600 (semibold), 700 (bold), 800 (extrabold)
-- Responsive text scaling using clamp()
-
-### Spacing Scale
-- XS: 0.5rem
-- SM: 1rem
-- MD: 1.5rem
-- LG: 2.5rem
-- XL: 4rem
-- 2XL: 6rem
-
-### Border Radius
-- SM: 8px
-- MD: 15px
-- LG: 20px
-- Full: 200px (pills)
-
-## 🛠️ Customization
-
-### Update Content
-
-1. **Personal Info**: Edit the hero section in `index.html`
-2. **Projects**: Modify the work section cards
-3. **Skills**: Update skill cards with your technologies
-4. **Contact**: Change links to your social profiles
-
-### Update Colors
-
-Colors are defined as CSS custom properties in `style.css`:
-
-```css
-:root {
-    --color-accent: #FF00C3;
-    --color-yellow: #FFD35A;
-    /* ... more colors */
-}
-```
-
-### Add Images
-
-Replace the emoji placeholders in project cards with actual images:
-
-```html
-<div class="project-image">
-    <img src="path/to/image.jpg" alt="Project name">
-</div>
-```
-
-## 🌐 Browser Support
-
-- Chrome/Edge (latest)
-- Firefox (latest)
-- Safari (latest)
-- Mobile browsers (iOS Safari, Chrome)
-
-## 📱 Responsive Breakpoints
-
-- Mobile: < 768px
-- Tablet: 768px - 968px
-- Desktop: > 968px
-
-## ⚡ Performance
-
-- No frameworks or libraries
-- Minimal JavaScript
-- Optimized CSS
-- Fast load times
-- Smooth 60fps animations
-
-## 🎯 Best Practices
-
-- Semantic HTML5
-- Accessible markup
-- SEO-friendly structure
-- Reduced motion support
-- High contrast mode support
-
-## 📝 To-Do
-
-Before going live, remember to:
-
-- [ ] Add your actual project images
-- [ ] Update all links with real URLs
-- [ ] Change contact information
-- [ ] Add a favicon
-- [ ] Test on multiple devices
-- [ ] Run accessibility audit
-- [ ] Optimize images
-- [ ] Add analytics (optional)
-
-## 🤝 Credits
-
-Design inspired by:
-- **Backseat** - Transport feedback app
-- **The Wall** - Community platform
-
-Built with ❤️ in Wellington
-
-## 📄 License
-
-Free to use and modify for your personal portfolio!
-
+1. Save a cut-out of their heads as a **PNG with a transparent background** in `img/`, e.g. `img/travellers.png`. Trim the empty space around the heads; about 400px wide is plenty.
+2. In `src/data/trip.js`, set `avatar: 'img/travellers.png'`.
