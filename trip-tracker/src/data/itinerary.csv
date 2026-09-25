@@ -1,49 +1,49 @@
 ﻿Date,Country,City,Arrive,Depart
 Sat 03 Oct,NZ > Singapore,Wellington > Auckland > Changi,21:30,06:00am
-Sun 04 Oct,Singapore > England,Changi > London
-Mon 05 Oct,England,London
-Tue 06 Oct,England,London
-Wed 07 Oct,England,London
-Thu 08 Oct,England,London
-Fri 09 Oct,England > Scotland,London > Edinburgh
-Sat 10 Oct,Scotland,Edinburgh
-Sun 11 Oct,Scotland,Edinburgh
-Mon 12 Oct,Scotland,Edinburgh > Inverness
-Tue 13 Oct,Scotland,Inverness
-Wed 14 Oct,Scotland,Inverness
-Thu 15 Oct,Scotland,Inverness
-Fri 16 Oct,Scotland > England,Inverness > ???
-Sat 17 Oct,England,???
-Sun 18 Oct,England,London
-Mon 19 Oct,England > France,London > Paris
-Tue 20 Oct,France,Paris
-Wed 21 Oct,France,Paris
-Thu 22 Oct,France,Paris
-Fri 23 Oct,France > Germany,Paris > Karlsruhe > Baden-Baden
-Sat 24 Oct,Germany,Baden-Baden > Freiburg
-Sun 25 Oct,Germany,Freiburg
-Mon 26 Oct,Germany,Freiburg
-Tue 27 Oct,Germany > Switzerland,Freiburg > Lucerne > Interlaken
-Wed 28 Oct,Switzerland,Interlaken
-Thu 29 Oct,Switzerland,Interlaken
-Fri 30 Oct,Switzerland,Interlaken
-Sat 31 Oct,Switzerland > Italy,Interlaken > Milan > Florence
-Sun 01 Nov,Italy,Florence
-Mon 02 Nov,Italy,Florence
-Tue 03 Nov,Italy,Florence
-Wed 04 Nov,Italy,Florence > Rome
-Thu 05 Nov,Italy,Rome
-Fri 06 Nov,Italy,Rome
-Sat 07 Nov,Italy,Rome
-Sun 08 Nov,Italy,Rome
-Mon 09 Nov,Italy,Rome
-Tue 10 Nov,Italy > Greece,Rome > Athens
-Wed 11 Nov,Greece,Athens
-Thu 12 Nov,Greece,Athens
-Fri 13 Nov,Greece,Athens
-Sat 14 Nov,Greece,Athens
-Sun 15 Nov,Greece,Athens
-Mon 16 Nov,Greece > England,Athens > London
-Tue 17 Nov,England > China,London > Beijing
-Wed 18 Nov,China > The sky,Beijing > The sky
-Thu 19 Nov,The sky > NZ,The sky > Auckland > Wellington
+Sun 04 Oct,Singapore > England,Changi > London,,
+Mon 05 Oct,England,London,,
+Tue 06 Oct,England,London,,
+Wed 07 Oct,England,London,,
+Thu 08 Oct,England,London,,
+Fri 09 Oct,England > Scotland,London > Edinburgh,,
+Sat 10 Oct,Scotland,Edinburgh,,
+Sun 11 Oct,Scotland,Edinburgh,,
+Mon 12 Oct,Scotland,Edinburgh > Inverness,,
+Tue 13 Oct,Scotland,Inverness,,
+Wed 14 Oct,Scotland,Inverness,,
+Thu 15 Oct,Scotland,Inverness,,
+Fri 16 Oct,Scotland > England,Inverness > ???,,
+Sat 17 Oct,England,???,,
+Sun 18 Oct,England,London,,
+Mon 19 Oct,England > France,London > Paris,,
+Tue 20 Oct,France,Paris,,
+Wed 21 Oct,France,Paris,,
+Thu 22 Oct,France,Paris,,
+Fri 23 Oct,France > Germany,Paris > Karlsruhe > Baden-Baden,,
+Sat 24 Oct,Germany,Baden-Baden > Freiburg,,
+Sun 25 Oct,Germany,Freiburg,,
+Mon 26 Oct,Germany,Freiburg,,
+Tue 27 Oct,Germany > Switzerland,Freiburg > Lucerne > Interlaken,,
+Wed 28 Oct,Switzerland,Interlaken,,
+Thu 29 Oct,Switzerland,Interlaken,,
+Fri 30 Oct,Switzerland,Interlaken,,
+Sat 31 Oct,Switzerland > Italy,Interlaken > Milan > Florence,,
+Sun 01 Nov,Italy,Florence,,
+Mon 02 Nov,Italy,Florence,,
+Tue 03 Nov,Italy,Florence,,
+Wed 04 Nov,Italy,Florence > Rome,,
+Thu 05 Nov,Italy,Rome,,
+Fri 06 Nov,Italy,Rome,,
+Sat 07 Nov,Italy,Rome,,
+Sun 08 Nov,Italy,Rome,,
+Mon 09 Nov,Italy,Rome,,
+Tue 10 Nov,Italy > Greece,Rome > Athens,,
+Wed 11 Nov,Greece,Athens,,
+Thu 12 Nov,Greece,Athens,,
+Fri 13 Nov,Greece,Athens,,
+Sat 14 Nov,Greece,Athens,,
+Sun 15 Nov,Greece,Athens,,
+Mon 16 Nov,Greece > England,Athens > London,,
+Tue 17 Nov,England > China,London > Beijing,,
+Wed 18 Nov,China > The sky,Beijing > The sky,,
+Thu 19 Nov,The sky > NZ,The sky > Auckland > Wellington,,
