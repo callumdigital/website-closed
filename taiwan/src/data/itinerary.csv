@@ -1,6 +1,6 @@
-Date,Country,City,Arrive,Depart
-Fri 25 Sep, NZ > Australia, Wellington > Melbourne,16:00,14:00
-Thu 05 Nov,NZ > Taiwan,Wellington > Auckland > Taipei,17:00,07:50
+Date,Country,City,Depart,Depart
+Fri 25 Sep, NZ > Australia, Wellington > Melbourne,14:00,16:00
+Thu 05 Nov,NZ > Taiwan,Wellington > Auckland > Taipei,07:50,17:00
 Fri 06 Nov,Taiwan,Taipei,,
 Sat 07 Nov,Taiwan,Taipei,,
 Sun 08 Nov,Taiwan,Taipei,,
@@ -12,5 +12,5 @@ Fri 13 Nov,Taiwan,Sun Moon Lake,,
 Sat 14 Nov,Taiwan,Sun Moon Lake > Taipei,,
 Sun 15 Nov,Taiwan,Taipei,,
 Mon 16 Nov,Taiwan,Taipei,,
-Tue 17 Nov,Taiwan > NZ,Taipei > The sky,,18:45
-Wed 18 Nov,NZ,The sky > Auckland > Wellington,17:10,
+Tue 17 Nov,Taiwan > NZ,Taipei > The sky,18:45,
+Wed 18 Nov,NZ,The sky > Auckland > Wellington,,17:10
