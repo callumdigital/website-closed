@@ -18,6 +18,12 @@ About 20 minutes, once. You'll end up with a private page (`upload.html`) where 
 2. **Site URL**: your site's address, e.g. `https://yourname.github.io/trip-tracker/`
 3. Under **Redirect URLs**, click **Add URL** and add: `https://yourname.github.io/trip-tracker/upload.html`
 
+## 3b. Create the uploaders' accounts
+So they get a **Magic Link** email (not "Confirm your email address"), and so only they can request links:
+1. **Authentication** → **Users** → **Add user** → **Create new user**.
+2. Enter their email, make up any password (it's never used), and tick **Auto Confirm User**.
+3. Repeat for each person on the uploaders list (including you, for testing).
+
 ## 4. Connect the site
 1. Open **Project Settings** → **API Keys** (or **API**). Copy the **Project URL** and the **publishable** key (older projects call it the **anon public** key). Don't copy the secret or service_role key.
 2. In `src/data/trip.js`, fill them in:
@@ -36,4 +42,4 @@ Send them `https://yourname.github.io/trip-tracker/upload.html`. On their phone:
 - **Sign-in emails are limited** to a few per hour on Supabase's free email service. Fine for two people signing in once each, but don't spam the button.
 - **Free projects pause after about a week with no activity.** Visits to the site count, so this is only a risk before the trip. Open the site once before they fly to be safe.
 - **Photos are public.** Anyone with the site link can see them.
-- **To add another uploader later**, add their email to the list in `supabase/setup.sql` and run it again.
+- **To add another uploader later**, add their email to the list in `supabase/setup.sql`, run it again, and create their account (step 3b).

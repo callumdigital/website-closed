@@ -1,6 +1,6 @@
 import TRIP from './data/trip.js';
 import { createClient } from '../vendor/supabase.js';
-import { photosEnabled, publicUrl, resizeImage } from './lib/photos.js';
+import { base, photosEnabled, publicUrl, resizeImage } from './lib/photos.js';
 import { parseCSV, buildTrip } from './lib/trip.js';
 
 const $ = id => document.getElementById(id);
@@ -13,7 +13,7 @@ if (!photosEnabled) {
   show('notSetUp');
 } else {
   // Implicit flow: the sign-in link works even if the email app opens it in a different browser.
-  const sb = createClient(TRIP.photos.supabaseUrl, TRIP.photos.supabaseKey, { auth: { flowType: 'implicit', persistSession: true, detectSessionInUrl: true } });
+  const sb = createClient(base, TRIP.photos.supabaseKey.trim(), { auth: { flowType: 'implicit', persistSession: true, detectSessionInUrl: true } });
 
   // Which city a date is, from the itinerary, so they can see they've picked the right day.
   const trip = await fetch('src/data/itinerary.csv', { cache: 'no-cache' }).then(r => r.text()).then(t => buildTrip(parseCSV(t).rows, {}, TRIP.home)).catch(() => null);
@@ -43,8 +43,13 @@ if (!photosEnabled) {
   $('signin').addEventListener('submit', async e => {
     e.preventDefault();
     status('signinStatus', 'Sending…');
-    const { error } = await sb.auth.signInWithOtp({ email: $('email').value.trim(), options: { emailRedirectTo: location.href.split('#')[0] } });
-    status('signinStatus', error ? `Couldn't send the link: ${error.message}` : '✉️ Check your email and tap the link (on this phone).', !error);
+    // shouldCreateUser: false → only accounts made in Supabase (Authentication → Users) get a link,
+    // and they get the Magic Link email rather than "Confirm your email address".
+    const { error } = await sb.auth.signInWithOtp({ email: $('email').value.trim(), options: { emailRedirectTo: location.href.split('#')[0], shouldCreateUser: false } });
+    const notSetUp = error && /signup|not allowed|not found/i.test(error.message);
+    status('signinStatus', !error ? '✉️ Check your email and tap the link (on this phone).'
+      : notSetUp ? 'That email isn’t set up for photo uploads. Ask the site owner to add you.'
+      : `Couldn't send the link: ${error.message}`, !error);
   });
   document.querySelectorAll('[data-signout]').forEach(b => b.addEventListener('click', () => sb.auth.signOut()));
 

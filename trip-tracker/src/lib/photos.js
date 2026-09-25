@@ -2,7 +2,8 @@ import TRIP from '../data/trip.js';
 
 // Daily photos live in Supabase (table `photos` + public storage bucket `photos`; see supabase/setup.sql).
 const cfg = TRIP.photos || {};
-const base = (cfg.supabaseUrl || '').replace(/\/+$/, '');
+// Just the project address: tolerate a pasted API endpoint like https://x.supabase.co/rest/v1/
+export const base = (cfg.supabaseUrl || '').trim().replace(/\/(rest|auth|storage)\/v1.*$/, '').replace(/\/+$/, '');
 export const photosEnabled = !!(base && cfg.supabaseKey);
 
 export const publicUrl = path => `${base}/storage/v1/object/public/photos/${path.split('/').map(encodeURIComponent).join('/')}`;
