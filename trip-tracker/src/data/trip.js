@@ -5,7 +5,7 @@ export default {
   // Cut-out of the travellers' heads, shown as the "you are here" marker on the map.
   // Save it as a PNG with a transparent background in img/ and set the path, e.g. 'img/travellers.png'.
   // Until then their initials show in a bubble.
-  avatar: '',
+  avatar: 'img/travellers.png',
   // Which time zone decides what "today" is on the site.
   todayTimeZone: 'Pacific/Auckland',
   // Departure time (in todayTimeZone) on day 1, for the countdown over the map. e.g. '14:35' for the flight time.
