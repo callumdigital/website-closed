@@ -1,4 +1,4 @@
-import { select, geoPath, geoNaturalEarth1, geoConicConformal, geoGraticule10 } from '../vendor/geo.js';
+import { select, geoPath, geoNaturalEarth1, geoConicConformal, geoGraticule10, geoCentroid } from '../vendor/geo.js';
 import { key, hav } from './lib/trip.js';
 
 export const inEU = ll => ll[0] > -30 && ll[0] < 45 && ll[1] > 30;
@@ -131,11 +131,28 @@ export function renderMap({ svgEl, box, fit, trip, sel, idx, cur, home, atHome, 
     }
   });
 
+  // A mystery stop ("???") has no pin: the travellers just float in the middle of the country (its biggest landmass,
+  // so Great Britain rather than somewhere between it and the Shetlands). No marker, no label: just continuity.
+  let floatBox = null;
+  if (cur && !P[cur.i] && world) {
+    const c = world.find(d => key(d.properties.name) === key(cur.mapCountry));
+    const polys = c && (c.geometry.type === 'MultiPolygon' ? c.geometry.coordinates.map(coordinates => ({ type: 'Polygon', coordinates })) : [c.geometry]);
+    const main = polys && polys.reduce((a, b) => (path.area(b) > path.area(a) ? b : a));
+    const at = main && proj(geoCentroid(main));
+    if (at && at.every(isFinite)) {
+      curG = g.append('g').attr('transform', `translate(${at})`);
+      curG.append('title').text(`Somewhere in ${cur.country}`);
+      drawFaces(curG, R, avatar);
+      floatBox = { i: cur.i, x: at[0] - F.w / 2, y: at[1] - F.h / 2, w: F.w, h: F.h };
+    }
+  }
+
   // Labels: the current city first, then the rest. Each tries the right side, then the left,
   // and is dropped if both would collide with another label or pin (the dot's tooltip still names it).
   const taken = [];
   const hit = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
   P.forEach((p, i) => { if (p) { const [hw, hh] = cur && cur.i === i ? [F.w / 2 + 2, F.h / 2 + 2] : [pinR + 2, pinR + 2]; taken.push({ i, city: key(trip.stops[i].city), x: p[0] - hw, y: p[1] - hh, w: 2 * hw, h: 2 * hh }); } });
+  if (floatBox) taken.push(floatBox); // keep other labels off the floating faces
   const labelled = new Set(); // a city visited twice (e.g. London) shares one pin position and gets one label
   const gap = small ? 8 : 11, fs = small ? 12.5 : 16;
   const order = trip.stops.map((s, i) => i).filter(i => P[i]).sort((a, b) => (cur && b === cur.i) - (cur && a === cur.i));
