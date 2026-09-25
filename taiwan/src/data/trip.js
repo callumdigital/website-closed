@@ -1,7 +1,7 @@
 // Trip settings. The day-by-day itinerary lives in ./itinerary.csv (date, city, country per row).
 export default {
   title: 'Taiwan 2026',
-  travellers: 'Callum', // one name → "Where in the world is Cal?"; "A & B" → "…are A & B?"
+  travellers: 'Callum & Herman', // one name → "Where in the world is Cal?"; "A & B" → "…are A & B?"
   // Cut-out of the traveller's head(s), shown as the "you are here" marker on the map.
   // Save it as a PNG with a transparent background in img/ and set the path, e.g. 'img/cal.png'.
   // Until then the initials show in a bubble.
